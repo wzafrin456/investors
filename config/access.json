@@ -9,7 +9,14 @@
     },
     {
       "id": "leo@dokimo.ai",
-      "name": "Leo",
+      "name": "Leo Spiegel",
+      "token": "L9kPqR7sTuVwXyZ0123456789AbCdEfG",
+      "active": true,
+      "added_on": "2026-11-03"
+    },
+    {
+      "id": "leo@s22t.vc",
+      "name": "Leo Spiegel (S22T)",
       "token": "L9kPqR7sTuVwXyZ0123456789AbCdEfG",
       "active": true,
       "added_on": "2026-11-03"
@@ -51,4 +58,3 @@
     }
   ]
 }
-

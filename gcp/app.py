@@ -304,6 +304,13 @@ table.btable tbody tr:hover td{background:#fafbfc}
 .chip.ok{background:var(--quiet-soft);color:var(--quiet);font-weight:600}
 .chip.warn{background:var(--warning-soft);color:var(--warning);font-weight:600}
 .chip.crit{background:var(--critical-soft);color:var(--critical);font-weight:600}
+.qual-badge{font-size:10px;line-height:1.35;padding:3px 6px;border-radius:3px;font-weight:700;display:block;margin-top:5px}
+.qual-ok{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
+.qual-hold{background:#fffbeb;color:#92400e;border:1px solid #fde68a}
+.fup-box{background:#fffdf5;border:1px solid #e2d9b8;border-radius:4px;padding:6px 7px;margin:5px 0 6px}
+.fup-hdr{display:flex;justify-content:space-between;align-items:center;font-size:9.5px;text-transform:uppercase;letter-spacing:.05em;color:#6b5b27;font-weight:700;margin-bottom:3px}
+.fup-ta{width:100%;font:11.5px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:4px 6px;border:1px solid #dcd2ad;border-radius:3px;background:#ffffff;color:var(--ink);resize:vertical;min-height:62px}
+.fup-ta:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px rgba(44,95,124,.15)}
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:999;align-items:center;justify-content:center;padding:18px}
 .modal-box{background:#fff;border:1px solid var(--rule2);border-radius:8px;max-width:860px;width:100%;max-height:90vh;overflow-y:auto;padding:20px;box-shadow:0 20px 50px rgba(0,0,0,.25)}
 pre.memo{white-space:pre-wrap;background:var(--ground);border:1px solid var(--rule);padding:12px;border-radius:6px;font:12.5px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--ink);margin:8px 0}
@@ -314,6 +321,17 @@ def render_board_html() -> str:
     rows = investor_engine.get_all_investors(persist_csv=True)
     m = investor_engine.build_summary_metrics(rows)
     data_json = json.dumps(rows, ensure_ascii=False).replace("</", "<\\/")
+    leo_grant = next((g for g in access.load_grants() if "leo" in (g.get("id") or "").lower() or "leo" in (g.get("name") or "").lower()), None)
+    leo_tok = (leo_grant or {}).get("token", "L9kPqR7sTuVwXyZ0123456789AbCdEfG")
+    leo_url = f"https://dokimo-investors-aigeqnv5nq-uc.a.run.app/?token={leo_tok}"
+    leo_gmail = (
+        "https://mail.google.com/mail/?view=cm&fs=1&su="
+        + urllib.parse.quote("1-Click Access: Dokimo Investor Watch & Stage-Gated VC Fit Board")
+        + "&body="
+        + urllib.parse.quote(
+            f"Hi Leo,\n\nHere is your 1-click direct login link to the deduplicated Dokimo Investor Watch & VC Fit Board (filtered strictly to the {m['total_investors']} Right VCs for Dokimo, with 'Why They Would Want Dokimo' and 'The Value Pitch' for every fund):\n\n{leo_url}\n\nBest,\nWarren"
+        )
+    )
 
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -321,36 +339,60 @@ def render_board_html() -> str:
 <style>{SHARED_CSS}</style></head><body>
 <header class="masthead">
   <div>
-    <h1>🏛️ Dokimo Investor Watch — VC &amp; Strategic Fit Board</h1>
+    <h1>🏛️ Dokimo Investor Watch — Stage-Gated Right VCs Only (Zero Duplicates)</h1>
     <div class="sub">
-      All <b>{m['total_investors']}</b> investor records from Leo &amp; Warren's 4 tables enriched, deduplicated, and ranked by <b>Dokimo Fit Score (0–100)</b> for Explainable AI Regulatory Compliance &amp; Full-Population Control Validation.
+      Filtered strictly to the <b>{m['total_investors']} deduplicated RIGHT VCs</b> for Dokimo (1 row per fund — all hardware/semi VCs, Europe-only funds like Balderton, changed funds like Hummer Winblad, and hard passes like Khosla removed). Every fund includes <b>Why They Would Want Dokimo</b> and <b>The Value Pitch to Them</b>.
     </div>
   </div>
   <div class="runbox">
-    <b>Tier S (FinTech/RegTech Bullseye):</b> {html.escape(m['tier_s_rate'])}<br>
-    <b>Tier A (Enterprise AI &amp; B2B):</b> {html.escape(m['tier_a_rate'])}<br>
-    <b>Tier C (Hardware/Semi Deprioritize):</b> {html.escape(m['tier_c_rate'])}
+    <b>🟢 Tier S (Pitch Now · Pre-Seed/Seed):</b> {html.escape(m['tier_s_rate'])}<br>
+    <b>🔵 Tier A (Warm Intro / Bank CVC):</b> {html.escape(m['tier_a_rate'])}<br>
+    <b>⏳ Tier B (Hold for $1M ARR / Series A):</b> {html.escape(m['tier_b_rate'])}
   </div>
 </header>
 
+<div style="margin-top:12px;background:#eff6ff;border:1px solid #bfdbfe;border-left:4px solid #1e40af;border-radius:6px;padding:11px 14px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px">
+  <div>
+    <div style="font-size:12.5px;font-weight:700;color:#1e3a8a">🔑 Grant Access to Leo &amp; Team — 1-Click Direct Login Link</div>
+    <div style="font-size:11.5px;color:#334155;margin-top:2px">
+      Leo's 1-Click Link: <code id="leo-link-code" style="background:#fff;padding:2px 6px;border:1px solid #cbd5e1;border-radius:4px;font-weight:700;color:#0f172a">{html.escape(leo_url)}</code>
+    </div>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+    <button class="btn-sm pri" onclick="navigator.clipboard.writeText(document.getElementById('leo-link-code').textContent);this.textContent='✓ Copied Leo Link!'">📋 Copy Leo's 1-Click Link</button>
+    <a class="btn-sm ok" href="{html.escape(leo_gmail, quote=True)}" target="_blank" rel="noopener">✉️ Open Gmail to Send Leo Access</a>
+    <input id="grant-leo-email" type="email" placeholder="Or enter Leo's email to send invite..." style="padding:4px 8px;border:1px solid #93c5fd;border-radius:4px;font-size:12px;width:220px;background:#fff">
+    <button class="btn-sm" style="background:#1e40af;color:#fff;border-color:#1e40af;font-weight:600" onclick="grantAndEmailLeo()">🔑 Grant &amp; Email Link</button>
+    <a class="btn-sm" href="/access">Manage All Team Access →</a>
+    <span id="grant-leo-msg" style="font-size:11.5px;font-weight:700;color:#15803d"></span>
+  </div>
+</div>
+
 <div class="status">
-  <div><div class="k">Total Investors Parsed</div><div class="v">{m['total_investors']} <small>across 4 tables</small></div></div>
-  <div><div class="k">Tier S · Bullseye FinTech/RegTech</div><div class="v" style="color:var(--quiet)">{m['tier_s_count']} <small>({html.escape(m['tier_s_rate'].split('(')[1].rstrip(')'))})</small></div></div>
-  <div><div class="k">Tier A · Enterprise AI &amp; Cyber</div><div class="v" style="color:var(--accent)">{m['tier_a_count']} <small>({html.escape(m['tier_a_rate'].split('(')[1].rstrip(')'))})</small></div></div>
-  <div><div class="k">Tier B · Selective DeepTech</div><div class="v" style="color:var(--warning)">{m['tier_b_count']} <small>({html.escape(m['tier_b_rate'].split('(')[1].rstrip(')'))})</small></div></div>
-  <div><div class="k">Tier C · Semi/HW (Low Fit)</div><div class="v" style="color:var(--critical)">{m['tier_c_count']} <small>({html.escape(m['tier_c_rate'].split('(')[1].rstrip(')'))})</small></div></div>
-  <div><div class="k">Verified Direct Emails</div><div class="v">{m['with_email_count']} <small>of {m['total_investors']}</small></div></div>
-  <div><div class="k">Direct Mobile / Office Phones</div><div class="v">{m['with_phone_count']} <small>of {m['total_investors']}</small></div></div>
+  <div><div class="k">Right VCs (Deduplicated)</div><div class="v">{m['total_investors']} <small>1 row per fund</small></div></div>
+  <div><div class="k">🟢 Tier S · Pitch Now (Seed)</div><div class="v" style="color:var(--quiet)">{m['tier_s_count']} <small>({html.escape(m['tier_s_rate'].split('(')[1].rstrip(')'))})</small></div></div>
+  <div><div class="k">🔵 Tier A · Warm / Bank CVC</div><div class="v" style="color:var(--accent)">{m['tier_a_count']} <small>({html.escape(m['tier_a_rate'].split('(')[1].rstrip(')'))})</small></div></div>
+  <div><div class="k">⏳ Tier B · Hold for $1M ARR</div><div class="v" style="color:var(--warning)">{m['tier_b_count']} <small>({html.escape(m['tier_b_rate'].split('(')[1].rstrip(')'))})</small></div></div>
+  <div><div class="k">US / UK / EU Qualified</div><div class="v">{m['us_count']} US · {m['uk_count']} UK · {m['eu_count']} EU</div></div>
+  <div><div class="k">📧 Sep/Oct Tracked Outreach</div><div class="v" style="color:#1e40af">{m['leo_sep_oct_count']} <small>of {m['total_investors']} VCs</small></div></div>
+  <div><div class="k">Verified Emails &amp; LinkedIn</div><div class="v">{m['with_email_count']} <small>of {m['total_investors']} (100%)</small></div></div>
 </div>
 
 <div class="controls-wrap">
   <div class="controls">
-    <span class="lbl">Dokimo Fit</span>
-    <button class="f on" data-ftier="all" onclick="setFilter('tier','all',this)">All ({m['total_investors']})</button>
-    <button class="f" data-ftier="S" onclick="setFilter('tier','S',this)">★ Tier S: Bullseye FinTech / RegTech / Bank-LP ({m['tier_s_count']})</button>
-    <button class="f" data-ftier="A" onclick="setFilter('tier','A',this)">Tier A: Enterprise AI &amp; B2B ({m['tier_a_count']})</button>
-    <button class="f" data-ftier="B" onclick="setFilter('tier','B',this)">Tier B: Selective Frontier AI ({m['tier_b_count']})</button>
-    <button class="f" data-ftier="C" onclick="setFilter('tier','C',this)">Tier C: Semi / Hardware — Deprioritize ({m['tier_c_count']})</button>
+    <span class="lbl">Stage &amp; Fit</span>
+    <button class="f on" data-ftier="all" onclick="setFilter('tier','all',this)">All Right VCs ({m['total_investors']})</button>
+    <button class="f" data-ftier="S" onclick="setFilter('tier','S',this)">🟢 Tier S: PITCH NOW — Pre-Seed &amp; Seed Check-Writers ({m['tier_s_count']})</button>
+    <button class="f" data-ftier="A" onclick="setFilter('tier','A',this)">🔵 Tier A: Warm-Intro &amp; Strategic Bank CVCs ({m['tier_a_count']})</button>
+    <button class="f" data-ftier="B" onclick="setFilter('tier','B',this)">⏳ Tier B: Hold for $1M ARR / 3+ Bank Logos — Avoid 'Too Early' ({m['tier_b_count']})</button>
+  </div>
+  <div class="controls">
+    <span class="lbl">Region</span>
+    <button class="f on" onclick="setFilter('region','all',this)">All Qualified Regions ({m['total_investors']})</button>
+    <button class="f" onclick="setFilter('region','US',this)">🇺🇸 United States ({m['us_count']})</button>
+    <button class="f" onclick="setFilter('region','UK',this)">🇬🇧 United Kingdom — Transatlantic Qualified ({m['uk_count']})</button>
+    <button class="f" onclick="setFilter('region','EU',this)">🇪🇺 European Union — Transatlantic Qualified ({m['eu_count']})</button>
+    <button class="f" onclick="setFilter('region','IL / US',this)">🇮🇱/🇺🇸 Israel-US Cyber/FinTech Seed ({m['il_us_count']})</button>
   </div>
   <div class="controls">
     <span class="lbl">Our Contact</span>
@@ -358,15 +400,16 @@ def render_board_html() -> str:
     <button class="f" onclick="setFilter('owner','warren',this)">Warren ({m['warren_contact_count']})</button>
     <button class="f" onclick="setFilter('owner','leo',this)">Leo ({m['leo_contact_count']})</button>
     <button class="f" onclick="setFilter('owner','team',this)">Roman / Tanya / Sasha / Bryan / Doug</button>
-    <span class="lbl" style="margin-left:12px">Reachability</span>
+    <span class="lbl" style="margin-left:12px">Outreach &amp; Follow-Up</span>
     <button class="f on" onclick="setFilter('reach','all',this)">All</button>
-    <button class="f" onclick="setFilter('reach','email',this)">Has Direct Email ({m['with_email_count']})</button>
+    <button class="f" style="border-color:#1e40af;color:#1e40af;font-weight:600" onclick="setFilter('reach','sepoct',this)">📧 Leo &amp; Warren Sep/Oct Emails Tracked ({m['leo_sep_oct_count']})</button>
+    <button class="f" style="border-color:#b45309;color:#b45309;font-weight:600" onclick="setFilter('reach','followup',this)">📅 Follow-Up &amp; Action Queue ({m['followup_queue_count']})</button>
+    <button class="f" onclick="setFilter('reach','active',this)">Active Threads ({m['active_convo_count']})</button>
     <button class="f" onclick="setFilter('reach','phone',this)">Has Mobile / Phone ({m['with_phone_count']})</button>
-    <button class="f" onclick="setFilter('reach','active',this)">Active / Contacted ({m['active_convo_count']})</button>
   </div>
   <div class="controls">
     <span class="lbl">Search</span>
-    <input id="q-search" class="search" placeholder="Search fund, partner, portfolio (e.g. Socure, Alloy, Harvey, Citi, Canapi, Ribbit, QED), city, or contact..." oninput="renderRows()">
+    <input id="q-search" class="search" placeholder="Search fund, partner, portfolio (e.g. Socure, Alloy, Harvey, Citi, Mayfield, Patrick Salyer, Arvind, Ed Sim, 13books, CommerzVentures), region, or follow-up note..." oninput="renderRows()">
     <span id="shown-count" style="font-family:ui-monospace,monospace;font-size:12px;color:var(--ink2);font-weight:600;margin-left:8px"></span>
   </div>
 </div>
@@ -375,13 +418,13 @@ def render_board_html() -> str:
   <table class="btable">
     <thead>
       <tr>
-        <th style="width:4%">#</th>
-        <th style="width:15%">Fund &amp; Category</th>
-        <th style="width:15%">Partner, Email &amp; Phone</th>
-        <th style="width:7%">Fit &amp; Stage</th>
-        <th style="width:22%">Why Right (or Wrong) VC for Dokimo &amp; Portfolio</th>
-        <th style="width:15%">Bank LP Value &amp; Pitch Angle</th>
-        <th style="width:22%">Our Contact, Status &amp; 1-Click Actions</th>
+        <th style="width:3.5%">#</th>
+        <th style="width:13.5%">Fund &amp; Category</th>
+        <th style="width:14%">Partner, Email &amp; Phone</th>
+        <th style="width:11%">Stage, Fit &amp; Qualification Gate</th>
+        <th style="width:20%">Why They Would Want Dokimo &amp; Portfolio Fit</th>
+        <th style="width:16%">The Value Pitch to Them &amp; Bank LP Leverage</th>
+        <th style="width:22%">Follow-Up &amp; Next Action (Auto-Save) + 1-Click Outreach</th>
       </tr>
     </thead>
     <tbody id="inv-tbody"></tbody>
@@ -400,7 +443,7 @@ def render_board_html() -> str:
 
 <script>
 var INVESTORS = {data_json};
-var FILTERS = {{tier:'all', owner:'all', reach:'all'}};
+var FILTERS = {{tier:'all', region:'all', owner:'all', reach:'all'}};
 
 function setFilter(kind, val, btn){{
   FILTERS[kind] = val;
@@ -434,25 +477,34 @@ function renderRows(){{
 
   var matched = INVESTORS.filter(function(r){{
     if(FILTERS.tier !== 'all' && r.tier !== FILTERS.tier) return false;
+    if(FILTERS.region !== 'all' && r.region !== FILTERS.region) return false;
     var own = (r.our_contact || '').toLowerCase();
     if(FILTERS.owner === 'warren' && own.indexOf('warren') < 0) return false;
     if(FILTERS.owner === 'leo' && own.indexOf('leo') < 0) return false;
     if(FILTERS.owner === 'team' && (own.indexOf('warren') >= 0 || own === 'leo')) return false;
     if(FILTERS.reach === 'email' && !r.email) return false;
     if(FILTERS.reach === 'phone' && !r.display_phone) return false;
+    if(FILTERS.reach === 'sepoct'){{
+      if(!r.leo_sep_oct_outreach) return false;
+    }}
+    if(FILTERS.reach === 'followup'){{
+      var st1 = (r.latest_status || '').toLowerCase();
+      var hasFup = (r.followup_note || '').trim() || (r.follow_up_date || '').trim() || (st1 && st1 !== 'not contacted');
+      if(!hasFup) return false;
+    }}
     if(FILTERS.reach === 'active'){{
       var st = (r.latest_status || '').toLowerCase();
       if(!st || st === 'not contacted' || st.indexOf('passed') >= 0 || st.indexOf('declined') >= 0) return false;
     }}
     if(q){{
-      var hay = [r.fund, r.person, r.title, r.category, r.portfolio, r.why_fit, r.bank_lp_value, r.our_contact, r.email, r.city, r.country].join(' ').toLowerCase();
+      var hay = [r.fund, r.person, r.title, r.category, r.region, r.qualification_gate, r.portfolio, r.why_fit, r.bank_lp_value, r.our_contact, r.email, r.city, r.country, r.followup_note, r.next_action, r.comment].join(' ').toLowerCase();
       if(hay.indexOf(q) < 0) return false;
     }}
     return true;
   }});
 
   var sc = document.getElementById('shown-count');
-  if(sc) sc.textContent = 'Showing ' + matched.length + ' of ' + INVESTORS.length + ' investors';
+  if(sc) sc.textContent = 'Showing ' + matched.length + ' of ' + INVESTORS.length + ' qualified Right VCs';
 
   matched.forEach(function(r){{
     var tr = document.createElement('tr');
@@ -499,11 +551,18 @@ function renderRows(){{
     }}
     tr.appendChild(tdPerson);
 
-    // Col 4: Fit & Stage
+    // Col 4: Fit, Stage, Region & Qualification Gate
     var tdFit = document.createElement('td');
-    tdFit.appendChild(makeEl('span', {{className:'tier t-' + r.tier}}, 'TIER ' + r.tier + ' · ' + r.dokimo_fit_score));
-    tdFit.appendChild(makeEl('div', {{style:'font-size:10.5px;color:var(--ink2);margin-top:5px;font-weight:600'}}, r.stage));
+    var tierRow = makeEl('div', {{style:'display:flex;gap:4px;flex-wrap:wrap;align-items:center'}});
+    tierRow.appendChild(makeEl('span', {{className:'tier t-' + r.tier}}, 'TIER ' + r.tier + ' · ' + r.dokimo_fit_score));
+    tierRow.appendChild(makeEl('span', {{className:'chip', style:'font-weight:700;color:#1e293b'}}, '🌍 ' + (r.region || 'US')));
+    tdFit.appendChild(tierRow);
+    tdFit.appendChild(makeEl('div', {{style:'font-size:10.5px;color:var(--ink2);margin-top:4px;font-weight:600'}}, r.stage));
     tdFit.appendChild(makeEl('div', {{style:'font-family:ui-monospace,monospace;font-size:10.5px;color:var(--ink3);margin-top:2px'}}, r.check_size));
+    if(r.qualification_gate){{
+      var qCls = r.tier === 'B' ? 'qual-badge qual-hold' : 'qual-badge qual-ok';
+      tdFit.appendChild(makeEl('div', {{className:qCls}}, r.qualification_gate));
+    }}
     tr.appendChild(tdFit);
 
     // Col 5: Why Fit & Portfolio
@@ -529,13 +588,16 @@ function renderRows(){{
     tdPitch.appendChild(paDiv);
     tr.appendChild(tdPitch);
 
-    // Col 7: Contact, Status & Actions
+    // Col 7: Prospecting-style Follow-Up & Next Action + 1-Click Outreach
     var tdAct = document.createElement('td');
-    var topChips = makeEl('div', {{style:'margin-bottom:5px'}});
+    var topChips = makeEl('div', {{style:'margin-bottom:5px;display:flex;flex-wrap:wrap;gap:4px'}});
     topChips.appendChild(makeEl('span', {{className:'chip ok'}}, '👤 Contact: ' + (r.our_contact || 'Leo / Warren')));
+    if(r.leo_sep_oct_outreach){{
+      topChips.appendChild(makeEl('span', {{className:'chip', style:'background:#dbeafe;color:#1e40af;font-weight:700;border:1px solid #93c5fd'}}, '📧 Sep/Oct Gmail Tracked'));
+    }}
     tdAct.appendChild(topChips);
 
-    var sel = makeEl('select', {{style:'width:100%;font-size:11.5px;padding:4px 6px;border:1px solid var(--rule2);border-radius:3px;margin-bottom:5px'}});
+    var sel = makeEl('select', {{style:'width:100%;font-size:11.5px;padding:4px 6px;border:1px solid var(--rule2);border-radius:3px;margin-bottom:4px;font-weight:600'}});
     ['Not Contacted', 'Warm Intro Requested', 'Intro Sent', 'Meeting Scheduled', 'Deck / Data Room Sent', 'In Diligence', 'Committed / Term Sheet', 'Passed / Hold'].forEach(function(opt){{
       var o = makeEl('option', {{value:opt}}, opt);
       if((r.latest_status || 'Not Contacted').toLowerCase() === opt.toLowerCase()) o.selected = true;
@@ -546,23 +608,48 @@ function renderRows(){{
       customOpt.selected = true;
       sel.appendChild(customOpt);
     }}
-    sel.onchange = function(){{ saveInvestorUpdate(r.id, sel.value, noteIn.value, statusMsg); }};
     tdAct.appendChild(sel);
 
-    var noteWrap = makeEl('div', {{style:'display:flex;gap:4px;margin-bottom:6px'}});
-    var noteIn = makeEl('input', {{
+    var actDateRow = makeEl('div', {{style:'display:flex;gap:4px;margin-bottom:4px'}});
+    var nextActIn = makeEl('input', {{
       type:'text',
-      value: r.comment || r.next_action || '',
-      placeholder:'Add follow-up note or next step...',
-      style:'flex:1;font-size:11.5px;padding:4px 6px;border:1px solid var(--rule2);border-radius:3px;background:#fffef9'
+      value: r.next_action || r.comment || '',
+      placeholder:'Next action (e.g. Follow up with partner)...',
+      style:'flex:1;font-size:11px;padding:4px 6px;border:1px solid var(--rule2);border-radius:3px;background:#fff'
+    }});
+    var fupDateIn = makeEl('input', {{
+      type:'date',
+      value: r.follow_up_date || '',
+      title:'Follow-Up Date',
+      style:'width:112px;font-size:10.5px;padding:3px 4px;border:1px solid var(--rule2);border-radius:3px;background:#fff'
     }});
     var saveBtn = makeEl('button', {{className:'btn-sm'}}, 'Save');
-    var statusMsg = makeEl('div', {{style:'font-size:10.5px;color:var(--quiet);font-weight:600;margin-bottom:4px'}});
-    saveBtn.onclick = function(){{ saveInvestorUpdate(r.id, sel.value, noteIn.value, statusMsg); }};
-    noteWrap.appendChild(noteIn);
-    noteWrap.appendChild(saveBtn);
-    tdAct.appendChild(noteWrap);
+    var statusMsg = makeEl('div', {{style:'font-size:10px;color:var(--quiet);font-weight:600;margin-bottom:3px'}});
+    sel.onchange = function(){{ saveInvestorUpdate(r.id, sel.value, nextActIn.value, fupDateIn.value, statusMsg); }};
+    fupDateIn.onchange = function(){{ saveInvestorUpdate(r.id, sel.value, nextActIn.value, fupDateIn.value, statusMsg); }};
+    saveBtn.onclick = function(){{ saveInvestorUpdate(r.id, sel.value, nextActIn.value, fupDateIn.value, statusMsg); }};
+    actDateRow.appendChild(nextActIn);
+    actDateRow.appendChild(fupDateIn);
+    actDateRow.appendChild(saveBtn);
+    tdAct.appendChild(actDateRow);
     tdAct.appendChild(statusMsg);
+
+    // Prospecting-Style Auto-Saving 4-Line Follow-Up & Action Note Box
+    var fupBox = makeEl('div', {{className:'fup-box'}});
+    var fupHdr = makeEl('div', {{className:'fup-hdr'}});
+    fupHdr.appendChild(makeEl('span', null, '📝 Follow-Up & Action Log (4 lines · auto-saves)'));
+    var fupSavedSpan = makeEl('span', {{style:'font-weight:600;color:#15803d;text-transform:none'}}, r.followup_updated_at ? ('Saved ' + r.followup_updated_at) : '');
+    fupHdr.appendChild(fupSavedSpan);
+    fupBox.appendChild(fupHdr);
+    var fupTa = makeEl('textarea', {{
+      className:'fup-ta',
+      rows:'3',
+      maxlength:'400',
+      placeholder:'Record outreach dates, partner feedback, follow-up items & next steps (auto-saves on blur)...'
+    }}, r.followup_note || '');
+    fupTa.onblur = function(){{ saveFollowupNote(r.id, fupTa.value, fupSavedSpan); }};
+    fupBox.appendChild(fupTa);
+    tdAct.appendChild(fupBox);
 
     var btnRow = makeEl('div', {{style:'display:flex;flex-wrap:wrap;gap:4px'}});
     var gemBtn = makeEl('button', {{className:'btn-sm pri'}}, '✨ Gemini IC Memo');
@@ -585,21 +672,61 @@ function renderRows(){{
   }});
 }}
 
-function saveInvestorUpdate(invId, statusVal, commentVal, msgEl){{
+function saveInvestorUpdate(invId, statusVal, nextActVal, fupDateVal, msgEl){{
   if(msgEl) msgEl.textContent = 'Saving...';
   fetch('/api/investors/update', {{
     method:'POST',
     headers:{{'Content-Type':'application/json'}},
-    body:JSON.stringify({{id:invId, latest_status:statusVal, comment:commentVal}})
+    body:JSON.stringify({{id:invId, latest_status:statusVal, next_action:nextActVal, follow_up_date:fupDateVal}})
   }}).then(function(r){{ return r.json(); }}).then(function(d){{
     if(d.ok){{
       if(msgEl) msgEl.textContent = '✓ Saved (' + (d.investor && d.investor.updated_at || 'now') + ')';
       INVESTORS.forEach(function(item){{
         if(item.id === invId){{
           item.latest_status = statusVal;
-          item.comment = commentVal;
+          item.next_action = nextActVal;
+          item.follow_up_date = fupDateVal;
         }}
       }});
+    }}
+  }});
+}}
+
+function saveFollowupNote(invId, noteVal, statusSpan){{
+  if(statusSpan) statusSpan.textContent = 'Saving...';
+  fetch('/api/investors/followup-note', {{
+    method:'POST',
+    headers:{{'Content-Type':'application/json'}},
+    body:JSON.stringify({{id:invId, note:noteVal}})
+  }}).then(function(r){{ return r.json(); }}).then(function(d){{
+    if(d.ok){{
+      if(statusSpan) statusSpan.textContent = d.updated_at ? ('✓ Saved ' + d.updated_at) : '✓ Saved';
+      INVESTORS.forEach(function(item){{
+        if(item.id === invId){{
+          item.followup_note = d.note;
+          item.followup_updated_at = d.updated_at;
+        }}
+      }});
+    }}
+  }});
+}}
+
+function grantAndEmailLeo(){{
+  var emIn = document.getElementById('grant-leo-email');
+  var msgEl = document.getElementById('grant-leo-msg');
+  var email = ((emIn && emIn.value) || 'leo@s22t.vc').trim();
+  if(msgEl) msgEl.textContent = 'Granting & sending access link to ' + email + '...';
+  fetch('/api/access/grant', {{
+    method:'POST',
+    headers:{{'Content-Type':'application/json'}},
+    body:JSON.stringify({{email:email, name:'Leo Spiegel'}})
+  }}).then(function(r){{ return r.json(); }}).then(function(d){{
+    if(d.ok){{
+      if(msgEl) msgEl.textContent = '✓ Access granted! 1-Click Link: ' + d.url + (d.emailed ? ' (Emailed via Gmail!)' : '');
+      var codeEl = document.getElementById('leo-link-code');
+      if(codeEl && d.url) codeEl.textContent = d.url;
+    }} else {{
+      if(msgEl) msgEl.textContent = '⚠ ' + (d.error || 'Failed');
     }}
   }});
 }}
@@ -1145,10 +1272,41 @@ class Handler(BaseHTTPRequestHandler):
                 comment=payload.get("comment"),
                 next_action=payload.get("next_action"),
                 assigned_owner=payload.get("assigned_owner"),
+                follow_up_date=payload.get("follow_up_date"),
+                followup_note=payload.get("followup_note"),
                 updated_by=viewer.get("name", "Warren"),
             )
             push_to_gcs(["output/investor_state.json", "data/investors.csv"])
             self.send_json(res)
+            return
+
+        if path == "/api/investors/followup-note":
+            sync_from_gcs(["output/investor_state.json"])
+            res = investor_engine.save_followup_note(
+                inv_id=str(payload.get("id") or ""),
+                note=str(payload.get("note") or ""),
+                updated_by=viewer.get("name", "Warren"),
+            )
+            push_to_gcs(["output/investor_state.json", "data/investors.csv"])
+            self.send_json(res)
+            return
+
+        if path == "/api/access/grant":
+            sync_from_gcs(["config/access.json"])
+            email = str(payload.get("email") or "leo@s22t.vc").strip()
+            name = str(payload.get("name") or "Leo Spiegel").strip()
+            grant = access.add_grant(email, name)
+            push_to_gcs(["config/access.json"])
+            url = f"https://dokimo-investors-aigeqnv5nq-uc.a.run.app/?token={grant['token']}"
+            emailed = False
+            try:
+                subj = "1-Click Access: Dokimo Investor Watch & Stage-Gated VC Fit Board"
+                body_html = f"<p>Hi {html.escape(name)},</p><p>Here is your 1-click direct login link to the Dokimo Investor Watch &amp; VC Fit Board:</p><p><a href='{html.escape(url)}'><b>{html.escape(url)}</b></a></p><p>Best,<br>Warren Zafrin</p>"
+                send_res = investor_digest.send_html_email(email, subj, body_html)
+                emailed = bool(send_res.get("ok"))
+            except Exception:
+                emailed = False
+            self.send_json({"ok": True, "grant": grant, "url": url, "emailed": emailed})
             return
 
         if path == "/api/investors/research":

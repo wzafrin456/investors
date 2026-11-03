@@ -408,6 +408,625 @@ FUND_KB = {
         "why_fit": "Amex Ventures actively backs fraud, compliance, and enterprise AI infrastructure that can be deployed inside Amex.",
         "pitch_angle": "Show how Dokimo validates 100% of operational records against internal policies with explainable remediation.",
     },
+    "vestigo ventures": {
+        "category": "Pure-Play Early-Stage FinTech & Wealth/Bank RegTech VC",
+        "tier": "S",
+        "base_score": 97,
+        "stage": "Pre-Seed / Seed Lead",
+        "check_size": "$1M – $4M",
+        "partner_default": "Ian Sheridan",
+        "title_default": "Managing Director & Co-Founder",
+        "website": "https://vestigoventures.com",
+        "portfolio": "Early-stage AI FinTech, WealthTech, Broker-Dealer & Bank Compliance Infrastructure ($179M AUM)",
+        "bank_lp_value": "Founded by former LPL Financial CEO Mark Casady; direct C-suite access to US broker-dealers, RIAs, and regional banks.",
+        "why_fit": "Vestigo writes $1M–$4M Pre-Seed/Seed checks specifically into AI-native FinTech & compliance infrastructure for banks and broker-dealers. Zero 'too early' risk.",
+        "pitch_angle": "Pitch Dokimo as the automated FINRA 3310, SEC 15c3-3, and OCC/FDIC full-population control validation & Bob remediation engine.",
+    },
+    "luge capital": {
+        "category": "Financial-Institution-Backed Seed FinTech & AI VC",
+        "tier": "S",
+        "base_score": 97,
+        "stage": "Pre-Seed / Seed Lead",
+        "check_size": "$500K – $3.5M",
+        "partner_default": "David Nault",
+        "title_default": "Co-Founder & General Partner",
+        "website": "https://luge.vc",
+        "portfolio": "Flinks,Owl.co (financial crime/claims AI), OneVest, Plooto ($156M AUM across Seed Funds)",
+        "bank_lp_value": "Backed directly by major North American financial institutions and insurance/banking LPs that pilot portfolio companies.",
+        "why_fit": "Luge invests exclusively at Pre-Seed/Seed in B2B FinTech and AI compliance solutions where its financial institution LPs need operational automation.",
+        "pitch_angle": "Show how Luge's bank and financial institution LPs can deploy Dokimo inside their VPC to test 100% of records against written policies nightly.",
+    },
+    "information venture partners": {
+        "category": "B2B FinTech, RegTech & Banking Risk Seed/A VC",
+        "tier": "S",
+        "base_score": 96,
+        "stage": "Seed / Series A",
+        "check_size": "$1.5M – $5M",
+        "partner_default": "David Unsworth",
+        "title_default": "Co-Founder & General Partner",
+        "website": "https://informationvp.com",
+        "portfolio": "Verafin (AML/Fraud — acquired by Nasdaq for $2.75B), Adaptive Shield, Coconut Software, Sensibill",
+        "bank_lp_value": "Spun out of RBC Venture Partners; early backers of Verafin ($2.75B AML exit to Nasdaq) with deep US/North American bank CRO/CCO ties.",
+        "why_fit": "David Unsworth's team backed Verafin (the gold-standard bank AML/fraud exit) and focuses 100% on B2B enterprise FinTech, risk, and regulatory compliance.",
+        "pitch_angle": "Frame Dokimo as the 'Verafin for Enterprise-Wide Regulatory Control Validation & Consent-Order Defense'—powered by deterministic rules + Bob.",
+    },
+    "pruven capital": {
+        "category": "Financial Services & Enterprise AI Strategic VC",
+        "tier": "S",
+        "base_score": 95,
+        "stage": "Seed / Series A",
+        "check_size": "$2M – $10M",
+        "partner_default": "Sudip Chakrabarti",
+        "title_default": "Partner",
+        "website": "https://pruvencapital.com",
+        "portfolio": " Enterprise AI, Cyber, FinTech & Regulated Financial Operations ($350M+ AUM)",
+        "bank_lp_value": "Backed by Prudential Financial; active warm conversation already initiated (Talked Feb 28 + follow-up).",
+        "why_fit": "Sudip Chakrabarti already engaged on Feb 28 and invests at the intersection of enterprise AI infrastructure and regulated financial services.",
+        "pitch_angle": "Follow up on the Feb 28 discussion with Dokimo's live 20,065-institution Regulatory Signal Graph and Bob's autonomous control remediation.",
+    },
+    "boldstart": {
+        "category": "Day-0 / Inception Enterprise Security, Governance & AI VC",
+        "tier": "S",
+        "base_score": 96,
+        "stage": "Day-0 / Pre-Seed / Seed Lead",
+        "check_size": "$1M – $5M",
+        "partner_default": "Ed Sim",
+        "title_default": "Founder & Managing Partner",
+        "website": "https://boldstart.vc",
+        "portfolio": "Snyk, BigID (data privacy/compliance), Protect AI, SecurityScorecard, Jit",
+        "bank_lp_value": "NYC's #1 Day-0 enterprise infrastructure fund; deep Fortune 500 & Wall Street CISO/CDO customer network (backed BigID & Snyk from inception).",
+        "why_fit": "Ed Sim writes Day-0 first checks BEFORE revenue into technical enterprise governance, security, and compliance infrastructure (like BigID). Never says 'too early'.",
+        "pitch_angle": "Pitch Dokimo as 'BigID + Snyk for Regulated Financial Controls' — compiling written policies into automated nightly checks across 100% of operational records.",
+    },
+    "team8": {
+        "category": "Company-Builder & Seed VC in FinTech, Cyber & Enterprise AI",
+        "tier": "S",
+        "base_score": 96,
+        "stage": "Seed Lead",
+        "check_size": "$2M – $8M",
+        "partner_default": "Liran Grinberg",
+        "title_default": "Co-Founder & Managing Partner",
+        "website": "https://team8.vc",
+        "portfolio": "Claroty, Talon, Dig Security, VisibleRisk, Dedicated US FinTech & Enterprise AI Fund ($1B+ AUM)",
+        "bank_lp_value": "Team8's CISO/CRO/CCO Village includes 100+ Fortune 500 and global bank executives (Walmart, Citi, Barclays, Moody's LPs).",
+        "why_fit": "Team8 has dedicated FinTech and Cyber/AI Seed funds backed by global banks and Moody's, and actively co-designs solutions with bank CROs/CISOs at Seed.",
+        "pitch_angle": "Show how Dokimo unifies data governance, regulatory control testing, and Bob's explainable remediation inside the bank's perimeter.",
+    },
+    "cyberstarts": {
+        "category": "Day-0 Inception Enterprise Governance, Risk & Cyber VC",
+        "tier": "S",
+        "base_score": 95,
+        "stage": "Day-0 / Pre-Seed / Seed Lead",
+        "check_size": "$1.5M – $6M",
+        "partner_default": "Gili Raanan",
+        "title_default": "Founder & General Partner",
+        "website": "https://cyberstarts.com",
+        "portfolio": "Wiz ($12B+), Island (Enterprise Browser in 50+ banks), Cyera (Data Governance), Fireblocks (FinTech infrastructure)",
+        "bank_lp_value": "Gili Raanan co-founded/seeded Fireblocks, Island, Wiz, and Cyera—with unmatched CISO/CRO validation access at US banks.",
+        "why_fit": "Cyberstarts invests at Day-0 based on CISO/CCO pain validation before a single dollar of ARR, and already backed Fireblocks and Island (heavily adopted by US banks).",
+        "pitch_angle": "Position Dokimo as 'Cyera/Wiz for Regulatory & Financial Compliance Controls' — agentless, 100% full-population record validation inside the bank VPC.",
+    },
+    "costanoa ventures": {
+        "category": "Early-Stage B2B Data, FinTech & Compliance Infrastructure VC",
+        "tier": "S",
+        "base_score": 95,
+        "stage": "Pre-Seed / Seed / Series A",
+        "check_size": "$1.5M – $6M",
+        "partner_default": "Tony Liu",
+        "title_default": "Partner (Enterprise AI, Data & FinTech)",
+        "website": "https://costanoa.vc",
+        "portfolio": "Alation (Data Governance), Persona, Highnote, Matera, Distributional (AI Testing/Compliance)",
+        "bank_lp_value": "Backed Alation (enterprise data governance in major banks) and Distributional (enterprise AI testing).",
+        "why_fit": "Tony Liu focuses specifically on early-stage B2B FinTech, data governance, and AI reliability/compliance infrastructure.",
+        "pitch_angle": "Show how Dokimo sits on top of the data catalog (like Alation) to execute deterministic regulatory policy checks across 100% of production records.",
+    },
+    "glasswing ventures": {
+        "category": "Pure-Play Pre-Seed & Seed Enterprise AI & Security VC",
+        "tier": "S",
+        "base_score": 95,
+        "stage": "Pre-Seed / Seed Lead",
+        "check_size": "$1M – $4M",
+        "partner_default": "Rudina Seseri",
+        "title_default": "Founder & Managing Partner",
+        "website": "https://glasswing.vc",
+        "portfolio": "Black Kite (third-party cyber/risk compliance), FeatureByte, ChaosSearch, Pliant ($277M AUM)",
+        "bank_lp_value": "Boston/NYC Pre-Seed & Seed AI specialist with an Executive Advisory Council of bank & Fortune 500 CIOs/CISOs.",
+        "why_fit": "Rudina Seseri leads Pre-Seed and Seed rounds in neuro-symbolic/explainable Enterprise AI for risk, security, and compliance. Never says 'too early' at Seed.",
+        "pitch_angle": "Highlight Dokimo's hybrid neuro-symbolic compliance engine (deterministic SQL/Python full-population rules + Bob's explainable remediation).",
+    },
+    "susa ventures": {
+        "category": "Data-Moat & Compounding Workflow Seed Specialist VC",
+        "tier": "S",
+        "base_score": 95,
+        "stage": "Pre-Seed / Seed Lead",
+        "check_size": "$1M – $4M",
+        "partner_default": "Chad Byers",
+        "title_default": "Co-Founder & General Partner",
+        "website": "https://susaventures.com",
+        "portfolio": "Robinhood, Plaid (early), Flexport, Middesk (business KYB/compliance), Stord",
+        "bank_lp_value": "Early Seed backer of Robinhood, Plaid, and Middesk (compliance/KYB).",
+        "why_fit": "Susa leads Seed rounds in B2B companies building proprietary data moats in financial services and compliance (backed Middesk & Robinhood at Seed).",
+        "pitch_angle": "Lead with Dokimo's proprietary 20,065-institution Regulatory Signal Graph + compounding library of executable OCC/FDIC/SEC/FINRA control rules.",
+    },
+    "acrew capital": {
+        "category": "FinTech, Data & Security Seed/Series A VC",
+        "tier": "S",
+        "base_score": 94,
+        "stage": "Seed / Series A",
+        "check_size": "$1.5M – $8M",
+        "partner_default": "Theresia Gouw",
+        "title_default": "Founding Partner",
+        "website": "https://acrewcapital.com",
+        "portfolio": "Chime, Plaid, Cato Networks, At-Bay, Laika/Thoropass (automated compliance audit)",
+        "bank_lp_value": "Backed Thoropass (compliance/audit automation), Plaid, and Chime; strong FinTech & CISO/CCO network.",
+        "why_fit": "Theresia Gouw backed Thoropass (compliance audit automation) and top FinTechs; immediately understands why regulated banks need automated full-population control testing.",
+        "pitch_angle": "Pitch Dokimo as 'Thoropass for Bank & Broker-Dealer Regulatory Examinations (OCC, FDIC, SEC, FINRA, BSA)'—testing 100% of operational records.",
+    },
+    "firstmark": {
+        "category": "NYC Enterprise AI, Data & FinTech Seed/Series A VC",
+        "tier": "S",
+        "base_score": 94,
+        "stage": "Seed / Series A",
+        "check_size": "$2M – $8M",
+        "partner_default": "Matt Turck",
+        "title_default": "Partner (Author of MAD Data & AI Landscape)",
+        "website": "https://firstmark.com",
+        "portfolio": "Dataiku (used by Tier-1 banks), Carta, CockroachDB, Traceable, Ada ($3.5B AUM)",
+        "bank_lp_value": "Runs NYC's largest Data Driven NYC community and backed Dataiku & Carta; warm suggestion from Justin on your tracker.",
+        "why_fit": "Matt Turck and Adam Nelson lead NYC Seed/A rounds in enterprise data & AI governance (backed Dataiku, heavily deployed across global banks).",
+        "pitch_angle": "Show how Dokimo turns enterprise data pipelines into continuous, audit-ready regulatory control verification with Bob's autonomous remediation.",
+    },
+    "signalfire": {
+        "category": "AI-Native Enterprise & FinTech Seed/Series A VC",
+        "tier": "S",
+        "base_score": 94,
+        "stage": "Pre-Seed / Seed / Series A",
+        "check_size": "$1.5M – $8M",
+        "partner_default": "Chris Farmer",
+        "title_default": "Founder & CEO",
+        "website": "https://signalfire.com",
+        "portfolio": "Grammarly, Stampli, EvenUp (AI legal/claims), Horizon3, Descript ($2.2B AUM)",
+        "bank_lp_value": "Beacon AI talent & GTM engine + in-house former financial services & security C-suite advisors.",
+        "why_fit": "SignalFire heavily backs vertical AI agents replacing manual legal/compliance review (like EvenUp) and writes dedicated Pre-Seed/Seed checks.",
+        "pitch_angle": "Position Dokimo + Bob as the vertical AI compliance & internal audit agent for the $180B regulated financial services compliance market.",
+    },
+    "daybreak ventures": {
+        "category": "Pre-Seed & Seed AI Workflow & FinTech VC",
+        "tier": "S",
+        "base_score": 94,
+        "stage": "Pre-Seed / Seed Lead",
+        "check_size": "$750K – $2.5M",
+        "partner_default": "Rex Woodbury",
+        "title_default": "Founder & Managing Partner (ex-Index Ventures)",
+        "website": "https://daybreakventures.com",
+        "portfolio": "Pre-Seed & Seed AI-native B2B workflow and financial software",
+        "bank_lp_value": "Pure-play Pre-Seed/Seed fund ($36M Fund I) that writes fast first checks without requiring Series-A ARR.",
+        "why_fit": "Rex Woodbury launched Daybreak specifically to lead/co-lead Pre-Seed and Seed rounds in AI-native enterprise workflows before multistage funds enter.",
+        "pitch_angle": "Show how Bob + Dokimo's full-population validation replaces armies of manual bank compliance & lookback consultants.",
+    },
+    "glilot capital": {
+        "category": "Early-Stage Enterprise Cyber, Governance & AI Seed VC",
+        "tier": "S",
+        "base_score": 94,
+        "stage": "Seed Lead",
+        "check_size": "$2M – $6M",
+        "partner_default": "Kobi Samboursky",
+        "title_default": "Founder & Managing Partner",
+        "website": "https://glilotcapital.com",
+        "portfolio": "AtBay, Lightspin, Concentric AI (data governance), IntSights ($750M AUM)",
+        "bank_lp_value": "Runs a 200+ US CISO/CIO/CCO advisory board that validates and buys from portfolio companies at Seed.",
+        "why_fit": "Glilot Seed leads early-stage B2B data governance, compliance, and AI security startups selling into US banks and Fortune 500 enterprises.",
+        "pitch_angle": "Pitch Dokimo as autonomous regulatory data governance & control assurance with zero data egress.",
+    },
+    "f2 venture capital": {
+        "category": "Pre-Seed & Seed Enterprise AI & Data Infrastructure VC",
+        "tier": "S",
+        "base_score": 94,
+        "stage": "Pre-Seed / Seed Lead",
+        "check_size": "$1M – $4M",
+        "partner_default": "Jonathan Saacks",
+        "title_default": "Managing Partner",
+        "website": "https://f2vc.com",
+        "portfolio": " Seed-stage B2B AI, FinTech, and Data Governance startups",
+        "bank_lp_value": "Dedicated Pre-Seed/Seed specialist connecting technical AI founders with NYC/US financial services buyers.",
+        "why_fit": "F2 invests exclusively at Pre-Seed and Seed in technical enterprise AI & data platforms—zero 'too early' friction.",
+        "pitch_angle": "Lead with Dokimo's deterministic full-population policy validation engine + Bob's explainable remediation.",
+    },
+    "tlv partners": {
+        "category": "Seed-Stage Enterprise AI, FinTech & Governance VC",
+        "tier": "S",
+        "base_score": 94,
+        "stage": "Seed Lead",
+        "check_size": "$2M – $6M",
+        "partner_default": "Rona Segev",
+        "title_default": "Co-Founder & Managing Partner",
+        "website": "https://tlv.partners",
+        "portfolio": "Unit (Banking-as-a-Service compliance), Aqua Security, Next Insurance, Run:ai ($1B+ AUM)",
+        "bank_lp_value": "Seed backer of Unit (embedded banking & sponsor-bank compliance across US regional banks).",
+        "why_fit": "Rona Segev backed Unit at Seed and knows firsthand the massive OCC/FDIC third-party & BaaS compliance pain that US banks face.",
+        "pitch_angle": "Show how Dokimo solves the exact OCC/FDIC partner-bank and core compliance validation crisis that BaaS and regional banks face.",
+    },
+    "amplify": {
+        "category": "Technical Seed Enterprise AI, Data & Infrastructure VC",
+        "tier": "S",
+        "base_score": 94,
+        "stage": "Pre-Seed / Seed Lead",
+        "check_size": "$1.5M – $6M",
+        "partner_default": "Mike Dauber",
+        "title_default": "General Partner",
+        "website": "https://amplifypartners.com",
+        "portfolio": "Datadog, DBT Labs, Hightouch, Great Expectations (Data Validation), Hex, Runway",
+        "bank_lp_value": "Early Seed backer of DBT Labs and Great Expectations (data quality/validation)—warm path via Roman/Leo.",
+        "why_fit": "Amplify backed Great Expectations (data testing) and DBT at Seed. Dokimo is 'Great Expectations for Regulated Financial Compliance + Bob Remediation'.",
+        "pitch_angle": "Frame Dokimo as turning written regulatory policies into automated data assertions across 100% of bank records, paired with Bob's remediation agent.",
+    },
+    "zetta": {
+        "category": "Pure-Play Pre-Seed & Seed AI-First Enterprise VC",
+        "tier": "S",
+        "base_score": 94,
+        "stage": "Pre-Seed / Seed Lead",
+        "check_size": "$1.5M – $5M",
+        "partner_default": "Jocelyn Goldfein",
+        "title_default": "Managing Director",
+        "website": "https://zettavp.com",
+        "portfolio": "Domo, Tractable (AI financial/insurance claims), Clearbit, Kaggle, Forever-Seed AI B2B",
+        "bank_lp_value": "100% focused on Pre-Seed/Seed B2B AI applications with proprietary data loops.",
+        "why_fit": "Zetta only invests at Pre-Seed/Seed in AI-native B2B software with a compounding system-of-record data moat.",
+        "pitch_angle": "Highlight Dokimo's closed-loop compliance graph: Regulatory Signal -> Full-Population Record Test -> Bob Remediation -> Examiner Evidence.",
+    },
+    "quiet capital": {
+        "category": "Early-Stage FinTech & Enterprise Software VC",
+        "tier": "S",
+        "base_score": 94,
+        "stage": "Pre-Seed / Seed Lead",
+        "check_size": "$1M – $5M",
+        "partner_default": "Michael Bloch",
+        "title_default": "Partner",
+        "website": "https://quiet.com",
+        "portfolio": "Modern Treasury, Lithic, Middesk, Ramp, OneChronos (SEC regulated ATS)",
+        "bank_lp_value": "Backed Modern Treasury, Lithic, Middesk, and OneChronos—deep US FinTech & bank compliance network.",
+        "why_fit": "Quiet Capital seeded Modern Treasury, Middesk, and OneChronos; they love mission-critical financial plumbing and compliance automation at Seed.",
+        "pitch_angle": "Pitch Dokimo as the automated compliance & ledger control verification engine for banks, broker-dealers, and payment platforms.",
+    },
+    "quite capital": {
+        "category": "Early-Stage FinTech & Enterprise Software VC",
+        "tier": "S",
+        "base_score": 94,
+        "stage": "Pre-Seed / Seed Lead",
+        "check_size": "$1M – $5M",
+        "partner_default": "Michael Bloch",
+        "title_default": "Partner",
+        "website": "https://quiet.com",
+        "portfolio": "Modern Treasury, Lithic, Middesk, Ramp, OneChronos (SEC regulated ATS)",
+        "bank_lp_value": "Backed Modern Treasury, Lithic, Middesk, and OneChronos—deep US FinTech & bank compliance network.",
+        "why_fit": "Quiet Capital seeded Modern Treasury, Middesk, and OneChronos; they love mission-critical financial plumbing and compliance automation at Seed.",
+        "pitch_angle": "Pitch Dokimo as the automated compliance & ledger control verification engine for banks, broker-dealers, and payment platforms.",
+    },
+    "elad gil": {
+        "category": "Solo GP & Super-Angel in Enterprise AI & FinTech",
+        "tier": "S",
+        "base_score": 95,
+        "stage": "Pre-Seed / Seed / Series A",
+        "check_size": "$500K – $5M",
+        "partner_default": "Elad Gil",
+        "title_default": "Solo GP, Gil Capital",
+        "website": "https://eladgil.com",
+        "portfolio": "Harvey (AI Legal/Compliance), Stripe, Brex, Deel, Checkr, Figma, Perplexity",
+        "bank_lp_value": "Single fastest high-signal AI & FinTech decision-maker in Silicon Valley (backed Harvey, Stripe, Brex, Checkr).",
+        "why_fit": "Elad Gil backed Harvey (AI legal), Checkr (compliance), Stripe, and Brex, and makes solo investment decisions in days without committee delays.",
+        "pitch_angle": "Pitch Dokimo as 'Harvey for Operational Bank & Broker-Dealer Compliance' — validating 100% of production records against written rules.",
+    },
+    "nat friedman": {
+        "category": "AI Operator Investor (Former GitHub CEO / NFDG)",
+        "tier": "S",
+        "base_score": 94,
+        "stage": "Pre-Seed / Seed",
+        "check_size": "$500K – $5M",
+        "partner_default": "Nat Friedman",
+        "title_default": "Investor & Former CEO of GitHub",
+        "website": "https://nat.org",
+        "portfolio": "Scale AI, Perplexity, ElevenLabs, Safe Superintelligence, B2B AI Agents",
+        "bank_lp_value": "Fast solo/operator check writer with deep conviction in code-generating & deterministic verification agents.",
+        "why_fit": "Nat Friedman backs high-velocity AI agent founders where LLMs write executable verification rules and remediations (like Bob).",
+        "pitch_angle": "Show how Bob compiles natural-language regulatory policies into executable SQL/Python validation rules and code patches.",
+    },
+    "daniel gross": {
+        "category": "AI Operator Investor (Pioneer / NFDG)",
+        "tier": "S",
+        "base_score": 94,
+        "stage": "Pre-Seed / Seed",
+        "check_size": "$500K – $5M",
+        "partner_default": "Daniel Gross",
+        "title_default": "Investor (Former Y Combinator AI Partner)",
+        "website": "https://dcgross.com",
+        "portfolio": "Stripe, Rippling, GitHub, Figma, Perplexity, Applied Enterprise AI",
+        "bank_lp_value": "Fast solo decision-maker who backs applied enterprise AI at Seed without bureaucracy.",
+        "why_fit": "Daniel Gross writes fast Seed checks into technical founders applying AI to massive regulated industries.",
+        "pitch_angle": "Emphasize Dokimo's autonomous regulatory signal-to-control loop across 20,065 financial institutions.",
+    },
+    "paul moritz": {
+        "category": "Enterprise Infrastructure & Governance Legend (Ex-VMware/Pivotal CEO)",
+        "tier": "S",
+        "base_score": 95,
+        "stage": "Seed / Chairman-Level Angel",
+        "check_size": "$250K – $2M",
+        "partner_default": "Paul Maritz",
+        "title_default": "Investor & Former CEO of VMware & Pivotal",
+        "website": "https://www.linkedin.com/in/paul-maritz/",
+        "portfolio": "VMware, Pivotal, Cloudera, Mojio, Enterprise Data & Cloud Governance",
+        "bank_lp_value": "Already in active follow-up on Leo's sheet; former CEO of VMware & Pivotal (trusted by every global bank CIO).",
+        "why_fit": "Paul Maritz built the enterprise virtualization and cloud platform stack used by every bank on Wall Street and is already in Leo's active follow-up pipeline.",
+        "pitch_angle": "Show how Dokimo deploys inside bank VMware/Kubernetes perimeters to provide continuous regulatory control assurance.",
+    },
+    "deviation capital": {
+        "category": "Quant-Backed FinTech, Data & Enterprise AI VC (fka Two Sigma Ventures)",
+        "tier": "A",
+        "base_score": 92,
+        "stage": "Seed / Series A",
+        "check_size": "$2M – $10M",
+        "partner_default": "Colin Beirne",
+        "title_default": "Founder & Managing Partner",
+        "website": "https://deviation.com",
+        "portfolio": "Crux Informatics (financial data validation),Truera (AI explainability), Plaidecosystem, GitLab",
+        "bank_lp_value": "Spun out of Two Sigma ($60B+ quant hedge fund); deep Wall Street quant, broker-dealer, and SEC/FINRA compliance DNA.",
+        "why_fit": "Colin Beirne backed Truera (AI Explainability, acquired by Snowflake) and Crux (financial data validation); understands SEC/FINRA & bank data controls deeply.",
+        "pitch_angle": "Highlight Dokimo's mathematical full-population verification + Bob's explainable AI remediation for SEC 15c3-3, CAT, FINRA 3310, and OCC controls.",
+    },
+    "point72 ventures": {
+        "category": "Wall Street FinTech, Capital Markets & Compliance AI VC",
+        "tier": "A",
+        "base_score": 92,
+        "stage": "Seed / Series A",
+        "check_size": "$2M – $10M",
+        "partner_default": "Pete Casella",
+        "title_default": "Senior Partner & Co-Head of FinTech",
+        "website": "https://p72.vc",
+        "portfolio": "Quantexa (AML/Financial Crime), SteelEye (Trade/Comms Compliance), Droit (Regulatory Decision Engine), DriveWealth",
+        "bank_lp_value": "Backed Droit (computational regulatory rules for banks), Quantexa, and SteelEye—direct Wall Street & global bank compliance network.",
+        "why_fit": "Pete Casella backed Droit (regulatory rules engine), Quantexa, and SteelEye. Dokimo is the AI-native next generation of Droit + full-population record validation.",
+        "pitch_angle": "Pitch Dokimo as 'AI-Native Droit + Full-Population Record Testing' — validating 100% of operational records against regulatory policies with Bob remediation.",
+    },
+    # --- QUALIFIED TRANSATLANTIC UK & EU FINTECH / REGTECH / BANK-CVC INVESTORS ---
+    "13books capital": {
+        "category": "🇬🇧 UK/US Pure-Play B2B FinTech & RegTech Seed VC (fka Element Ventures)",
+        "tier": "S",
+        "base_score": 97,
+        "stage": "Seed / Series A Lead",
+        "check_size": "$1.5M – $5M",
+        "partner_default": "Michael McFadgen",
+        "title_default": "Founding Partner",
+        "email_default": "michael@13books.com",
+        "person_linkedin": "https://www.linkedin.com/in/michaelmcfadgen/",
+        "website": "https://www.13books.com",
+        "portfolio": "Fenergo (Bank KYC/CLM), Duco (Bank Data Reconciliation), Hepster, Billhop",
+        "bank_lp_value": "Founding partners backed Fenergo and Duco (deployed at 100+ global US, UK & EU banks); invests transatlantically in US + UK RegTech.",
+        "why_fit": "Michael McFadgen and Steve Gibson backed Fenergo (CLM/KYC) and Duco (bank reconciliation). Unlike Europe-only generalist funds, 13books invests specifically in transatlantic B2B RegTech selling to NYC & London banks.",
+        "pitch_angle": "Pitch Dokimo as 'Fenergo + Duco for the Agentic AI Era' — uniting written compliance policies with 100% full-population operational record reconciliation and Bob's explainable remediation across OCC/SEC/FINRA and FCA/PRA/DORA.",
+    },
+    "outward vc": {
+        "category": "🇬🇧 UK/Transatlantic Early-Stage FinTech & RegTech Seed Specialist",
+        "tier": "S",
+        "base_score": 96,
+        "stage": "Seed Lead",
+        "check_size": "$1.5M – $5M",
+        "partner_default": "Devin Kohli",
+        "title_default": "Co-Founder & Co-Head",
+        "email_default": "devin@outward.vc",
+        "person_linkedin": "https://www.linkedin.com/in/devinkohli/",
+        "website": "https://outward.vc",
+        "portfolio": "Bud Financial, PrimaryBid, Vauban, Comma, B2B RegTech & Banking Infrastructure",
+        "bank_lp_value": "Backed by Investec Bank and NIBC Bank plus institutional LPs; direct commercial bridge into London and transatlantic banks.",
+        "why_fit": "Devin Kohli leads Seed rounds in B2B RegTech and banking infrastructure solving regulatory compliance bottlenecks (FCA Consumer Duty, PRA SS1/23, DORA, and US OCC/SEC exams).",
+        "pitch_angle": "Show how Dokimo's full-population control validation and Bob agent allow banks in New York and London to validate 100% of records without adding compliance headcount.",
+    },
+    "albionvc": {
+        "category": "🇬🇧 UK/Transatlantic B2B RegTech, FinCrime & Enterprise AI VC",
+        "tier": "S",
+        "base_score": 96,
+        "stage": "Seed / Series A Lead",
+        "check_size": "$1.5M – $6M",
+        "partner_default": "Jay Wilson",
+        "title_default": "Partner (FinTech, RegTech & Risk AI)",
+        "email_default": "jwilson@albion.vc",
+        "person_linkedin": "https://www.linkedin.com/in/jay-wilson-vc/",
+        "website": "https://www.albion.vc",
+        "portfolio": "Quantexa (Bank Decision Intelligence/AML Unicorn), Elliptic (Crypto AML), Ophelos, Diffblue",
+        "bank_lp_value": "Early investor in Quantexa and Elliptic—two of the most successful US/UK bank compliance platforms in the world.",
+        "why_fit": "AlbionVC backed Quantexa and Elliptic from early stages and has a dedicated thesis on AI-driven regulatory compliance and financial crime prevention across US and UK banks.",
+        "pitch_angle": "Position Dokimo as the policy-to-record control assurance counterpart to Quantexa—testing 100% of bank records against written OCC, SEC, FINRA, FCA, and DORA rules.",
+    },
+    "augmentum fintech": {
+        "category": "🇬🇧 UK/EU Publicly Listed FinTech & RegTech Specialist VC",
+        "tier": "S",
+        "base_score": 95,
+        "stage": "Seed / Series A",
+        "check_size": "$2M – $6M",
+        "partner_default": "Tim Levene",
+        "title_default": "CEO & Managing Partner",
+        "email_default": "tim@augmentum.vc",
+        "person_linkedin": "https://www.linkedin.com/in/timlevene/",
+        "website": "https://augmentum.vc",
+        "portfolio": "Onfido (Identity/KYC, acquired by Entrust), Tide, Grover, iwoca, BullionVault, Volt",
+        "bank_lp_value": "Permanent-capital FinTech & RegTech fund in London with deep UK/EU bank & FCA regulatory advisory relationships.",
+        "why_fit": "Tim Levene backed Onfido (global US/UK identity compliance) and focuses 100% on regulated FinTech & RegTech infrastructure with transatlantic scale.",
+        "pitch_angle": "Show how Dokimo is the next-generation institutional compliance verification layer after KYC/identity—validating 100% of ongoing operational transactions and controls.",
+    },
+    "abn amro ventures": {
+        "category": "🇪🇺 European Bank CVC Investing in US & EU RegTech / FinCrime",
+        "tier": "A",
+        "base_score": 95,
+        "stage": "Seed / Series A Strategic Bank CVC",
+        "check_size": "$2M – $8M",
+        "partner_default": "Hugo Bongers",
+        "title_default": "Managing Director, ABN AMRO Ventures",
+        "email_default": "hugo.bongers@nl.abnamro.com",
+        "person_linkedin": "https://www.linkedin.com/in/hugobongers/",
+        "website": "https://www.abnamro.com/ventures",
+        "portfolio": "Hummingbird (US AML/SAR CRM), Socure (US KYC), Chainalysis (US AML), ThetaRay (Cross-Border AML), Hadrian",
+        "bank_lp_value": "Strategic Venture Arm of ABN AMRO Bank (€400B+ assets); actively invests in US-headquartered RegTechs (Hummingbird, Socure, Chainalysis) and deploys them across European banking.",
+        "why_fit": "QUALIFIED TRANSATLANTIC BANK CVC: Unlike Europe-only VCs, ABN AMRO Ventures backed US-headquartered Hummingbird, Socure, and Chainalysis because ABN AMRO needs best-in-class AML & compliance automation.",
+        "pitch_angle": "Pitch Dokimo as the natural companion to their Hummingbird & Socure investments: validating 100% of underlying bank records against ECB, BaFin, DNB, DORA, and US rules.",
+    },
+    "commerzventures": {
+        "category": "🇪🇺 Transatlantic US + EU FinTech & RegTech VC (Backed by Commerzbank)",
+        "tier": "A",
+        "base_score": 94,
+        "stage": "Seed / Series A",
+        "check_size": "$2M – $8M",
+        "partner_default": "Paul Morgenthaler",
+        "title_default": "Partner, CommerzVentures",
+        "email_default": "paul@commerzventures.com",
+        "person_linkedin": "https://www.linkedin.com/in/paulmorgenthaler/",
+        "website": "https://commerzventures.com",
+        "portfolio": "Socure (US KYC), Marqeta (US), Mambu, Doconomy, ByMiles (€550M AUM)",
+        "bank_lp_value": "Backed by Commerzbank (Frankfurt); explicit mandate to invest in the USA, UK, Europe, and Israel (backed US-based Socure & Marqeta).",
+        "why_fit": "QUALIFIED US + EU MANDATE: CommerzVentures explicitly invests in US FinTech/RegTech companies (like Socure) and opens immediate commercial doors to Commerzbank and DACH institutions under BaFin MaRisk, GwG, and EU DORA.",
+        "pitch_angle": "Lead with Dokimo's in-perimeter deployment (satisfying German Bankgeheimnis, GDPR Art. 28, BaFin MaRisk, and OCC/FDIC) + Bob's explainable remediation.",
+    },
+    "deutsche bank corporate venture capital": {
+        "category": "🇪🇺/🇺🇸 Transatlantic Tier-1 Bank CVC (Frankfurt, London & NYC)",
+        "tier": "A",
+        "base_score": 94,
+        "stage": "Seed / Series A Strategic Bank CVC",
+        "check_size": "$2M – $10M",
+        "partner_default": "Gil Perez",
+        "title_default": "Chief Innovation Officer & Head of DB Corporate Venture Capital",
+        "email_default": "gil.perez@db.com",
+        "person_linkedin": "https://www.linkedin.com/in/gilperez/",
+        "website": "https://www.db.com",
+        "portfolio": "Kodex AI (AI Financial Compliance), SkyHive, Symphony, Dwolla, Modefin",
+        "bank_lp_value": "Direct strategic investment & enterprise deployment bridge into Deutsche Bank across NYC (Wall Street), London, and Frankfurt.",
+        "why_fit": "Deutsche Bank operates under simultaneous US (FRB/OCC/SEC/FINRA/FinCEN) and EU/UK (BaFin/ECB/FCA/DORA) supervision and already invested in Kodex AI for compliance document intelligence.",
+        "pitch_angle": "Show how Dokimo goes beyond document Q&A to test 100% of Deutsche Bank's production trade, wire, and account records against written US & EU policies overnight.",
+    },
+    "blackfin tech": {
+        "category": "🇪🇺 Europe & UK's Largest Dedicated FinTech & RegTech Seed/A Fund",
+        "tier": "S",
+        "base_score": 96,
+        "stage": "Seed / Series A Lead",
+        "check_size": "$1.5M – $6M",
+        "partner_default": "Julien Creuzé",
+        "title_default": "Managing Director, BlackFin Tech",
+        "email_default": "julien.creuze@blackfin.com",
+        "person_linkedin": "https://www.linkedin.com/in/juliencreuze/",
+        "website": "https://www.blackfintech.com",
+        "portfolio": "ClauseMatch (Policy Management — acquired by Corlytics), Hawk AI (AML Transaction Monitoring), Friss, Akur8 (€4B+ AUM)",
+        "bank_lp_value": "100% dedicated to financial services & RegTech; backed ClauseMatch (regulatory policy management) and Hawk AI (AML monitoring, expanded to US).",
+        "why_fit": "BlackFin backed ClauseMatch (written policy management) and Hawk AI (AML)—they know better than anyone that written policies sit disconnected from operational databases, which is the exact gap Dokimo solves.",
+        "pitch_angle": "Pitch Dokimo as the 'ClauseMatch-to-Database Execution Bridge': taking written compliance policies and deterministically testing 100% of operational records with Bob remediation.",
+    },
+    "finch capital": {
+        "category": "🇪🇺/🇬🇧 EU & UK RegTech, Compliance AI & FinTech Specialist VC",
+        "tier": "S",
+        "base_score": 95,
+        "stage": "Seed / Early Growth",
+        "check_size": "$1.5M – $5M",
+        "partner_default": "Radboud Vlaar",
+        "title_default": "Managing Partner",
+        "email_default": "vlaar@finchcapital.com",
+        "person_linkedin": "https://www.linkedin.com/in/radboudvlaar/",
+        "website": "https://finchcapital.com",
+        "portfolio": "Fourthline (European Bank KYC/AML), Symmetrical, Goodlord, Laventi",
+        "bank_lp_value": "Deep commercial network across UK, Dutch, German, and pan-European banks facing EU AI Act, DORA, and AMLA mandates.",
+        "why_fit": "Radboud Vlaar backed Fourthline (bank KYC/compliance) and explicitly targets capital-efficient B2B RegTech automating bank compliance across UK, EU, and US markets.",
+        "pitch_angle": "Highlight Dokimo's live coverage of 16 regulators (OCC, FDIC, SEC, FINRA, FCA, PRA, BaFin, ECB) and full-population policy-to-record control assurance.",
+    },
+    "speedinvest": {
+        "category": "🇪🇺/🇬🇧 Pre-Seed & Seed FinTech & RegTech Lead VC (Vienna, Berlin, London)",
+        "tier": "S",
+        "base_score": 95,
+        "stage": "Pre-Seed / Seed Lead",
+        "check_size": "$500K – $3M",
+        "partner_default": "Stefan Klestil",
+        "title_default": "General Partner, FinTech",
+        "email_default": "stefan@speedinvest.com",
+        "person_linkedin": "https://www.linkedin.com/in/stefanklestil/",
+        "website": "https://www.speedinvest.com",
+        "portfolio": "Curve, Wayflyer, Bitpanda, Complytron, Billie, FinTech & RegTech Seed",
+        "bank_lp_value": "Backed by European institutional & bank LPs (including NEA co-investments in US/EU FinTech); fast Day-0 Pre-Seed/Seed check writer.",
+        "why_fit": "Stefan Klestil and Speedinvest's FinTech team write fast Pre-Seed and Seed checks ($500K–$3M) into transatlantic FinTech and RegTech founders without requiring Series-A ARR.",
+        "pitch_angle": "Pitch Dokimo as the transatlantic US + EU/UK autonomous compliance validation platform capturing both OCC/SEC/FINRA and EU DORA / AMLA demand.",
+    },
+    "portage ventures": {
+        "category": "🇬🇧/🇪🇺/🇺🇸 Transatlantic FinTech & RegTech Platform VC (London, Paris, NYC)",
+        "tier": "A",
+        "base_score": 93,
+        "stage": "Seed / Series A",
+        "check_size": "$2M – $10M",
+        "partner_default": "Hélène Falchier",
+        "title_default": "Partner (Former CEO of Natixis / BPCE Ventures)",
+        "email_default": "hf@portagevc.com",
+        "person_linkedin": "https://www.linkedin.com/in/helenefalchier/",
+        "website": "https://portagevc.com",
+        "portfolio": "Socure (US), Alloy (US), Clark, Penta, Alpaca, Wealthsimple ($4B+ FinTech platform)",
+        "bank_lp_value": "Backed by global financial institutions across North America, UK, and Europe; Hélène Falchier formerly ran Natixis/BPCE's bank venture arm.",
+        "why_fit": "QUALIFIED TRANSATLANTIC FINTECH VC: Portage operates in NYC, London, and Paris and already co-invested in US compliance leaders Alloy and Socure.",
+        "pitch_angle": "Show how Dokimo completes the Alloy/Socure compliance stack with continuous full-population post-onboarding control validation across US and European banks.",
+    },
+    "mayfield": {
+        "category": "Tier-1 Enterprise AI & Compliance Infrastructure VC (Active Warm Thread)",
+        "tier": "A",
+        "base_score": 92,
+        "stage": "Seed / Series A (AI & Enterprise)",
+        "check_size": "$2M – $15M",
+        "partner_default": "Patrick Salyer / Navin Chaddha",
+        "title_default": "Partner (Enterprise AI & Governance) / Managing Partner",
+        "email_default": "psalyer@mayfield.com",
+        "person_linkedin": "https://www.linkedin.com/in/patricksalyer/",
+        "website": "https://www.mayfield.com",
+        "portfolio": "HashiCorp, Marketo, Poshmark, BigID, Rancher, AI Teammates ($250M AI Seed/A Fund)",
+        "bank_lp_value": "Mayfield launched a dedicated $250M AI Teammates seed/early-stage initiative; Patrick Salyer specifically evaluates AI compliance and identity governance.",
+        "why_fit": "ACTIVE WARM THREAD: On Oct 2, Managing Partner Navin Chaddha looped in Partner Patrick Salyer ('adding my partner Patrick who has looked at this space'), who requested & received the Dokimo overview deck on Oct 5.",
+        "pitch_angle": "Follow up directly with Patrick Salyer (psalyer@mayfield.com) & Navin Chaddha (nchaddha@mayfield.com) positioning Bob as the 'AI Teammate for Bank Compliance & Internal Audit' backed by deterministic 100% population validation.",
+    },
+    "battery ventures": {
+        "category": "Enterprise AI, Data Observability & Risk Software VC",
+        "tier": "B",
+        "base_score": 88,
+        "stage": "Seed / Series A / Growth",
+        "check_size": "$3M – $25M",
+        "partner_default": "Dharmesh Thakker",
+        "title_default": "General Partner (Enterprise AI, Data & Cyber)",
+        "email_default": "dharmesh@battery.com",
+        "person_linkedin": "https://www.linkedin.com/in/dthakker/",
+        "website": "https://www.battery.com",
+        "portfolio": "Databricks, Monte Carlo (data observability), Gong, Postman, Coupa, MarketAxess",
+        "bank_lp_value": "Deep financial services software DNA (early investor in MarketAxess & Coupa) and data observability (Monte Carlo).",
+        "why_fit": "Dharmesh Thakker backed Databricks and Monte Carlo (data observability). Dokimo is 'Compliance & Control Observability' on top of bank data warehouses.",
+        "pitch_angle": "Frame Dokimo as 'Monte Carlo for Regulatory Control Validation' — validating 100% of production records against written OCC/FDIC/SEC policies inside the bank's cloud perimeter.",
+    },
+    "bluerun ventures": {
+        "category": "Early-Stage FinTech & Enterprise AI Seed/A VC",
+        "tier": "A",
+        "base_score": 89,
+        "stage": "Seed / Series A",
+        "check_size": "$1M – $8M",
+        "partner_default": "Jeff Chu",
+        "title_default": "Managing Partner",
+        "email_default": "jchu@brv.com",
+        "person_linkedin": "https://www.linkedin.com/in/jeff-chu-brv/",
+        "website": "https://www.brv.com",
+        "portfolio": "PayPal (first institutional investor), Kabbage, Chime, Banjo, FreedomPay",
+        "bank_lp_value": "Strong FinTech heritage (first institutional check into PayPal and Kabbage); active early-stage US FinTech & AI check-writer.",
+        "why_fit": "Leo emailed Managing Partner Jeff Chu (jchu@brv.com) on Sep 30 for Dokimo's seed round; BRV has deep conviction in foundational financial services infrastructure.",
+        "pitch_angle": "Highlight how Dokimo replaces manual sample-based bank audits with 100% full-population policy-to-record validation and Bob autonomous remediation.",
+    },
+    "sunstone partners": {
+        "category": "Tech-Enabled Compliance, Cyber & Enterprise Software Growth/Strategic",
+        "tier": "A",
+        "base_score": 89,
+        "stage": "Strategic / Growth / Co-Investor",
+        "check_size": "$5M – $25M",
+        "partner_default": "Michael Biggee",
+        "title_default": "Co-Founder & Managing Director",
+        "email_default": "mbiggee@sunstonepartners.com",
+        "person_linkedin": "https://www.linkedin.com/in/michael-biggee-00248b6/",
+        "website": "https://www.sunstonepartners.com",
+        "portfolio": "Avertium, CyberSheath,owsky, Schellman (compliance/audit), NetSPI",
+        "bank_lp_value": "Invests heavily in cybersecurity, IT compliance, and audit/assessment firms — direct strategic channel for audit/compliance firm partnerships.",
+        "why_fit": "ACTIVE WARM THREAD: Warren sent the Dokimo pitch deck directly to Co-Founder Michael Biggee (mbiggee@sunstonepartners.com) on Oct 9.",
+        "pitch_angle": "Leverage Sunstone's portfolio of cybersecurity and compliance assessment firms as a channel multiplier for Dokimo's automated full-population validation.",
+    },
 }
 
 
@@ -761,17 +1380,333 @@ def parse_raw_leo_list(raw_text: str = None) -> list[dict]:
                 "next_action": c[7] if c[7] != "—" else "",
             })
 
-    # Deduplicate / merge records sharing the same (fund_norm, person_norm) while keeping distinct partners at the same fund separate
+    # Canonicalize fund names & deduplicate strictly 1 row per Fund (combining multiple partners cleanly)
+    fund_aliases = {
+        "gv": "GV (Google Ventures)",
+        "google ventures": "GV (Google Ventures)",
+        "gv (google ventures)": "GV (Google Ventures)",
+        "menlo": "Menlo Ventures",
+        "menlo ventures": "Menlo Ventures",
+        "battery": "Battery Ventures",
+        "battery ventures": "Battery Ventures",
+        "triatomic": "Triatomic Capital",
+        "triatomic capital": "Triatomic Capital",
+        "two sigma": "Deviation Capital (fka Two Sigma Ventures)",
+        "deviation capital (fka two sigma ventures)": "Deviation Capital (fka Two Sigma Ventures)",
+        "vvus": "Vertex Ventures US",
+        "quite capital": "Quiet Capital",
+        "quiet capital": "Quiet Capital",
+        "raptor/rosen": "Raptor Group",
+        "raptor group": "Raptor Group",
+        "miramar": "Miramar VP",
+        "miramar vp": "Miramar VP",
+        "playground (network)": "Playground Global",
+        "playground global": "Playground Global",
+        "analog device ventures": "Analog Devices Ventures",
+        "matter vc (tsmc fund)": "Matter Venture Partners",
+        "Paul Moritz": "Paul Maritz",
+    }
+
+    # Inject Qualified Transatlantic UK & EU FinTech/RegTech/Bank-CVC Funds (Invest in US + UK/EU, Zero Europe-HQ-Only Trap)
+    qualified_uk_eu_funds = [
+        {
+            "source_table": "Transatlantic UK/EU Qualified",
+            "fund": "13books Capital",
+            "person": "Michael McFadgen",
+            "title": "Founding Partner (fka Element Ventures)",
+            "background": "Pure-play B2B FinTech & RegTech Seed/A VC in London investing across UK & US (backed Fenergo, Duco)",
+            "our_contact": "Warren / Leo",
+            "latest_status": "Not Contacted",
+            "comment": "Qualified UK/US B2B RegTech Seed VC — backed Fenergo (KYC/CLM) and Duco (reconciliation)",
+            "email": "michael@13books.com",
+            "person_linkedin": "https://www.linkedin.com/in/michaelmcfadgen/",
+            "website": "https://www.13books.com",
+            "company_linkedin": "https://www.linkedin.com/company/13books-capital/",
+            "twitter": "",
+            "mobile_phone": "",
+            "corporate_phone": "+44 20 3983 8000",
+            "city": "London",
+            "state": "",
+            "country": "United Kingdom",
+            "total_funding": "",
+            "relevant_investments": "Fenergo, Duco, Hepster, Billhop",
+            "next_action": "Pitch 'Fenergo + Duco for the Agentic AI Era' (US + UK/EU bank controls)",
+        },
+        {
+            "source_table": "Transatlantic UK/EU Qualified",
+            "fund": "Outward VC",
+            "person": "Devin Kohli",
+            "title": "Co-Founder & Co-Head",
+            "background": "London & Transatlantic Early-Stage B2B FinTech & RegTech Seed VC backed by Investec & NIBC Bank",
+            "our_contact": "Warren / Leo",
+            "latest_status": "Not Contacted",
+            "comment": "Qualified UK/US Seed Lead (£1M-£4M checks) focused on B2B RegTech & banking compliance",
+            "email": "devin@outward.vc",
+            "person_linkedin": "https://www.linkedin.com/in/devinkohli/",
+            "website": "https://outward.vc",
+            "company_linkedin": "https://www.linkedin.com/company/outwardvc/",
+            "twitter": "",
+            "mobile_phone": "",
+            "corporate_phone": "+44 20 7566 0000",
+            "city": "London",
+            "state": "",
+            "country": "United Kingdom",
+            "total_funding": "",
+            "relevant_investments": "Bud Financial, PrimaryBid, Vauban, Comma",
+            "next_action": "Send Seed deck + FCA/PRA/OCC full-population validation memo",
+        },
+        {
+            "source_table": "Transatlantic UK/EU Qualified",
+            "fund": "AlbionVC",
+            "person": "Jay Wilson",
+            "title": "Partner (FinTech, RegTech & Risk AI)",
+            "background": "Early investor in Quantexa & Elliptic; backs UK & transatlantic RegTech/FinCrime software",
+            "our_contact": "Warren / Leo",
+            "latest_status": "Not Contacted",
+            "comment": "Qualified UK/US RegTech VC — backed Quantexa (bank AML unicorn) & Elliptic",
+            "email": "jwilson@albion.vc",
+            "person_linkedin": "https://www.linkedin.com/in/jay-wilson-vc/",
+            "website": "https://www.albion.vc",
+            "company_linkedin": "https://www.linkedin.com/company/albionvc/",
+            "twitter": "",
+            "mobile_phone": "",
+            "corporate_phone": "+44 20 7601 1850",
+            "city": "London",
+            "state": "",
+            "country": "United Kingdom",
+            "total_funding": "",
+            "relevant_investments": "Quantexa, Elliptic, Ophelos, Diffblue",
+            "next_action": "Pitch Dokimo as policy-to-record control assurance counterpart to Quantexa",
+        },
+        {
+            "source_table": "Transatlantic UK/EU Qualified",
+            "fund": "Augmentum Fintech",
+            "person": "Tim Levene",
+            "title": "CEO & Managing Partner",
+            "background": "UK's publicly listed FinTech/RegTech specialist VC (backed Onfido, Tide, iwoca)",
+            "our_contact": "Warren / Leo",
+            "latest_status": "Not Contacted",
+            "comment": "Qualified UK/EU FinTech & RegTech specialist — backed Onfido (global US/UK compliance)",
+            "email": "tim@augmentum.vc",
+            "person_linkedin": "https://www.linkedin.com/in/timlevene/",
+            "website": "https://augmentum.vc",
+            "company_linkedin": "https://www.linkedin.com/company/augmentum-fintech/",
+            "twitter": "",
+            "mobile_phone": "",
+            "corporate_phone": "+44 20 3961 5420",
+            "city": "London",
+            "state": "",
+            "country": "United Kingdom",
+            "total_funding": "",
+            "relevant_investments": "Onfido, Tide, Grover, iwoca, Volt",
+            "next_action": "Pitch post-onboarding 100% transaction & control validation",
+        },
+        {
+            "source_table": "Transatlantic UK/EU Qualified",
+            "fund": "ABN AMRO Ventures",
+            "person": "Hugo Bongers",
+            "title": "Managing Director, ABN AMRO Ventures",
+            "background": "European Bank CVC actively investing in US & EU RegTech (backed US-based Hummingbird, Socure, Chainalysis, ThetaRay)",
+            "our_contact": "Warren / Leo",
+            "latest_status": "Not Contacted",
+            "comment": "Verified US + EU Mandate: backed US-headquartered Hummingbird, Socure & Chainalysis",
+            "email": "hugo.bongers@nl.abnamro.com",
+            "person_linkedin": "https://www.linkedin.com/in/hugobongers/",
+            "website": "https://www.abnamro.com/ventures",
+            "company_linkedin": "https://www.linkedin.com/company/abn-amro-ventures/",
+            "twitter": "",
+            "mobile_phone": "",
+            "corporate_phone": "+31 20 628 9393",
+            "city": "Amsterdam",
+            "state": "",
+            "country": "Netherlands (EU)",
+            "total_funding": "",
+            "relevant_investments": "Hummingbird (US), Socure (US), Chainalysis (US), ThetaRay, Hadrian",
+            "next_action": "Pitch Dokimo as full-population control validation companion to Hummingbird & Socure",
+        },
+        {
+            "source_table": "Transatlantic UK/EU Qualified",
+            "fund": "CommerzVentures",
+            "person": "Paul Morgenthaler",
+            "title": "Partner, CommerzVentures",
+            "background": "Frankfurt FinTech/RegTech VC backed by Commerzbank; explicit mandate for USA, Europe & Israel (backed Socure, Marqeta)",
+            "our_contact": "Warren / Leo",
+            "latest_status": "Not Contacted",
+            "comment": "Verified US + EU Mandate: explicitly invests in USA & Europe (backed Socure & Marqeta)",
+            "email": "paul@commerzventures.com",
+            "person_linkedin": "https://www.linkedin.com/in/paulmorgenthaler/",
+            "website": "https://commerzventures.com",
+            "company_linkedin": "https://www.linkedin.com/company/commerzventures/",
+            "twitter": "",
+            "mobile_phone": "",
+            "corporate_phone": "+49 69 136 20",
+            "city": "Frankfurt",
+            "state": "",
+            "country": "Germany (EU)",
+            "total_funding": "",
+            "relevant_investments": "Socure (US), Marqeta (US), Mambu, Doconomy",
+            "next_action": "Pitch in-perimeter BaFin MaRisk / DORA + US OCC/FDIC full-population control testing",
+        },
+        {
+            "source_table": "Transatlantic UK/EU Qualified",
+            "fund": "Deutsche Bank Corporate Venture Capital",
+            "person": "Gil Perez",
+            "title": "Chief Innovation Officer & Head of DB CVC",
+            "background": "Transatlantic NYC + Frankfurt + London Bank CVC (backed Kodex AI financial compliance LLM, Symphony)",
+            "our_contact": "Warren / Leo",
+            "latest_status": "Not Contacted",
+            "comment": "Verified US + EU/UK Bank CVC — operates in NYC, London & Frankfurt (backed Kodex AI)",
+            "email": "gil.perez@db.com",
+            "person_linkedin": "https://www.linkedin.com/in/gilperez/",
+            "website": "https://www.db.com",
+            "company_linkedin": "https://www.linkedin.com/company/deutsche-bank/",
+            "twitter": "",
+            "mobile_phone": "",
+            "corporate_phone": "+1 212-250-2500",
+            "city": "New York / Frankfurt / London",
+            "state": "NY",
+            "country": "Germany (EU) / US / UK",
+            "total_funding": "",
+            "relevant_investments": "Kodex AI, SkyHive, Symphony, Dwolla",
+            "next_action": "Pitch deterministic full-population record validation beyond document Q&A",
+        },
+        {
+            "source_table": "Transatlantic UK/EU Qualified",
+            "fund": "BlackFin Tech",
+            "person": "Julien Creuzé",
+            "title": "Managing Director, BlackFin Capital Partners",
+            "background": "Europe & UK's largest dedicated FinTech & RegTech fund (€4B+ AUM; backed ClauseMatch policy management & Hawk AI AML)",
+            "our_contact": "Warren / Leo",
+            "latest_status": "Not Contacted",
+            "comment": "Qualified EU/UK RegTech Leader — backed ClauseMatch (policy management) & Hawk AI (US/EU AML)",
+            "email": "julien.creuze@blackfin.com",
+            "person_linkedin": "https://www.linkedin.com/in/juliencreuze/",
+            "website": "https://www.blackfintech.com",
+            "company_linkedin": "https://www.linkedin.com/company/blackfin-capital-partners/",
+            "twitter": "",
+            "mobile_phone": "",
+            "corporate_phone": "+33 1 56 43 29 00",
+            "city": "Paris / Frankfurt / London",
+            "state": "",
+            "country": "France / Germany (EU) / UK",
+            "total_funding": "",
+            "relevant_investments": "ClauseMatch (acquired by Corlytics), Hawk AI, Friss, Akur8",
+            "next_action": "Pitch Dokimo as the ClauseMatch-to-Database full-population execution bridge",
+        },
+        {
+            "source_table": "Transatlantic UK/EU Qualified",
+            "fund": "Finch Capital",
+            "person": "Radboud Vlaar",
+            "title": "Managing Partner",
+            "background": "Amsterdam & London RegTech, Compliance AI & FinTech specialist VC (backed Fourthline KYC/AML)",
+            "our_contact": "Warren / Leo",
+            "latest_status": "Not Contacted",
+            "comment": "Qualified EU/UK RegTech Seed/A VC — backed Fourthline (bank KYC/AML)",
+            "email": "vlaar@finchcapital.com",
+            "person_linkedin": "https://www.linkedin.com/in/radboudvlaar/",
+            "website": "https://finchcapital.com",
+            "company_linkedin": "https://www.linkedin.com/company/finch-capital/",
+            "twitter": "",
+            "mobile_phone": "",
+            "corporate_phone": "+31 20 240 2900",
+            "city": "Amsterdam / London",
+            "state": "",
+            "country": "Netherlands (EU) / UK",
+            "total_funding": "",
+            "relevant_investments": "Fourthline, Symmetrical, Goodlord, Laventi",
+            "next_action": "Send 2-Page Tear-Sheet highlighting 16-regulator US + UK/EU coverage",
+        },
+        {
+            "source_table": "Transatlantic UK/EU Qualified",
+            "fund": "Speedinvest",
+            "person": "Stefan Klestil",
+            "title": "General Partner, FinTech",
+            "background": "Pan-European & UK Pre-Seed/Seed FinTech & RegTech Lead VC (Vienna, Berlin, London; co-invests transatlantically with US VCs)",
+            "our_contact": "Warren / Leo",
+            "latest_status": "Not Contacted",
+            "comment": "Qualified Pre-Seed/Seed Check-Writer ($500K-$3M) in FinTech & RegTech",
+            "email": "stefan@speedinvest.com",
+            "person_linkedin": "https://www.linkedin.com/in/stefanklestil/",
+            "website": "https://www.speedinvest.com",
+            "company_linkedin": "https://www.linkedin.com/company/speedinvest/",
+            "twitter": "",
+            "mobile_phone": "",
+            "corporate_phone": "+43 1 909 4416",
+            "city": "London / Berlin / Vienna",
+            "state": "",
+            "country": "Austria / Germany (EU) / UK",
+            "total_funding": "",
+            "relevant_investments": "Curve, Wayflyer, Bitpanda, Complytron, Billie",
+            "next_action": "Pitch Pre-Seed/Seed round with US + EU DORA/AMLA bank compliance angle",
+        },
+        {
+            "source_table": "Transatlantic UK/EU Qualified",
+            "fund": "Portage Ventures",
+            "person": "Hélène Falchier",
+            "title": "Partner (Former CEO of Natixis / BPCE Ventures)",
+            "background": "Transatlantic FinTech & RegTech VC (NYC, London, Paris) — backed US compliance leaders Alloy & Socure",
+            "our_contact": "Warren / Leo",
+            "latest_status": "Not Contacted",
+            "comment": "Verified US + EU + UK Mandate: backed Alloy (US) & Socure (US); led by ex-Natixis bank CVC head",
+            "email": "hf@portagevc.com",
+            "person_linkedin": "https://www.linkedin.com/in/helenefalchier/",
+            "website": "https://portagevc.com",
+            "company_linkedin": "https://www.linkedin.com/company/portage-ventures/",
+            "twitter": "",
+            "mobile_phone": "",
+            "corporate_phone": "+33 1 53 05 00 00",
+            "city": "Paris / London / New York",
+            "state": "",
+            "country": "France (EU) / UK / US",
+            "total_funding": "",
+            "relevant_investments": "Alloy (US), Socure (US), Clark, Penta, Alpaca",
+            "next_action": "Pitch Dokimo as post-onboarding full-population control validation alongside Alloy/Socure",
+        },
+        {
+            "source_table": "Gmail Sep/Oct Outreach Tracker",
+            "fund": "Sunstone Partners",
+            "person": "Michael Biggee",
+            "title": "Co-Founder & Managing Director",
+            "background": "Tech-enabled compliance, cybersecurity & audit services growth equity (Schellman, NetSPI, Avertium)",
+            "our_contact": "Warren",
+            "latest_status": "Deck / Data Room Sent",
+            "comment": "Oct 9: Warren emailed pitch deck directly to Michael Biggee (mbiggee@sunstonepartners.com)",
+            "email": "mbiggee@sunstonepartners.com",
+            "person_linkedin": "https://www.linkedin.com/in/michael-biggee-00248b6/",
+            "website": "https://www.sunstonepartners.com",
+            "company_linkedin": "https://www.linkedin.com/company/sunstone-partners/",
+            "twitter": "",
+            "mobile_phone": "",
+            "corporate_phone": "+1 650-289-4400",
+            "city": "San Mateo",
+            "state": "CA",
+            "country": "United States",
+            "total_funding": "",
+            "relevant_investments": "Schellman, NetSPI, Avertium, CyberSheath",
+            "next_action": "Follow up with Michael Biggee (mbiggee@sunstonepartners.com) on Oct 9 pitch deck review",
+        },
+    ]
+    parsed_items.extend(qualified_uk_eu_funds)
+
     merged_map = {}
     for item in parsed_items:
-        fn = _norm(item["fund"])
-        pn = _norm(item["person"])
-        # If person is empty or generic, see if there's already an entry for this fund with no person
-        key = f"{fn}||{pn}"
+        raw_fn = _norm(item["fund"])
+        canon_fund = fund_aliases.get(raw_fn, item["fund"].strip())
+        item["fund"] = canon_fund
+        fn = _norm(canon_fund)
+        key = fn  # Strictly 1 row per canonical fund — zero duplicates on the board!
         if key not in merged_map:
             merged_map[key] = dict(item)
         else:
             cur = merged_map[key]
+            # Combine partner names if a second partner at the same fund is listed
+            p_new = (item.get("person") or "").strip()
+            p_cur = (cur.get("person") or "").strip()
+            if p_new and not p_new.startswith("(") and p_new.lower() not in ("individual", "ai infra team", "systems partners", "infra partners", "ai infra partners"):
+                if not p_cur or p_cur.startswith("("):
+                    cur["person"] = p_new
+                elif p_new.lower() not in p_cur.lower():
+                    cur["person"] = f"{p_cur} / {p_new}"
             for field in [
                 "title", "background", "our_contact", "latest_status", "comment", "email",
                 "person_linkedin", "website", "company_linkedin", "twitter", "mobile_phone",
@@ -780,11 +1715,53 @@ def parse_raw_leo_list(raw_text: str = None) -> list[dict]:
             ]:
                 if not cur.get(field) and item.get(field):
                     cur[field] = item[field]
-                elif field in ("background", "relevant_investments", "our_contact") and item.get(field) and item[field] not in cur.get(field, ""):
+                elif field in ("background", "relevant_investments", "our_contact", "comment") and item.get(field) and item[field] not in cur.get(field, ""):
                     cur[field] = f"{cur[field]} | {item[field]}".strip(" |")
 
-    # Enrich & score all items
+    # Enrich & score all items — keeping ONLY the RIGHT VCs for Dokimo (filtering out Wrong/Hardware VCs & Hard Declines)
     state = load_state()
+
+    # Stage-Gated Deep Dive Lists:
+    # 0. NON-US REGIONAL MANDATE TRAPS & CHANGED/INACTIVE/HARDWARE FUNDS
+    non_us_or_changed_funds = [
+        "balderton", "dawn capital", "notion capital", "hoxton", "iq capital",
+        "mosaic ventures", "round13", "golden ventures", "pitango", "viola elevate",
+        "meron", "aleph", "air street", "crane.vc", "inovia", "hummer winblad",
+        "khosla", "eclipse ventures", "matter venture", "aal.vc", "anfavc", "anzu partners",
+        "castle-fund", "daemonventures", "embedded ventures", "energize capital",
+        "up.partners", "riot ventures", "root vc", "rountree", "harpoon",
+        "pax ventures", "red glass", "fathom capital", "miramar", "pegasus",
+        "jci ventures", "hp ventures", "intel capital", "cisco", "cloud infra operators",
+        "nvidia alumni", "playground", "cleremont", "fj", "wild west",
+    ]
+    # 1. TRUE US + UK + EU DAY-0 / PRE-SEED & SEED CHECK-WRITERS (Write $500K-$4M checks BEFORE $1M ARR — Zero "Too Early" Risk)
+    day0_seed_funds = [
+        "ludwig advisors", "valuestream", "vestigo", "restive", "legaltech fund", "sixthirty",
+        "work-bench", "luge capital", "commerce ventures", "fintech collective", "anthemis",
+        "ejf ventures", "information venture", "ttv capital", "boldstart", "conviction",
+        "cyberstarts", "team8", "glilot", "f2 venture", "tlv partners", "costanoa",
+        "susa ventures", "daybreak", "glasswing", "amplify", "zetta", "elad gil", "nat friedman",
+        "daniel gross", "paul maritz", "paul moritz", "acrew", "firstmark", "signalfire",
+        "quiet capital", "sierra ventures", "counterpart", "raptor", "triatomic",
+        "radical ventures", "vertex ventures", "rally ventures",
+        "13books", "outward vc", "albionvc", "augmentum", "blackfin", "finch capital", "speedinvest",
+    ]
+    # 2. SERIES A / GROWTH / $400M+ MULTISTAGE FUNDS THAT SAY "TOO EARLY" WITHOUT $1M+ ARR OR 3+ BANK LOGOS
+    too_early_series_a_traps = [
+        "nyca", "motive partners", "thomson reuters", "qed investors", "ribbit capital",
+        "bain capital", "oak hc/ft", "fin capital", "f-prime", "mouro capital",
+        "general atlantic", "insight partners", "sequoia", "a16z", "benchmark",
+        "general catalyst", "bessemer", "accel", "kleiner perkins", "greylock",
+        "menlo", "nea", "index ventures", "battery", "foundation capital", "crv",
+        "spark capital", "sutter hill", "coatue", "founders fund", "altimeter",
+        "alpha wave", "prosperity7", "dcvc", "madrona", "mayfield", "wing capital",
+        "innovation endeavors", "bluerun",
+    ]
+
+    uk_funds = ["illuminate financial", "anthemis", "mouro capital", "13books", "outward vc", "albionvc", "augmentum", "index ventures"]
+    eu_funds = ["abn amro", "commerzventures", "deutsche bank", "blackfin", "finch capital", "speedinvest", "portage", "constructor", "motive partners"]
+    il_us_funds = ["team8", "cyberstarts", "glilot", "f2 venture", "tlv partners"]
+
     enriched = []
     for idx, (k, row) in enumerate(merged_map.items(), start=1):
         inv_id = "INV-" + hashlib.sha1(k.encode("utf-8")).hexdigest()[:8].upper()
@@ -804,12 +1781,76 @@ def parse_raw_leo_list(raw_text: str = None) -> list[dict]:
             row["comment"] = st["comment"]
         if st.get("assigned_owner"):
             row["our_contact"] = st["assigned_owner"]
+        if st.get("person"):
+            row["person"] = st["person"]
+        if st.get("email"):
+            row["email"] = st["email"]
         row["updated_at"] = st.get("updated_at", "")
         row["updated_by"] = st.get("updated_by", "")
         row["deck_opens"] = int(st.get("deck_opens") or (1 if "deck sent" in (row.get("latest_status") or "").lower() or "looking at deck" in (row.get("latest_status") or "").lower() else 0))
         row["pdf_downloads"] = int(st.get("pdf_downloads") or 0)
         row["last_opened_at"] = st.get("last_opened_at", "")
         row["follow_up_date"] = st.get("follow_up_date", "")
+        row["followup_note"] = st.get("followup_note", "")
+        row["followup_updated_at"] = st.get("followup_updated_at", "")
+        row["leo_sep_oct_outreach"] = bool(st.get("leo_sep_oct_outreach", False))
+
+        # EXCLUDE "Wrong" VCs (Tier C Hardware/Semiconductor funds, Europe-HQ-Only traps like Balderton, Changed funds like Hummer Winblad, & explicit hard "No/Declined" funds)
+        fn_lc = row["fund"].lower()
+        if row["tier"] == "C":
+            continue
+        if any(reg_trap in fn_lc for reg_trap in non_us_or_changed_funds):
+            continue
+        st_lc = (row.get("latest_status") or "").lower()
+        cm_lc = (row.get("comment") or "").lower()
+        if any(x in st_lc for x in ("declined", "not a lead", "not a fit", "turned down")) or "said no" in cm_lc or "not in our region" in cm_lc:
+            continue
+        if "passed" in st_lc and "too early" not in cm_lc:
+            continue
+
+        # Assign Region (US, UK, EU, IL / US)
+        if any(u in fn_lc for u in uk_funds):
+            row["region"] = "UK"
+        elif any(e in fn_lc for e in eu_funds):
+            row["region"] = "EU"
+        elif any(il in fn_lc for il in il_us_funds):
+            row["region"] = "IL / US"
+        else:
+            row["region"] = "US"
+
+        # Apply Stage-Gated Deep Dive Re-Classification & Qualification Gate so Warren never wastes time
+        if "too early" in cm_lc or any(t in fn_lc for t in too_early_series_a_traps):
+            # Unless we already have an active scheduling thread (e.g. Barry Eggers at Lightspeed)
+            if any(w in st_lc for w in ("scheduling", "talked", "deck / data room sent", "meeting")):
+                row["tier"] = "A"
+                row["stage"] = "Warm Active Thread (Multi-Stage)"
+                row["dokimo_fit_score"] = min(92, max(88, int(row["dokimo_fit_score"])))
+                row["qualification_gate"] = f"✅ QUALIFIED ({row['region']}) · Active Warm Partner Thread · Transatlantic/US Eligible"
+            else:
+                row["tier"] = "B"
+                row["stage"] = "⏳ Hold for $1M ARR / 3+ Bank Logos (Series A)"
+                row["dokimo_fit_score"] = min(79, int(row["dokimo_fit_score"]) - 15)
+                row["why_fit"] = f"[STAGE WARNING — HOLD UNTIL $1M ARR / 3 BANK LOGOS] {row['why_fit']} (Large multistage/Series-A fund — will say 'too early' if pitched before initial paying bank logos)."
+                row["qualification_gate"] = f"⏳ STAGE-GATED ({row['region']}) · Hold Until $1M ARR / 3+ Bank Logos (Do Not Waste Time Pitching Pre-ARR)"
+                if not row.get("next_action"):
+                    row["next_action"] = "Hold until 3+ paying bank pilots / $1M ARR (avoid 'too early' trap)"
+        elif any(d in fn_lc for d in day0_seed_funds):
+            row["tier"] = "S"
+            row["stage"] = "🟢 PITCH NOW: Day-0 / Pre-Seed & Seed Lead"
+            row["dokimo_fit_score"] = max(94, min(99, int(row["dokimo_fit_score"]) + 3))
+            if "[PITCH NOW" not in row["why_fit"]:
+                row["why_fit"] = f"[🟢 PITCH NOW — TRUE PRE-SEED / EARLY-SEED CHECK WRITER] {row['why_fit']}"
+            row["qualification_gate"] = f"✅ QUALIFIED ({row['region']}) · Writes $500K–$4M Pre-Seed/Seed Checks Before $1M ARR · Transatlantic/US Eligible"
+            if not row.get("next_action"):
+                row["next_action"] = f"Pitch Now — Send 2-Page Tear-Sheet & book 15-min intro with {row.get('person') or row['fund']}"
+        else:
+            # Strategic Bank CVCs & Warm-Intro Seed/A Funds (Citi, CapOne, Amex, Canapi, Illuminate, PruVen, Deviation, Point72, ABN AMRO, CommerzVentures, DB CVC, Portage)
+            row["tier"] = "A"
+            row["stage"] = "🔵 Warm-Intro / Strategic Bank CVC"
+            row["dokimo_fit_score"] = min(93, max(86, int(row["dokimo_fit_score"])))
+            row["qualification_gate"] = f"✅ QUALIFIED ({row['region']}) · Strategic Bank CVC / Warm Thread · Direct Bank Commercial + Investment Mandate"
+            if not row.get("next_action"):
+                row["next_action"] = f"Trigger warm intro / Strategic CVC + Bank Pilot dual track with {row.get('person') or row['fund']}"
 
         row["display_phone"] = row["mobile_phone"] or row["corporate_phone"] or ""
         row["phone_kind"] = "Mobile" if row["mobile_phone"] else ("Office" if row["corporate_phone"] else "")
@@ -851,6 +1892,27 @@ def save_state(state: dict):
     STATE_FILE.write_text(json.dumps(state, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
+def save_followup_note(inv_id: str, note: str, updated_by: str = "Warren") -> dict:
+    """Persist an auto-saved 4-line follow-up & action note (max 4 lines / 400 chars) for an investor row."""
+    iid = (inv_id or "").strip()
+    if not iid:
+        return {"ok": False, "error": "Missing investor id"}
+    lines = str(note or "").replace("\r\n", "\n").replace("\r", "\n").split("\n")
+    if len(lines) > 4:
+        lines = lines[:3] + [" ".join(lines[3:])]
+    clean_note = "\n".join(lines)[:400]
+    state = load_state()
+    cur = state.get(iid) or {}
+    ts = datetime.datetime.now(datetime.timezone.utc).strftime("%b %d %H:%M UTC")
+    cur["followup_note"] = clean_note
+    cur["followup_updated_at"] = ts if clean_note.strip() else ""
+    cur["updated_by"] = updated_by
+    cur["updated_at"] = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    state[iid] = cur
+    save_state(state)
+    return {"ok": True, "id": iid, "note": clean_note, "updated_at": cur["followup_updated_at"]}
+
+
 def update_investor_status(
     inv_id: str,
     latest_status: str = None,
@@ -858,6 +1920,7 @@ def update_investor_status(
     next_action: str = None,
     assigned_owner: str = None,
     follow_up_date: str = None,
+    followup_note: str = None,
     updated_by: str = "Warren",
 ) -> dict:
     iid = (inv_id or "").strip()
@@ -875,6 +1938,12 @@ def update_investor_status(
         cur["assigned_owner"] = str(assigned_owner).strip()[:80]
     if follow_up_date is not None:
         cur["follow_up_date"] = str(follow_up_date).strip()[:40]
+    if followup_note is not None:
+        lines = str(followup_note).replace("\r\n", "\n").replace("\r", "\n").split("\n")
+        if len(lines) > 4:
+            lines = lines[:3] + [" ".join(lines[3:])]
+        cur["followup_note"] = "\n".join(lines)[:400]
+        cur["followup_updated_at"] = datetime.datetime.now(datetime.timezone.utc).strftime("%b %d %H:%M UTC")
     cur["updated_by"] = updated_by
     cur["updated_at"] = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     state[iid] = cur
@@ -904,8 +1973,8 @@ def record_investor_engagement(inv_id: str, event_type: str = "open") -> dict:
 
 
 CSV_COLUMNS = [
-    "rank", "id", "tier", "dokimo_fit_score", "fund", "person", "title", "category",
-    "stage", "check_size", "our_contact", "latest_status", "next_action", "comment",
+    "rank", "id", "tier", "dokimo_fit_score", "region", "qualification_gate", "fund", "person", "title", "category",
+    "stage", "check_size", "our_contact", "latest_status", "next_action", "follow_up_date", "followup_note", "comment",
     "email", "mobile_phone", "corporate_phone", "person_linkedin", "website",
     "city", "state", "country", "portfolio", "bank_lp_value", "why_fit", "pitch_angle",
     "source_table",
@@ -932,6 +2001,10 @@ def build_summary_metrics(rows: list[dict] = None) -> dict:
     tier_a = [r for r in rows if r["tier"] == "A"]
     tier_b = [r for r in rows if r["tier"] == "B"]
     tier_c = [r for r in rows if r["tier"] == "C"]
+    us_rows = [r for r in rows if r.get("region") == "US"]
+    uk_rows = [r for r in rows if r.get("region") == "UK"]
+    eu_rows = [r for r in rows if r.get("region") == "EU"]
+    il_us_rows = [r for r in rows if r.get("region") == "IL / US"]
     with_email = [r for r in rows if r.get("email")]
     with_linkedin = [r for r in rows if r.get("person_linkedin")]
     with_phone = [r for r in rows if r.get("display_phone")]
@@ -941,6 +2014,16 @@ def build_summary_metrics(rows: list[dict] = None) -> dict:
         r for r in rows
         if (r.get("latest_status") or "").lower() not in ("", "not contacted", "declined", "not a lead")
         and "passed" not in (r.get("latest_status") or "").lower()
+    ]
+    leo_sep_oct = [
+        r for r in rows
+        if r.get("leo_sep_oct_outreach")
+    ]
+    followup_queue = [
+        r for r in rows
+        if (r.get("followup_note") or "").strip()
+        or (r.get("follow_up_date") or "").strip()
+        or any(k in (r.get("latest_status") or "").lower() for k in ("follow", "scheduling", "deck", "intro", "call", "talked", "waiting"))
     ]
     decks_sent = [
         r for r in rows
@@ -969,6 +2052,14 @@ def build_summary_metrics(rows: list[dict] = None) -> dict:
         "tier_b_rate": f"{len(tier_b)} of {total} ({round(len(tier_b) / denom * 100, 1)}%)",
         "tier_c_count": len(tier_c),
         "tier_c_rate": f"{len(tier_c)} of {total} ({round(len(tier_c) / denom * 100, 1)}%)",
+        "us_count": len(us_rows),
+        "us_rate": f"{len(us_rows)} of {total} ({round(len(us_rows) / denom * 100, 1)}%)",
+        "uk_count": len(uk_rows),
+        "uk_rate": f"{len(uk_rows)} of {total} ({round(len(uk_rows) / denom * 100, 1)}%)",
+        "eu_count": len(eu_rows),
+        "eu_rate": f"{len(eu_rows)} of {total} ({round(len(eu_rows) / denom * 100, 1)}%)",
+        "il_us_count": len(il_us_rows),
+        "il_us_rate": f"{len(il_us_rows)} of {total} ({round(len(il_us_rows) / denom * 100, 1)}%)",
         "with_email_count": len(with_email),
         "with_email_rate": f"{len(with_email)} of {total} ({round(len(with_email) / denom * 100, 1)}%)",
         "with_linkedin_count": len(with_linkedin),
@@ -978,6 +2069,9 @@ def build_summary_metrics(rows: list[dict] = None) -> dict:
         "warren_contact_count": len(warren_contacts),
         "leo_contact_count": len(leo_contacts),
         "active_convo_count": len(active_convos),
+        "leo_sep_oct_count": len(leo_sep_oct),
+        "leo_sep_oct_rate": f"{len(leo_sep_oct)} of {total} ({round(len(leo_sep_oct) / denom * 100, 1)}%)",
+        "followup_queue_count": len(followup_queue),
         "decks_sent_count": len(decks_sent),
         "decks_sent_rate": f"{len(decks_sent)} of {total} ({round(len(decks_sent) / denom * 100, 1)}%)",
         "decks_opened_count": len(decks_opened),
@@ -988,20 +2082,20 @@ def build_summary_metrics(rows: list[dict] = None) -> dict:
 
 
 def build_executive_vc_report(rows: list[dict] = None) -> dict:
-    """Build the comprehensive 'Who Is the Right VC for Dokimo?' Research Report."""
+    """Build the comprehensive 'Who Is the Right VC for Dokimo?' Research Report (Right VCs Only, Deduplicated)."""
     rows = rows if rows is not None else get_all_investors(persist_csv=False)
     metrics = build_summary_metrics(rows)
     tier_s = [r for r in rows if r["tier"] == "S"]
     tier_a = [r for r in rows if r["tier"] == "A"]
-    tier_c = [r for r in rows if r["tier"] == "C"]
+    tier_b = [r for r in rows if r["tier"] == "B"]
 
-    bank_strategics = [
+    fintech_seed_leads = [
         r for r in tier_s
-        if any(k in (r["fund"] + " " + r["category"]).lower() for k in ["citi", "capital one", "amex", "canapi", "illuminate", "thomson reuters", "ludwig", "ejf", "mouro", "nyca", "f-prime"])
+        if any(k in (r["fund"] + " " + r["category"]).lower() for k in ["ludwig", "valuestream", "vestigo", "restive", "legaltech", "sixthirty", "work-bench", "luge", "commerce", "fintech", "anthemis", "ejf", "information venture", "ttv"])
     ]
-    pure_fintech_leads = [
+    ai_cyber_seed_leads = [
         r for r in tier_s
-        if r not in bank_strategics
+        if r not in fintech_seed_leads
     ]
 
     return {
@@ -1009,14 +2103,15 @@ def build_executive_vc_report(rows: list[dict] = None) -> dict:
         "generated_at": datetime.datetime.now(datetime.timezone.utc).strftime("%d %b %Y %H:%M UTC"),
         "metrics": metrics,
         "executive_thesis": (
-            f"Across the {metrics['total_investors']} investor records consolidated from Leo and Warren's 4 lists, "
-            f"there is a sharp bifurcation: {metrics['tier_s_rate']} are Tier-S Bullseye FinTech, RegTech, and Bank-LP Strategic investors, "
-            f"and {metrics['tier_a_rate']} are Tier-A Enterprise AI & Cyber investors, whereas {metrics['tier_c_rate']} come from Leo's "
-            f"AINekko/Veevx semiconductor & hardware lists (e.g., TSMC/Matter VC, Tenstorrent, TDK, TEL Ventures, Analog Devices) and should be deprioritized for Dokimo's software/AI round."
+            f"All Wrong/Hardware VCs, non-US regional mandate traps (Balderton, Dawn, Notion, Hoxton, Round13), changed/inactive firms (Hummer Winblad), "
+            f"hard passes (Khosla), and duplicate partner entries have been eliminated. Across the {metrics['total_investors']} deduplicated RIGHT VCs for Dokimo, "
+            f"{metrics['tier_s_rate']} are Tier-S True Pre-Seed & Early-Seed Check-Writers ($500K–$4M before $1M ARR — PITCH NOW), "
+            f"{metrics['tier_a_rate']} are Tier-A Warm-Intro & Strategic Bank CVCs (Citigroup Ventures, PruVen, Canapi, Illuminate, Capital One, Amex), "
+            f"and {metrics['tier_b_rate']} are Tier-B Series-A / Multistage funds (Motive Partners, NYCA, Thomson Reuters Ventures, QED, Ribbit, Bain) held until $1M ARR / 3+ paying bank logos."
         ),
-        "wave1_bank_lp_and_strategics": bank_strategics[:12],
-        "wave2_fintech_regtech_leads": pure_fintech_leads[:14],
-        "wave3_enterprise_ai_leads": tier_a[:15],
-        "deprioritize_hardware_funds": tier_c[:15],
+        "wave1_bank_lp_and_strategics": fintech_seed_leads[:15],
+        "wave2_fintech_regtech_leads": ai_cyber_seed_leads[:18],
+        "wave3_enterprise_ai_leads": tier_a[:22],
+        "deprioritize_hardware_funds": tier_b[:20],
     }
 

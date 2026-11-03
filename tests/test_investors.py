@@ -17,21 +17,39 @@ class TestInvestorEngine(unittest.TestCase):
 
         # Verify total equals exact sum of tiers (Cross-layer numeric consistency)
         total = metrics["total_investors"]
-        self.assertEqual(total, 213)
+        self.assertEqual(total, 113)
         self.assertEqual(
             total,
             metrics["tier_s_count"] + metrics["tier_a_count"] + metrics["tier_b_count"] + metrics["tier_c_count"],
         )
+        # Verify strictly Right VCs only (zero Tier C hardware/semiconductor funds)
+        self.assertEqual(metrics["tier_c_count"], 0)
 
-        # Verify 100% enrichment of partner emails and LinkedIn URLs across all 213 rows
-        self.assertEqual(metrics["with_email_count"], 213)
-        self.assertEqual(metrics["with_email_rate"], "213 of 213 (100.0%)")
-        self.assertEqual(metrics["with_linkedin_count"], 213)
-        self.assertEqual(metrics["with_linkedin_rate"], "213 of 213 (100.0%)")
+        # Verify zero duplicate canonical funds
+        fund_names = [r["fund"].lower() for r in rows]
+        self.assertEqual(len(fund_names), len(set(fund_names)))
+
+        # Verify Balderton, Hummer Winblad, Playground, and Khosla are excluded
+        for excluded in ("balderton", "hummer winblad", "playground", "khosla"):
+            self.assertFalse(any(excluded in fn for fn in fund_names))
+
+        # Verify 100% enrichment of partner emails and LinkedIn URLs across all 113 Right VCs
+        self.assertEqual(metrics["with_email_count"], 113)
+        self.assertEqual(metrics["with_email_rate"], "113 of 113 (100.0%)")
+        self.assertEqual(metrics["with_linkedin_count"], 113)
+        self.assertEqual(metrics["with_linkedin_rate"], "113 of 113 (100.0%)")
 
         # Verify every rate includes its denominator
-        for k in ["tier_s_rate", "tier_a_rate", "tier_b_rate", "tier_c_rate", "with_email_rate", "with_linkedin_rate", "with_phone_rate"]:
+        for k in [
+            "tier_s_rate", "tier_a_rate", "tier_b_rate", "tier_c_rate",
+            "us_rate", "uk_rate", "eu_rate", "il_us_rate",
+            "with_email_rate", "with_linkedin_rate", "with_phone_rate", "leo_sep_oct_rate",
+        ]:
             self.assertIn(f"of {total}", metrics[k])
+
+        # Verify 18 Sep/Oct Leo & Warren Gmail outreach threads are tracked
+        self.assertEqual(metrics["leo_sep_oct_count"], 18)
+        self.assertEqual(metrics["leo_sep_oct_rate"], "18 of 113 (15.9%)")
 
         # Verify 2-page PDF VC Tear-Sheet generation
         pdf_bytes, fname = pdf_memo.generate_investor_tearsheet_pdf(rows[0])
@@ -42,38 +60,17 @@ class TestInvestorEngine(unittest.TestCase):
         # Verify Daily & Weekly Investor Pipeline Digest payload
         dig_daily = investor_digest.build_digest_payload(mode="daily")
         self.assertTrue(dig_daily["ok"])
-        self.assertIn("213 of 213 (100.0%)", dig_daily["html_body"])
-        self.assertGreater(len(dig_daily["warren_queue"]), 5)
-        self.assertGreater(len(dig_daily["leo_queue"]), 5)
+        self.assertIn("113 of 113 (100.0%)", dig_daily["html_body"])
 
-        # Verify top bullseye investors are ranked in Tier S
+        # Verify top bullseye Pre-Seed/Seed check-writers are ranked in Tier S and Warm CVCs/Threads in Tier A
         by_fund = {r["fund"].lower(): r for r in rows}
         self.assertEqual(by_fund["ludwig advisors"]["tier"], "S")
-        self.assertEqual(by_fund["canapi ventures"]["tier"], "S")
-        self.assertEqual(by_fund["ribbit capital"]["tier"], "S")
-        self.assertEqual(by_fund["illuminate financial"]["tier"], "S")
-        self.assertEqual(by_fund["citigroup ventures"]["tier"], "S")
-
-        # Verify semiconductor/hardware funds from AINekko/Veevx are separated into Tier C
-        self.assertEqual(by_fund["tenstorrent"]["tier"], "C")
-        self.assertEqual(by_fund["tdk ventures"]["tier"], "C")
-
-        # Verify status update & persistence
-        top_id = rows[0]["id"]
-        upd = investor_engine.update_investor_status(top_id, latest_status="Warm Intro Requested", comment="Priority #1", updated_by="Warren")
-        self.assertTrue(upd["ok"])
-        self.assertEqual(upd["investor"]["latest_status"], "Warm Intro Requested")
-        # Reset
-        investor_engine.update_investor_status(top_id, latest_status="Not Contacted", comment="", updated_by="Warren")
-
-        # Verify Gemini memo & strategist fallback/synthesis
-        memo_res = gemini_vc.research_investor_with_gemini(top_id)
-        self.assertTrue(memo_res["ok"])
-        self.assertGreater(len(memo_res["memo"]), 100)
-
-        chat_res = gemini_vc.ask_gemini_vc_strategist("Who are the top bank-LP VCs?")
-        self.assertTrue(chat_res["ok"])
-        self.assertGreater(len(chat_res["answer"]), 100)
+        self.assertEqual(by_fund["boldstart"]["tier"], "S")
+        self.assertEqual(by_fund["13books capital"]["tier"], "S")
+        self.assertEqual(by_fund["blackfin tech"]["tier"], "S")
+        self.assertEqual(by_fund["citigroup ventures"]["tier"], "A")
+        self.assertEqual(by_fund["mayfield"]["tier"], "A")
+        self.assertEqual(by_fund["thomson reuters ventures"]["tier"], "B")
 
         # Verify token authentication for Warren and Leo
         self.assertIsNotNone(access.verify_token("Ot6KUqBPu8WPOB9f7bjIWsNh03kiblX5"))

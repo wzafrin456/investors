@@ -1031,15 +1031,40 @@ ENRICHMENT_BY_ID = {
 }
 
 
+def _find_spec_for_row(inv_id: str, row: dict) -> dict:
+    if inv_id in ENRICHMENT_BY_ID:
+        return ENRICHMENT_BY_ID[inv_id]
+    fund_lc = (row.get("fund") or "").strip().lower()
+    person_lc = (row.get("person") or "").strip().lower()
+    # Try matching fund name in title or website or person name
+    for spec in ENRICHMENT_BY_ID.values():
+        sp_person = (spec.get("person") or "").lower()
+        sp_title = (spec.get("title") or "").lower()
+        sp_web = (spec.get("website") or "").lower()
+        if fund_lc and len(fund_lc) >= 3:
+            if fund_lc in sp_title or (fund_lc in sp_person and fund_lc in ("elad gil", "nat friedman", "daniel gross", "paul maritz", "paul moritz")):
+                return spec
+            fund_slug = "".join(ch for ch in fund_lc.split("(")[0] if ch.isalnum())
+            if len(fund_slug) >= 4 and fund_slug in sp_web.replace("www.", "").replace("https://", ""):
+                return spec
+        if person_lc and person_lc not in ("individual", "(partners)", "(various)") and sp_person:
+            first_p = person_lc.split("/")[0].split(",")[0].strip()
+            if len(first_p) >= 5 and first_p in sp_person:
+                return spec
+    return {}
+
+
 def enrich_investor_contact_fields(inv_id: str, row: dict) -> dict:
     """Ensure every single investor row has a verified partner name, email, LinkedIn URL, and website."""
-    spec = ENRICHMENT_BY_ID.get(inv_id) or {}
+    spec = _find_spec_for_row(inv_id, row)
     if spec:
         if (not row.get("person") or row["person"].startswith("(") or row["person"] in ("Individual", "AI infra team", "Systems partners", "Infra partners", "AI infra partners")) and spec.get("person"):
             row["person"] = spec["person"]
-        if (not row.get("title") or row["title"] == "Partner") and spec.get("title"):
+        if (not row.get("title") or row["title"] in ("Partner", "Individual")) and spec.get("title"):
             row["title"] = spec["title"]
         if not row.get("email") and spec.get("email"):
+            row["email"] = spec["email"]
+        elif row.get("email", "").startswith(("individual@", "partner@", "partners@")) and spec.get("email"):
             row["email"] = spec["email"]
         if not row.get("person_linkedin") and spec.get("person_linkedin"):
             row["person_linkedin"] = spec["person_linkedin"]
@@ -1067,4 +1092,5 @@ def enrich_investor_contact_fields(inv_id: str, row: dict) -> dict:
             p_slug = "-".join("".join(ch for ch in w.lower() if ch.isalnum()) for w in person.split()[:2] if w)
             row["person_linkedin"] = f"https://www.linkedin.com/in/{p_slug or 'investor'}/"
     return row
+
 
