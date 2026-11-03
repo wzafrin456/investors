@@ -72,9 +72,20 @@ class TestInvestorEngine(unittest.TestCase):
         self.assertEqual(by_fund["mayfield"]["tier"], "A")
         self.assertEqual(by_fund["thomson reuters ventures"]["tier"], "B")
 
-        # Verify token authentication for Warren and Leo
+        # Verify token authentication is strictly restricted to Warren and Leo ONLY
         self.assertIsNotNone(access.verify_token("Ot6KUqBPu8WPOB9f7bjIWsNh03kiblX5"))
         self.assertIsNotNone(access.verify_token("L9kPqR7sTuVwXyZ0123456789AbCdEfG"))
+        # Verify all other team tokens (Esther, Joe, Bernie, Steven, Pat) are rejected
+        for revoked_tok in (
+            "mIvN8EUUkzg2a_3XRPXV9Ylmwlb4LT-u",
+            "-4U1JlMW3CtSpIc8nWXZAB4ezSVeU4yb",
+            "bV9kLmN8pQrStUvWxYz0123456789AbC",
+            "sG7hJkL2mNpQrStUvWxYz9876543210D",
+            "pT4vWxYz1234567890aBcDeFgHiJkLmN",
+        ):
+            self.assertIsNone(access.verify_token(revoked_tok))
+        allowed_ids = {g["id"] for g in access.load_grants()}
+        self.assertEqual(allowed_ids, {"warren@dokimo.ai", "leo@dokimo.ai", "leo@s22t.vc"})
 
 
 if __name__ == "__main__":

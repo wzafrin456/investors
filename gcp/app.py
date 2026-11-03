@@ -170,11 +170,13 @@ def verify_session_cookie(cookie_val: str) -> dict | None:
         data = json.loads(base64.urlsafe_b64decode((raw + pad).encode("ascii")).decode("utf-8"))
         if int(data.get("exp", 0)) < int(time.time()):
             return None
-        if data.get("role") != "admin":
-            grants = access.load().get("grants", [])
-            g = next((x for x in grants if x.get("id", "").lower() == data.get("id", "").lower()), None)
-            if not g or not g.get("active"):
-                return None
+        uid = str(data.get("id", "")).strip().lower()
+        if uid not in access.ALLOWED_INVESTOR_BOARD_IDS:
+            return None
+        grants = access.load().get("grants", [])
+        g = next((x for x in grants if x.get("id", "").lower() == uid), None)
+        if not g or not g.get("active"):
+            return None
         return data
     except Exception:
         return None
@@ -353,7 +355,7 @@ def render_board_html() -> str:
 
 <div style="margin-top:12px;background:#eff6ff;border:1px solid #bfdbfe;border-left:4px solid #1e40af;border-radius:6px;padding:11px 14px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px">
   <div>
-    <div style="font-size:12.5px;font-weight:700;color:#1e3a8a">🔑 Grant Access to Leo &amp; Team — 1-Click Direct Login Link</div>
+    <div style="font-size:12.5px;font-weight:700;color:#1e3a8a">🔒 Restricted Access: Warren Zafrin &amp; Leo Spiegel Only — Leo's 1-Click Direct Login Link</div>
     <div style="font-size:11.5px;color:#334155;margin-top:2px">
       Leo's 1-Click Link: <code id="leo-link-code" style="background:#fff;padding:2px 6px;border:1px solid #cbd5e1;border-radius:4px;font-weight:700;color:#0f172a">{html.escape(leo_url)}</code>
     </div>
@@ -361,9 +363,9 @@ def render_board_html() -> str:
   <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center">
     <button class="btn-sm pri" onclick="navigator.clipboard.writeText(document.getElementById('leo-link-code').textContent);this.textContent='✓ Copied Leo Link!'">📋 Copy Leo's 1-Click Link</button>
     <a class="btn-sm ok" href="{html.escape(leo_gmail, quote=True)}" target="_blank" rel="noopener">✉️ Open Gmail to Send Leo Access</a>
-    <input id="grant-leo-email" type="email" placeholder="Or enter Leo's email to send invite..." style="padding:4px 8px;border:1px solid #93c5fd;border-radius:4px;font-size:12px;width:220px;background:#fff">
-    <button class="btn-sm" style="background:#1e40af;color:#fff;border-color:#1e40af;font-weight:600" onclick="grantAndEmailLeo()">🔑 Grant &amp; Email Link</button>
-    <a class="btn-sm" href="/access">Manage All Team Access →</a>
+    <input id="grant-leo-email" type="email" value="leo@s22t.vc" placeholder="leo@s22t.vc or leo@dokimo.ai" style="padding:4px 8px;border:1px solid #93c5fd;border-radius:4px;font-size:12px;width:190px;background:#fff">
+    <button class="btn-sm" style="background:#1e40af;color:#fff;border-color:#1e40af;font-weight:600" onclick="grantAndEmailLeo()">🔑 Email Link to Leo</button>
+    <a class="btn-sm" href="/access">View Access (Warren &amp; Leo Only) →</a>
     <span id="grant-leo-msg" style="font-size:11.5px;font-weight:700;color:#15803d"></span>
   </div>
 </div>
@@ -1035,7 +1037,7 @@ def render_access_html(viewer: dict, flash: str = "") -> str:
 <title>Access Management · Dokimo Investor Board</title>
 <style>{SHARED_CSS}</style></head><body>
 <header class="masthead">
-  <div><h1>🔑 Team Access &amp; 1-Click Login Links</h1><div class="sub">Manage access tokens for Warren, Leo, and the Dokimo team.</div></div>
+  <div><h1>🔒 Investor Board Access — Restricted Strictly to Warren Zafrin &amp; Leo Spiegel Only</h1><div class="sub">No other accounts or tokens are permitted on the Dokimo Investor Board.</div></div>
 </header>
 {flash_box}
 <div class="tablewrap" style="margin-top:14px">

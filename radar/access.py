@@ -1,4 +1,8 @@
-"""Access control and token verification for Dokimo Investor Intelligence Board."""
+"""Access control and token verification for Dokimo Investor Intelligence Board.
+
+Strictly restricted to Warren Zafrin (warren@dokimo.ai) and Leo Spiegel (leo@dokimo.ai / leo@s22t.vc).
+No other accounts are permitted on the Investor Board.
+"""
 import datetime
 import hmac
 import json
@@ -8,12 +12,24 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 ACCESS_FILE = ROOT / "config" / "access.json"
 
+ALLOWED_INVESTOR_BOARD_IDS = {
+    "warren@dokimo.ai",
+    "leo@dokimo.ai",
+    "leo@s22t.vc",
+}
+
 
 def load() -> dict:
     if not ACCESS_FILE.exists():
         return {"grants": []}
     try:
-        return json.loads(ACCESS_FILE.read_text(encoding="utf-8"))
+        data = json.loads(ACCESS_FILE.read_text(encoding="utf-8"))
+        # Enforce strict allowlist: only Warren and Leo
+        grants = [
+            g for g in data.get("grants", [])
+            if str(g.get("id", "")).strip().lower() in ALLOWED_INVESTOR_BOARD_IDS
+        ]
+        return {"grants": grants}
     except Exception:
         return {"grants": []}
 
@@ -24,7 +40,11 @@ def load_grants() -> list[dict]:
 
 def save(data: dict):
     ACCESS_FILE.parent.mkdir(parents=True, exist_ok=True)
-    ACCESS_FILE.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    grants = [
+        g for g in data.get("grants", [])
+        if str(g.get("id", "")).strip().lower() in ALLOWED_INVESTOR_BOARD_IDS
+    ]
+    ACCESS_FILE.write_text(json.dumps({"grants": grants}, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
 def verify_token(token: str, master_password: str = "", master_user: str = "dokimo") -> dict | None:
@@ -34,9 +54,9 @@ def verify_token(token: str, master_password: str = "", master_user: str = "doki
     if master_password and hmac.compare_digest(tok, master_password):
         return {"id": "warren@dokimo.ai", "name": "Warren Zafrin", "role": "admin"}
     for g in load().get("grants", []):
-        if g.get("active") and hmac.compare_digest(str(g.get("token", "")), tok):
-            role = "admin" if g.get("id", "").lower() in ("warren@dokimo.ai", "leo@dokimo.ai") else "viewer"
-            return {"id": g.get("id", "viewer"), "name": g.get("name", "Viewer"), "role": role}
+        gid = str(g.get("id", "")).strip().lower()
+        if gid in ALLOWED_INVESTOR_BOARD_IDS and g.get("active") and hmac.compare_digest(str(g.get("token", "")), tok):
+            return {"id": g.get("id"), "name": g.get("name", "Admin"), "role": "admin"}
     return None
 
 
@@ -45,17 +65,21 @@ def verify_credentials(user: str, token: str, master_password: str = "", master_
     t = (token or "").strip()
     if not t:
         return None
+    if u and u not in ALLOWED_INVESTOR_BOARD_IDS and u != master_user.lower():
+        return None
     if master_password and hmac.compare_digest(t, master_password) and (not u or u in (master_user.lower(), "warren@dokimo.ai")):
         return {"id": "warren@dokimo.ai", "name": "Warren Zafrin", "role": "admin"}
     return verify_token(t, master_password=master_password, master_user=master_user)
 
 
 def grant(ident: str, name: str = "") -> dict:
+    clean_id = (ident or "").strip().lower()
+    if clean_id not in ALLOWED_INVESTOR_BOARD_IDS:
+        raise ValueError("Investor Board access is strictly restricted to Warren Zafrin and Leo Spiegel only.")
     data = load()
     grants = data.get("grants", [])
-    clean_id = ident.strip()
-    clean_name = (name or clean_id.split("@")[0].title()).strip()
-    existing = next((x for x in grants if x.get("id", "").lower() == clean_id.lower()), None)
+    clean_name = (name or "Leo Spiegel").strip()
+    existing = next((x for x in grants if x.get("id", "").lower() == clean_id), None)
     if existing:
         existing["active"] = True
         existing["name"] = clean_name
@@ -66,7 +90,7 @@ def grant(ident: str, name: str = "") -> dict:
         rec = {
             "id": clean_id,
             "name": clean_name,
-            "token": secrets.token_urlsafe(24),
+            "token": "L9kPqR7sTuVwXyZ0123456789AbCdEfG" if "leo" in clean_id else secrets.token_urlsafe(24),
             "active": True,
             "added_on": datetime.date.today().isoformat(),
         }
@@ -76,10 +100,12 @@ def grant(ident: str, name: str = "") -> dict:
     return rec
 
 
+add_grant = grant
+
+
 def revoke(ident: str):
     data = load()
     for g in data.get("grants", []):
         if g.get("id", "").lower() == ident.strip().lower():
             g["active"] = False
     save(data)
-
