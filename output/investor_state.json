@@ -4,5 +4,40 @@
     "comment": "",
     "updated_by": "Warren",
     "updated_at": "2026-11-03 16:22 UTC"
+  },
+  "INV-DE094788": {
+    "latest_status": "Deck / Data Room Sent",
+    "comment": "Reached out — waiting to hear back from Citi Ventures",
+    "next_action": "Follow up if no response in 5-7 business days",
+    "updated_by": "Warren",
+    "updated_at": "2026-11-03 16:32 UTC"
+  },
+  "INV-A3E90ADF": {
+    "latest_status": "Passed / Hold",
+    "comment": "Said too early — re-engage at Series A with ARR milestones",
+    "next_action": "Hold until Series A / traction milestone",
+    "updated_by": "Warren",
+    "updated_at": "2026-11-03 16:32 UTC"
+  },
+  "INV-E8C79C61": {
+    "latest_status": "Passed / Hold",
+    "comment": "Said no (passed)",
+    "next_action": "Do not contact — passed",
+    "updated_by": "Warren",
+    "updated_at": "2026-11-03 16:32 UTC"
+  },
+  "INV-6FDB06A1": {
+    "latest_status": "Passed / Hold",
+    "comment": "Said no (passed)",
+    "next_action": "Do not contact — passed",
+    "updated_by": "Warren",
+    "updated_at": "2026-11-03 16:32 UTC"
+  },
+  "INV-3F56BBFE": {
+    "latest_status": "Passed / Hold",
+    "comment": "Said too early, but door is open — can go back to them as traction/pilots progress",
+    "next_action": "Re-engage with new bank pilot / revenue milestone update",
+    "updated_by": "Warren",
+    "updated_at": "2026-11-03 16:32 UTC"
   }
 }
