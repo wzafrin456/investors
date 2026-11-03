@@ -1,0 +1,53 @@
+{
+  "grants": [
+    {
+      "id": "warren@dokimo.ai",
+      "name": "Warren Zafrin",
+      "token": "Ot6KUqBPu8WPOB9f7bjIWsNh03kiblX5",
+      "active": true,
+      "added_on": "2026-10-29"
+    },
+    {
+      "id": "leo@dokimo.ai",
+      "name": "Leo",
+      "token": "L9kPqR7sTuVwXyZ0123456789AbCdEfG",
+      "active": true,
+      "added_on": "2026-11-03"
+    },
+    {
+      "id": "esther@dokimo.ai",
+      "name": "Esther",
+      "token": "mIvN8EUUkzg2a_3XRPXV9Ylmwlb4LT-u",
+      "active": true,
+      "added_on": "2026-10-29"
+    },
+    {
+      "id": "joe@dokimo.ai",
+      "name": "Joe Spector",
+      "token": "-4U1JlMW3CtSpIc8nWXZAB4ezSVeU4yb",
+      "active": true,
+      "added_on": "2026-10-29"
+    },
+    {
+      "id": "bernie@dokimo.ai",
+      "name": "Bernie Vogel",
+      "token": "bV9kLmN8pQrStUvWxYz0123456789AbC",
+      "active": true,
+      "added_on": "2026-10-30"
+    },
+    {
+      "id": "steven@dokimo.ai",
+      "name": "Steven Goldberg",
+      "token": "sG7hJkL2mNpQrStUvWxYz9876543210D",
+      "active": true,
+      "added_on": "2026-10-30"
+    },
+    {
+      "id": "pat@dokimo.ai",
+      "name": "Patrick Tobin",
+      "token": "pT4vWxYz1234567890aBcDeFgHiJkLmN",
+      "active": true,
+      "added_on": "2026-10-30"
+    }
+  ]
+}

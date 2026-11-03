@@ -1,0 +1,236 @@
+Fund / Org,Person,Title,Type,Priority,Background / Signal,Our Contact,Latest Status,comment,Email,Person Linkedin Url,Website,Company Linkedin Url,Twitter Url,Mobile Phone,Corporate Phone,Industry,# Employees,Company City,Company State,Company Country,Total Funding,Latest Funding,Latest Funding Amount,Last Raised At
+Benchmark,Peter Fenton,,VC,high,,Leo,,,,https://www.linkedin.com/in/peter-fenton-0b117,,,,,,,,,,,,,,
+Playground Global,Pat Gelsinger,,VC,high,,Leo,,,,https://www.linkedin.com/in/patgelsinger,,,,,,,,,,,,,,
+BoldStart,Ed Sim ,,VC,high, ,Leo,,,,http://www.linkedin.com/in/edsim,,,,,,,,,,,,,,
+NEA,Greg Papadopoulos,,VC,high,,Leo,,,,https://www.linkedin.com/in/techwonk,,,,,,,,,,,,,,
+Sequoia,Jim Geotz,,VC,high,,Warren,,,,https://www.linkedin.com/in/goetzjim,,,,,,,,,,,,,,
+Hummer Winblad,Ann Winblad,,VC,high,,Warren,,,,https://www.linkedin.com/in/annwinblad,,,,,,,,,,,,,,
+a16z,"Martin Casado 
+",,VC,high,,Leo,,,,https://www.linkedin.com/in/martincasado,,,,,,,,,,,,,,
+Citigroup Ventures,Arvind Purushotham,,VC,high,,Leo,,,jelena.zec@citi.com,http://www.linkedin.com/in/jelenazec,https://citi.com,http://www.linkedin.com/company/citi,https://twitter.com/Citi,,415-798-0556,financial services,224000,New York,New York,United States,,,,
+"General Catalyst
+",Larry Bohn,,VC,high,,Leo,,,,https://www.linkedin.com/in/deepnishar,,,,,,,,,,,,,,
+Accel,Sameer Gandhi,Partner,VC,medium,,Warren,,,sameer.gandhi@accel.com,http://www.linkedin.com/in/skgandhi,https://accel.com,http://www.linkedin.com/company/accel-vc,http://twitter.com/accel,,415-706-6165,venture capital & private equity,1500,Palo Alto,California,United States,11600000000,Other,5000000000,2026-04-01T00:00:00+00:00
+Mayfield,Navin Chaddha,,VC,medium,,Leo,,,,https://www.linkedin.com/in/navinchaddha,,,,,,,,,,,,,,
+Menlo Ventures,Matt Kraning,,VC,medium,,Leo,,,,https://www.linkedin.com/in/matt-kraning/,,,,,,,,,,,,,,
+Menlo Ventures,Matt Murphy,,VC,medium,,Leo,,,,https://www.linkedin.com/in/matt-murphy-0415543/,,,,,,,,,,,,,,
+Ribbit Capital,Micky Malka,Founder & Managing Partner,VC,medium,"Fintech/regtech specialist; backed Chainalysis, Alloy and Coinbase (AML & compliance infrastructure)",Leo,,,,,https://www.ribbitcap.com/,https://www.linkedin.com/company/ribbit-capital,,,,Venture Capital & Private Equity,,Palo Alto,CA,United States,,,,
+Restive Ventures,Ryan Falvey,Co-Founder & Managing Partner,VC,medium,Fund dedicated exclusively to fintech; new $45M Fund III targets AI-powered financial services,Leo,,,,https://www.linkedin.com/in/ryan-falvey,https://www.restive.com/,https://www.linkedin.com/company/restiveventures,,,,Venture Capital & Private Equity,,San Francisco,CA,United States,,,,
+Point72 Ventures,,,VC,medium,Point72 (Steven A. Cohen)-backed fund with a dedicated fintech/AI investing practice,Leo,,,,,https://p72.vc/,,,,,Venture Capital & Private Equity,,New York,NY,United States,,,,
+Deviation Capital (fka Two Sigma Ventures),Colin Beirne,Founding Partner,VC,medium,Spun out from Two Sigma Ventures in 2026 with $2B AUM; backed Socure (identity/compliance) and WHOOP,Leo,,,,https://www.linkedin.com/in/colin-beirne-526577,https://deviation.com/,https://www.linkedin.com/company/deviation-capital,,,,Venture Capital & Private Equity,,New York,NY,United States,,,,
+Conviction,Sarah Guo,Founder & General Partner,VC,medium,"AI-native ""Software 3.0"" fund; backed Harvey, the AI legal/compliance platform, at an $11B valuation",Leo,,,,https://www.linkedin.com/in/sarahxguo,https://www.conviction.com/,,,,,Venture Capital & Private Equity,,San Francisco,CA,United States,,,,
+OpenAI Startup Fund,Ian Hathaway,Partner,strategic,medium,OpenAI's venture arm; backed Harvey and other AI-native startups with direct model/product access,Leo,,,,https://www.linkedin.com/in/ianhathaway,https://www.openai.fund/,,,,,Venture Capital & Private Equity,,San Francisco,CA,United States,,,,
+Thomson Reuters Ventures,Tamara Steffens,Managing Director,strategic,medium,"$250M corporate fund investing in tax, legal, fraud, risk & compliance technology",Leo,,,,,https://www.trventures.com/,,,,,Venture Capital & Private Equity,,,,,,,,
+Insight Partners,,,VC,medium,"Growth-stage software investor with $4B+ deployed in fintech, incl. Socure, Fenergo and Quantexa (AML/compliance platforms)",Leo,,,,,https://www.insightpartners.com/,https://www.linkedin.com/company/insight--partners,,,,Venture Capital & Private Equity,,New York,NY,United States,,,,
+General Atlantic,,,VC,medium,Growth equity investor active in fintech and compliance-adjacent platforms,Leo,,,,,https://www.generalatlantic.com/,,,,,Venture Capital & Private Equity,,New York,NY,United States,,,,
+Innovation Endeavors,Dror Berman,,VC,low,,Leo,,,,https://www.linkedin.com/in/drorberman/,,,,,,,,,,,,,,
+Foundation Capital,"Steve Vassallo, Paul Holland",,VC,medium,,Leo,,,,https://www.linkedin.com/in/stevevassallo,,,,,,,,,,,,,,
+Triatomic Capital,,,VC,low,,Leo,,,,,,,,,,,,,,,,,,
+Matrix,,,VC,medium,,Leo,,,,https://www.linkedin.com/in/stanreiss/,,,,,,,,,,,,,,
+UP.Partners,,,VC,low, ,Leo,,,,,,,,,,,,,,,,,,
+Plug And Play Ventures,Kishor Veerashekar,,VC,low, ,Leo,,,,https://www.linkedin.com/in/kishor-veerashekar-305879123/,,,,,,,,,,,,,,
+Greylock,Jerry Chen,,VC,medium,,Leo,,,,https://www.linkedin.com/in/jerrychenprofile,,,,,,,,,,,,,,
+Khosla Ventures,Kanu Gulati,,VC,medium, ,Leo,,,,https://www.linkedin.com/in/kanugulati/,,,,,,,,,,,,,,
+Khosla Ventures,Sven Strohband,,VC,medium, ,Leo,,,,https://www.linkedin.com/in/sven-strohband-348b841/,,,,,,,,,,,,,,
+Kleiner Perkins,Ilya Fushman,,VC,medium, ,Leo,,,,https://www.linkedin.com/in/ilyafushman/,,,,,,,,,,,,,,
+Founders Fund,Trae Stephens,,VC,medium, ,Leo,,,,https://www.linkedin.com/in/trae-stephens-485a811/,,,,,,,,,,,,,,
+Pax Ventures,Michelle Volz,,VC,medium,"ex-a16z team of american dynamism, fresh fund",Leo,,,,https://www.linkedin.com/in/michellevolz1/,,,,,,,,,,,,,,
+Coatue,Thomas Laffont,,VC,medium, ,Leo,,,,https://www.linkedin.com/in/thomas-laffont-02430914,,,,,,,,,,,,,,
+Gigascale Capital,Mike Schroepfer,,VC,medium,,Leo,,,,https://www.linkedin.com/in/schrep/,,,,,,,,,,,,,,
+"Harpoon Ventures
+",Larsen Jensen,,VC,medium, ,Leo,,,,https://www.linkedin.com/in/larsen-jensen/,,,,,,,,,,,,,,
+Quite Capital,Michael Bloch,,VC,medium, ,Leo,,,,https://www.linkedin.com/in/michaelxbloch/,,,,,,,,,,,,,,
+Lightspeed,,,VC,, ,Leo,,,,https://www.linkedin.com/in/lbeseda,,,,,,,,,,,,,,
+Eclipse Ventures,"Greg Reichow, Lior Susan",,VC,low, ,Leo,,,,https://www.linkedin.com/in/gregreichow,,,,,,,,,,,,,,
+Lux Capital,Shahin Farshchi,,VC,medium, ,Leo,,,,https://www.linkedin.com/in/shahinf,,,,,,,,,,,,,,
+Bluerun Ventures,Jeff Chu,,VC,medium, ,Leo,,,,https://www.linkedin.com/in/jeff-chu-7914b210,,,,,,,,,,,,,,
+Battery Ventures,Dharmesh Thakker,,VC,medium, ,Leo,,,,https://www.linkedin.com/in/dthakker,,,,,,,,,,,,,,
+FinTech Collective,Brooks Gibbins,Co-Founder and Managing Partner,VC,,,Warren,,,brooks@fintech.io,http://www.linkedin.com/in/brooksgibbins,https://fintech.io,http://www.linkedin.com/company/fintech-collective,https://twitter.com/fintech_io,'+1 917-225-2264,,venture capital & private equity,23,New York,New York,United States,343831966,Other,250000000,2021-08-01T00:00:00+00:00
+Commerce Ventures,Vivek Krishnamurthy,Partner,VC,,,Warren,,,vivek@commerce.vc,http://www.linkedin.com/in/vivekkri,https://commerce.vc,http://www.linkedin.com/company/commerce-ventures,http://twitter.com/@CommerceVC,'+1 408-813-9843,'+1 415-500-5352,venture capital & private equity,37,San Francisco,California,United States,385595000,Other,150000000,2024-03-01T00:00:00+00:00
+Luge Capital,David Nault,Co-Founder & General Partner,VC,,,Warren,,,david@luge.vc,http://www.linkedin.com/in/davidnault,https://luge.vc,http://www.linkedin.com/company/luge-capital,https://twitter.com/lugecapital,,'+1 514-399-2911,venture capital & private equity,11,Montreal,Quebec,Canada,283425730,Other,70725696,2024-09-01T00:00:00+00:00
+Dawn Capital,Josh Bell,,VC,low,,Warren,,,josh@dawncapital.com,http://www.linkedin.com/in/joshbell,https://dawncapital.com,http://www.linkedin.com/company/dawn-capital,https://twitter.com/dawncapital,'+44 781 362 5999,,venture capital & private equity,51,London,England,United Kingdom,1580000000,Other,700000000,2023-09-01T00:00:00+00:00
+FirstMark,Adam Nelson,Managing Director,VC,,,Warren,,,adam@firstmark.com,http://www.linkedin.com/in/adam-nelson-ny,https://firstmark.com,http://www.linkedin.com/company/firstmark,http://www.twitter.com/firstmarkcap,'+1 917-331-1348,'+1 212-792-2200,venture capital & private equity,110,New York,New York,United States,680000000,Other,650000000,2020-06-01T00:00:00+00:00
+F2 Venture Capital,Jonathan Saacks,,VC,,,Warren,,,jonny@f2vc.com,http://www.linkedin.com/in/jonathan-saacks-2839b21,https://f2vc.com,http://www.linkedin.com/company/f2-capital,,'+972 52-616-9017,'+972 54-784-4714,venture capital & private equity,18,Tel Aviv-Yafo,Tel Aviv District,Israel,425000000,Other,100000000,2025-11-01T00:00:00+00:00
+Bain Capital Ventures,Matt Harris,Partner,VC,medium,,Warren,,,mharris@baincapitalventures.com,http://www.linkedin.com/in/mattcharris,https://baincapitalventures.com,http://www.linkedin.com/company/bain-capital-ventures,http://twitter.com/@BainCapVC,'+1 413-441-3631,'+1 617-516-2000,venture capital & private equity,240,San Francisco,California,United States,5735000000,Other,1900000000,2023-02-01T00:00:00+00:00
+Cota Capital,Bobby Yazdani,Founder & Managing Partner,VC,,,Warren,,,bobby@cotacapital.com,http://www.linkedin.com/in/bobby-yazdani-015a13a,https://cotacapital.com,http://www.linkedin.com/company/cota-capital,https://twitter.com/CotaCapital,'+1 650-740-0110,'+1 646-555-0101,venture capital & private equity,56,San Francisco,California,United States,172489645,Other,100000000,2020-09-01T00:00:00+00:00
+ValueStream Ventures,Greg Neufeld,General Partner,VC,,,Warren,,,greg@valuestreamventures.com,http://www.linkedin.com/in/gregneuf,https://valuestreamventures.com,http://www.linkedin.com/company/valuestream-ventures,http://twitter.com/FinTechNY,'+1 914-714-0463,'+1 646-741-4784,venture capital & private equity,9,New York,New York,United States,,,,
+Daybreak Ventures,Rex Woodbury,Founder & Managing Partner,VC,,,Warren,,,rex@daybreakventures.com,http://www.linkedin.com/in/rexwoodbury,https://daybreakventures.com,http://www.linkedin.com/company/daybreak-ventures,,'+1 520-820-3617,,venture capital & private equity,12,New York,New York,United States,,,,
+TTV Capital,Sean Banks,,VC,,,Warren,,,sbanks@ttvcapital.com,http://www.linkedin.com/in/sean-banks-93b3471,https://ttvcapital.com,http://www.linkedin.com/company/ttv-capital,https://twitter.com/TTVCapital,'+1 678-463-7501,'+1 404-347-8400,venture capital & private equity,52,Atlanta,Georgia,United States,757959184,Other,250000000,2023-03-01T00:00:00+00:00
+The LegalTech Fund,Zach Posner,Co-Founder & Managing Partner,VC,,,Warren,,,zach@legaltech.com,http://www.linkedin.com/in/zachposner,https://legaltech.com,http://www.linkedin.com/company/the-legaltech-fund,,'+1 917-572-3667,,venture capital & private equity,32,Miami,Florida,United States,138500000,Other,110000000,2025-11-01T00:00:00+00:00
+MetaProp,Aaron Block,,VC,,,Warren,,,ablock@metaprop.com,http://www.linkedin.com/in/aaronnblock,https://metaprop.com,http://www.linkedin.com/company/metaprop,https://twitter.com/MetaPropNYC,'+1 718-710-0100,312-420-2833,venture capital & private equity,43,New York,New York,United States,140000000,Other,100000000,2021-06-01T00:00:00+00:00
+SignalFire,Chris Farmer,Founder. Investor. Builder.,VC,,,Warren,,,chris@signalfire.com,http://www.linkedin.com/in/chriswfarmer,https://signalfire.com,http://www.linkedin.com/company/signalfire,https://twitter.com/gosignalfire,'+1 925-984-9347,'+1 650-850-6000,venture capital & private equity,80,San Francisco,California,United States,2752100000,Other,1000000000,2025-04-01T00:00:00+00:00
+Notion Capital,Jos White,,VC,,,Warren,,,jwhite@notioncapital.com,http://www.linkedin.com/in/joscwhite,https://notioncapital.com,http://www.linkedin.com/company/notion-capital,http://twitter.com/notioncapital,,'+44 845 498 9393,venture capital & private equity,65,,England,United Kingdom,764281055,Other,130000000,2025-09-01T00:00:00+00:00
+Foundation Capital,Joanne Chen,General Partner,VC,,,Warren,,,jchen@foundationcap.com,http://www.linkedin.com/in/joanne-chen-8486677,https://foundationcap.com,http://www.linkedin.com/company/foundation-capital,https://twitter.com/FoundationCap,'+1 650-863-2786,'+1 650-614-0500,venture capital & private equity,87,Palo Alto,California,United States,2057000000,Other,600000000,2025-03-01T00:00:00+00:00
+Cyberstarts,Gili Raanan,Cyberstarter,VC,,,Warren,,,gili@cyberstarts.com,http://www.linkedin.com/in/giliraanan,https://cyberstarts.com,http://www.linkedin.com/company/cyberstarts,,'+1 650-590-5445,'+1 404-267-5000,financial services,96,Mishmeret,Center District,Israel,1480000000,Other,380000000,2025-09-01T00:00:00+00:00
+Mosaic Ventures,Toby Coppel,Co-founder and Partner,VC,,,Warren,,,toby@mosaicventures.com,http://www.linkedin.com/in/tcoppel,https://mosaicventures.com,http://www.linkedin.com/company/mosaic-ventures,http://twitter.com/@Mosaic_VC,'+1 650-450-3394,'+44 20 7432 4644,venture capital & private equity,16,,England,United Kingdom,290000000,Other,150000000,2018-10-01T00:00:00+00:00
+Anthemis,Amy Nauiokas,Founder and CEO,VC,,,Warren,,,amy@anthemis.com,http://www.linkedin.com/in/amynauiokas,https://anthemis.com,http://www.linkedin.com/company/anthemis-group-sa,https://twitter.com/anthemis,,646-467-4970,venture capital & private equity,50,New York,New York,United States,956000000,Other,50000000,2023-04-01T00:00:00+00:00
+Susa Ventures,Chad Byers,Co-founder & General Partner,VC,,,Warren,,,chad@susaventures.com,http://www.linkedin.com/in/chadabyers,https://susaventures.com,http://www.linkedin.com/company/susa-ventures,https://twitter.com/SusaVentures,'+1 650-521-4278,'+1 310-413-7398,venture capital & private equity,38,San Francisco,California,United States,765000000,Other,175000000,2025-03-01T00:00:00+00:00
+Capital One Ventures,Jaidev Shergill,President: Capital One Ventures,VC,,,Warren,,,jaidev.shergill@capitalone.com,http://www.linkedin.com/in/jaidevshergill,https://capitalone.com,http://www.linkedin.com/company/capital-one,https://twitter.com/capitalone/,'+1 917-400-7377,'+1 703-720-1000,financial services,77000,Tysons,Virginia,United States,,,,
+F-Prime Capital,David Jegen,Managing Partner,VC,,,Warren,,,djegen@fprimecapital.com,http://www.linkedin.com/in/davidjegen,https://fprimecapital.com,http://www.linkedin.com/company/f-prime-capital-partners,http://twitter.com/@fprimecapital,'+1 617-397-0034,'+1 617-231-2400,venture capital & private equity,120,Cambridge,Massachusetts,United States,,,,
+Inovia Capital,Chris Arsenault,Charter Member,VC,,,Warren,,,chris@inovia.vc,http://www.linkedin.com/in/chrisarsenault,https://inovia.vc,http://www.linkedin.com/company/inovia-capital,http://twitter.com/inovia,,'+1 514-982-2251,venture capital & private equity,110,Montreal,Quebec,Canada,1434000000,Other,300000000,2024-06-01T00:00:00+00:00
+Oak HC/FT,Matt Streisfeld,General Partner,VC,,,Warren,,,matt@oakhcft.com,http://www.linkedin.com/in/matt-streisfeld-01526732,https://oakhcft.com,http://www.linkedin.com/company/oak-hc-ft-partners,https://twitter.com/oakhcft,'+1 203-717-1365,'+1 203-717-1350,venture capital & private equity,57,Stamford,Connecticut,United States,4740000000,Other,1940000000,2022-07-01T00:00:00+00:00
+Motive Partners,Rob Heyvaert,Founder & Managing Partner,VC,,,Warren,,,rob@motivepartners.com,http://www.linkedin.com/in/rhmotivepartners,https://motivepartners.com,http://www.linkedin.com/company/motive-partners,https://twitter.com/motive_partners,,347-276-9009,venture capital & private equity,160,New York,New York,United States,3069850000,Other,2540000000,2022-07-01T00:00:00+00:00
+Pitango,Chemi Peres,,VC,,,Warren,,,pitango@pitango.com,https://www.linkedin.com/in/chemiperes,https://pitango.com,http://www.linkedin.com/company/pitango-vc,http://twitter.com/@pitango,,'+972 9-971-8100,venture capital & private equity,56,Tel Aviv-Yafo,Tel Aviv District,Israel,900000000,Other,300000000,2025-11-01T00:00:00+00:00
+Fin Capital,Logan Allin,Managing Partner & Founder,VC,,,Warren,,,logan@fin.capital,http://www.linkedin.com/in/loganallin,https://fin.capital,http://www.linkedin.com/company/fin-capital-vc,https://twitter.com/FinVentureCap,,415-715-4377,venture capital & private equity,54,San Francisco,California,United States,,,,
+QED Investors,Frank Rotman,Founding Partner 37Maru,VC,,,Warren,,,frank@qedinvestors.com,http://www.linkedin.com/in/frank-rotman,https://qedinvestors.com,http://www.linkedin.com/company/qed-investors,https://twitter.com/QEDInvestors,'+1 804-445-2232,703-395-5433,financial services,75,Alexandria,Virginia,United States,3337000000,Other,1000000000,2023-06-01T00:00:00+00:00
+Costanoa Ventures,Tony Liu,Partner,VC,,,Warren,,,tony@costanoa.vc,http://www.linkedin.com/in/tonydl,https://costanoa.vc,http://www.linkedin.com/company/costanoa-ventures,https://twitter.com/costanoavc,'+1 650-888-0260,'+1 650-416-6009,venture capital & private equity,35,Palo Alto,California,United States,1004000000,Other,394000000,2024-09-01T00:00:00+00:00
+Team8,Liran Grinberg,Co-Founder & Managing Partner,VC,,,Warren,,,liran@team8.vc,http://www.linkedin.com/in/lirangr,https://team8.vc,http://www.linkedin.com/company/team8group,https://twitter.com/team8group,'+972 52-826-2444,'+972 50-460-7429,venture capital & private equity,300,Tel Aviv-Yafo,Tel Aviv District,Israel,834000000,Other,500000000,2024-03-01T00:00:00+00:00
+Viola Elevate,Tomer Michaeli,"General Partner, Co-Founder",VC,,,Warren,,,tomerm@viola-elevate.com,http://www.linkedin.com/in/tomermichaeli,https://viola-elevate.com,http://www.linkedin.com/company/elevate-foodservice-group,,'+972 52-339-0789,'+1 617-546-2360,professional training & coaching,8,Boston,Massachusetts,United States,,,,
+Glilot Capital,Kobi Samboursky,,VC,,,Warren,,,kobi@glilotcapital.com,https://www.linkedin.com/in/kobisamboursky,https://glilotcapital.com,http://www.linkedin.com/company/glilot-capital-partners,https://twitter.com/glilotp,,'+972 73-705-5755,venture capital & private equity,140,Herzliyya,Tel Aviv District,Israel,1077000000,Other,500000000,2025-09-01T00:00:00+00:00
+Canapi Ventures,Walker Forehand,"President, Co-Founder and General Partner",VC,,,Warren,,,walker@canapi.com,http://www.linkedin.com/in/walkerforehand,https://canapi.com,http://www.linkedin.com/company/canapiventures,https://twitter.com/CanapiVentures,'+1 202-812-2251,'+1 202-315-1800,venture capital & private equity,31,Washington,District of Columbia,United States,1295000000,Other,750000000,2023-12-01T00:00:00+00:00
+Meron Capital,Liron Azrielant,Kauffman Fellow (Class 22),VC,,,Warren,,,liron@meron.vc,http://www.linkedin.com/in/lironazrielant,https://meron.vc,http://www.linkedin.com/company/meron-capital,,'+972 50-332-4240,'+49 871 0750336,venture capital & private equity,6,Tel Aviv-Yafo,Tel Aviv District,Israel,50000000,Other,50000000,2021-06-01T00:00:00+00:00
+Amex Ventures,Kevin Weber,"Managing Director, Amex Ventures",VC,,,Warren,,,kevin.weber@aexp.com,http://www.linkedin.com/in/kevin-weber-b77b8028,https://aexp.com,http://www.linkedin.com/company/exl-gurgaon,,,'+1 212-640-2000,consumer services,21,New Delhi,Delhi,India,,,,
+Illuminate Financial,Alexander Ross,General Partner | Head of NYC,VC,,,Warren,,,ar@illuminatefinancial.com,http://www.linkedin.com/in/awhross,https://illuminatefinancial.com,http://www.linkedin.com/company/illuminate-financial-management,https://twitter.com/IlluminateFM,'+1 847-436-1948,'+44 20 3198 1600,venture capital & private equity,28,London,England,United Kingdom,470000000,Other,135000000,2026-04-01T00:00:00+00:00
+Golden Ventures,Ameet Shah,Founding Partner & Co-Organizer,VC,,,Warren,,,ameet@golden.ventures,http://www.linkedin.com/in/ameetshah,https://golden.ventures,http://www.linkedin.com/company/goldenventures,http://twitter.com/@goldenventures,,,venture capital & private equity,16,Toronto,Ontario,Canada,312000000,Other,100000000,2024-02-01T00:00:00+00:00
+EJF Ventures,Jonathan Bresler,Managing Partner,VC,,,Warren,,,jbresler@ejfcap.com,http://www.linkedin.com/in/jonathan-bresler-965ab333,https://ejfcap.com,http://www.linkedin.com/company/ejf-capital,,'+1 301-807-6055,'+1 703-875-9121,financial services,59,Arlington,Virginia,United States,1216000000,Other,305000000,2026-02-01T00:00:00+00:00
+Information Venture Partners,David Unsworth,Director,VC,,,Warren,,,dave@informationvp.com,http://www.linkedin.com/in/dunsworth,https://informationvp.com,http://www.linkedin.com/company/information-venture-partners,http://twitter.com/informationvp,,'+1 647-924-0702,venture capital & private equity,6,Toronto,Ontario,Canada,375500000,Other,101000000,2021-05-01T00:00:00+00:00
+Mouro Capital,Manuel Silva Martinez,,VC,,,Warren,,,manuel@mourocapital.com,https://www.linkedin.com/in/msilvamartinez,https://mourocapital.com,http://www.linkedin.com/company/mouro-capital,https://twitter.com/mourocapital,,'+34 666 03 65 76,venture capital & private equity,21,London,England,United Kingdom,400000000,Other,400000000,2026-05-01T00:00:00+00:00
+SixThirty Ventures,Atul Kamra,Managing Partner,VC,,,Warren,,,atul@sixthirty.co,http://www.linkedin.com/in/atul-kamra-3984b045,https://sixthirty.co,http://www.linkedin.com/company/sixthirtyventures,https://twitter.com/sixthirtyHQ,'+1 646-773-1145,'+1 314-669-6803,venture capital & private equity,36,Clayton,Missouri,United States,84200000,Other,66000000,2023-02-01T00:00:00+00:00
+Hoxton Ventures,Hussein Kanji,Non Executive Director,VC,,,Warren,,,hussein.kanji@hoxton.vc,http://www.linkedin.com/in/hkanji,https://hoxton.vc,http://www.linkedin.com/company/hoxton-ventures,https://twitter.com/hoxtonventures,'+44 772 591 6077,,venture capital & private equity,15,,England,United Kingdom,262400820,Other,215000000,2022-03-01T00:00:00+00:00
+Fifth Wall,Brendan Wallace,"CEO, CIO, Co-Founder",VC,,,Warren,,,brendan@fifthwall.com,http://www.linkedin.com/in/brendanfitzgeraldwallace,https://fifthwall.com,http://www.linkedin.com/company/fifth-wall-ventures,https://twitter.com/fifthwallvc,'+1 203-536-1748,'+1 332-264-4184,venture capital & private equity,89,Santa Monica,California,United States,,,,
+NYCA,Thomas Brown,,VC,,,Warren,,,tbrown@nyca.com,http://www.linkedin.com/in/tpbrown5,https://nyca.com,http://www.linkedin.com/company/nyca-partners,https://twitter.com/nycapartners,'+1 415-856-7248,'+1 212-893-1168,venture capital & private equity,70,New York,New York,United States,339000000,Other,210000000,2019-08-01T00:00:00+00:00
+Vestigo Ventures,Ian Sheridan,Business Mentor,VC,,,Warren,,,isheridan@vestigoventures.com,http://www.linkedin.com/in/iansheridan1,https://vestigoventures.com,http://www.linkedin.com/company/vestigo-ventures,https://twitter.com/VestigoVentures,'+1 617-780-1414,'+1 212-896-1272,venture capital & private equity,16,Cambridge,Massachusetts,United States,259700000,Other,117300000,2022-02-01T00:00:00+00:00
+Wired Square,Alex Ferrara,Director,VC,,,Warren,,,alex@wiredsquare.com,http://www.linkedin.com/in/alex-ferrara-5950a132,https://wiredsquare.com,,,'+61 403 604 604,917-770-4600,,,,,,,,,
+Air Street Capital,Nathan Benaich,Founder,VC,,,Warren,,,nathan@airstreet.com,http://www.linkedin.com/in/nathanbenaich,https://airstreet.com,http://www.linkedin.com/company/air-street-capital,https://www.twitter.com/airstreet,'+44 788 238 7531,'+44 20 7604 5777,venture capital & private equity,5,,,Guernsey,370200000,Other,232000000,2026-03-01T00:00:00+00:00
+,,,,,,,,,,,,,,,,,,,,,,,,
+NYCA,Hans Morris,Managing Partner,VC,,,Warren,,,hmorris@nyca.com,http://www.linkedin.com/in/hansmorris,https://nyca.com,http://www.linkedin.com/company/nyca-partners,https://twitter.com/nycapartners,'+1 917-612-1946,'+1 212-893-1168,venture capital & private equity,70,New York,New York,United States,339000000,Other,210000000,2019-08-01T00:00:00+00:00
+Aleph,Eden Shochat,Equal Partner,VC,,,Warren,,,eden@aleph.vc,http://www.linkedin.com/in/edens,https://aleph.vc,http://www.linkedin.com/company/aleph-vc,https://twitter.com/aleph,'+972 52-459-4362,'+972 54-446-1666,venture capital & private equity,56,Tel Aviv-Yafo,Tel Aviv District,Israel,680000000,Other,300000000,2021-12-01T00:00:00+00:00
+Work-Bench,Jessica Lin,Co-Founder & General Partner,VC,,,Warren,,,jess@work-bench.com,http://www.linkedin.com/in/jessicalin8,https://work-bench.com,http://www.linkedin.com/company/work-bench,http://www.twitter.com/work_bench,'+1 408-638-9624,'+1 646-494-6231,venture capital & private equity,42,New York,New York,United States,307000000,Other,160000000,2025-05-01T00:00:00+00:00
+Round13 Capital,Bruce Croxon,,VC,,,Warren,,,bruce@round13.com,http://www.linkedin.com/in/brucecroxon,https://round13.com,http://www.linkedin.com/company/round13capital,https://twitter.com/r13vc?lang=en,,'+1 416-543-2312,investment management,16,Toronto,Ontario,Canada,218275000,Other,148275000,2023-04-01T00:00:00+00:00
+GV (Google Ventures),Elena Sakach,Partner,VC,,,Warren,,,esakach@gv.com,http://www.linkedin.com/in/elenasakach,https://gv.com,http://www.linkedin.com/company/googleventures,http://twitter.com/GoogleVentures,'+1 630-987-9597,415-730-2697,venture capital & private equity,620,Mountain View,California,United States,100000000,Other,100000000,2014-07-01T00:00:00+00:00
+Glasswing Ventures,Rudina Seseri,Founder and Managing Partner,VC,,,Warren,,,rudina@glasswing.vc,http://www.linkedin.com/in/rudinaseseri,https://glasswing.vc,http://www.linkedin.com/company/glasswing-ventures,https://twitter.com/glasswingvc,'+1 617-899-5599,'+1 617-410-4870,venture capital & private equity,79,Boston,Massachusetts,United States,471964646,Other,200000000,2025-11-01T00:00:00+00:00
+Balderton Capital,Rob Moffat,Partner,VC,,,Warren,,,rmoffat@balderton.com,http://www.linkedin.com/in/robmoff,https://balderton.com,http://www.linkedin.com/company/balderton,http://twitter.com/@Balderton,'+44 791 285 9378,'+44 20 7016 6800,venture capital & private equity,110,,England,United Kingdom,2225000000,Other,685000000,2024-08-01T00:00:00+00:00
+Index Ventures,Mike Volpi,General Partner,VC,,,Warren,,,mike@indexventures.com,http://www.linkedin.com/in/mavolpi,https://indexventures.com,http://www.linkedin.com/company/index-ventures,https://twitter.com/indexventures,'+1 650-215-3939,818-399-4195,venture capital & private equity,130,London,England,United Kingdom,5700000000,Other,2300000000,2024-07-01T00:00:00+00:00
+TLV Partners,Rona Segev,Co-Founder & Managing Partner,VC,,,Warren,,,rona@tlv.partners,http://www.linkedin.com/in/ronasegev,https://tlv.partners,http://www.linkedin.com/company/tlv-partners,https://twitter.com/TLV_Partners,,'+972 54-484-8630,venture capital & private equity,26,Tel Aviv-Yafo,Tel Aviv District,Israel,872284264,Other,250000000,2023-07-01T00:00:00+00:00
+Acrew Capital,Theresia Gouw,Founding Partner,VC,,,Warren,,,theresia@acrewcapital.com,http://www.linkedin.com/in/theresiagouw,https://acrewcapital.com,http://www.linkedin.com/company/acrew-capital,https://twitter.com/acrewcapital,'+1 650-269-5805,'+1 650-798-4188,venture capital & private equity,55,Palo Alto,California,United States,1630000000,Other,700000000,2024-10-01T00:00:00+00:00
+QED Investors,Nigel Morris,CEO,VC,,,Warren,,,nmorris@qedinvestors.com,http://www.linkedin.com/in/nigell-morris-78138b16b,https://qedinvestors.com,http://www.linkedin.com/company/qed-investors,https://twitter.com/QEDInvestors,,'+91 20278 78133,financial services,75,Alexandria,Virginia,United States,3337000000,Other,1000000000,2023-06-01T00:00:00+00:00
+Ludwig Advisors,Eugene Ludwig,Managing Partner,VC,,,Warren,,,gene@ludwigadvisors.com,http://www.linkedin.com/in/gene-ludwig,https://ludwigadvisors.com,http://www.linkedin.com/company/ludwig-advisors,,'+1 202-384-1001,202-365-1800,financial services,7,Washington,District of Columbia,United States,,,,
+Fund / Org,Person,Type,Background / Signal,Our Contact
+Matter Venture Partners,Wen Hsieh,VC,"ex-Kleiner Perkins (17 yrs), deep semi network",Willson
+Matter Venture Partners,Haomiao Huang,VC,ex-Kleiner; operator mindset,Willson
+Innovation Endeavors,Dror Berman (https://www.linkedin.com/in/drorberman/),VC,Systems + frontier tech,
+Lux Capital,Shahin Farshchi,VC,PhD EE; backed Groq/Mythic,"Tanya, Leo"
+Lux Capital,Josh Wolfe,VC,Science-driven investor,
+Lux Capital,Brandon Reeves,VC,Semiconductor + infra focus,
+DCVC,Matt Ocko,VC,Deep tech thesis investor,Leo
+DCVC,Zachary Bogue,VC,Early infra investor,
+Eclipse Ventures,Greg Reichow,VC,ex-Tesla manufacturing,
+Eclipse Ventures,Benedict Gomes,VC,ex-Google Search,
+Playground Global,Peter Barrett,VC,Backed Nervana,
+Playground (network),Pat Gelsinger,VC,ex-Intel CEO,
+Air Street Capital,Nathan Benaich,VC,State of AI,
+Cherubic Ventures,Matt Cheng,VC,Semi ecosystem access,
+Qualcomm Ventures,,VC,Strong in edge compute,Doug
+Analog Devices Ventures,,VC,Deep technical credibility,Dan
+Samsung Ventures,,VC,Memory ecosystem leader,
+Intel Capital,,VC,Large ecosystem,
+Cisco (Strategic),,VC,Deployment infra,Vj
+HP Ventures,,VC,Systems distribution,Dan
+Coatue,AI infra partners,VC,Growth-stage AI,
+Lightspeed,Infra partners,VC,Active in AI,
+a16z,AI infra team,VC,Platform investor,
+General Catalyst,Systems partners,VC,Scaling companies,
+Altimeter,(various),VC,Public + growth,
+Radical Ventures,(partners),VC,Model-heavy but evolving,
+IQ Capital,(partners),VC,Hardware-friendly,
+First Spark Ventures,(team),VC,Early silicon bets,
+Embedded Ventures,(team),VC,Real-world deployment,
+Nat Friedman,Individual,Angel,ex-GitHub,
+Daniel Gross,Individual,Angel,ex-YC,
+Elad Gil,Individual,Angel,Strong pattern recognition,
+Nvidia alumni angels,(various),Angel,Deep architecture knowledge,
+Intel/Habana/Graphcore alumni,(various),Angel,Architecture veterans,
+Cloud infra operators,ex-AWS/Google/Meta,Angel,Infra builders,
+Firm,Priority,Partner,Contacts,Relevant Investments,AINekko Contact,Status/Notes,Next Action
+Matter VC (TSMC fund),1,,,,,,
+Eclipse Ventures,1,Greg Reichow,greg.reichow@eclipse.vc,Oxide; Lightmatter; SambaNova; Flex Logix; Tact.ai,Leo/Bryan,Intro sent,
+,,Aidan Madigan-Curtis,,,,,
+,,Lior Susan,lior@eclipse.vc,,,,
+Lightspeed,1,Barry Eggers,,"SambaNova, Glean, Pinecone, Thoughspot",Dino,Scheduling,
+Pruven Capital,1,Sudip Chakrabarti,,"Fortanix, Spacelift, Chronosphere",Roman,Talked Feb 28 + follow-up,
+Lux Capital,1,"Shahin Farshchi, Bilal Zubery",,Mythic; DuckDuckGo; Primer; D-Wave; Aurora,Roman,Started Mar 4,
+Dell Capital,1,"Daniel Docter, Scott Darling",daniel.docter@dell.com,"Graphcore, Alation",Roman/Sasha,Started Mar 4,
+IBM Ventures,1,—,,"AI Alliance, H2O.ai; Databand; MosaicML; CognitiveScale",—,Scheduling call,
+Paul Moritz,1,Paul Moritz,,,Leo,Follow-up Mar 5,
+Wing Capital,1,"Peter Wagner, Jake Flomenberg",,Snowflake; Cloudflare; Snyk; SentinelOne,—,Need intro,
+Kleiner Perkins,1,Mamoon Hamid,mhamid@kleinerperkins.com,Retym; Databricks; Arctic Wolf,—,Geoff knows him,
+Benchmark,1,Eric Vishria,,Cerebras; Elastic; Docker; Confluent,—,—,
+Sequoia,1,David Cahn,,Hugging Face; Databricks; Pinecone; Neon.tech,—,—,
+Rountree,1,Ian Rountree,,Anduril; Eigenlayer; MotherDuck,Bryan,Intro pending,
+Fathom Capital,1,John Komkov,,,Roman,Roman knows,
+Cortical Ventures,1,Igor Taber,igor@cortical.vc,Weights & Biases; OctoML; Galileo; Lamini,Sasha,—,
+Altimeter,1,Gwen Umbach,,Databricks; UiPath; Nvidia; Cohere,Igor Tauber,Get intro via Tauber,
+Triatomic,1,Jeff Huber,jhuber@triatomic.ai,OpenAI; Groq; Recursion; Ginkgo Bioworks,Sasha,—,
+Western Digital,1,Kaushik Roy,kaushik.roy@wdc.com,Graphcore; Fungible; Lightbits; MinIO,Sasha,Daniil reached out on Mar 1,
+Cota Capital,1,Adit Singh,adit@cotacapital.com,Cerebras; Risc Zero; Groq; Bright Machines,Sasha/Taber,Daniil ,
+Zetta Ventures,1,Jocelyn Goldfein,,Scale AI; Domino; Weights & Biases; Lamini,—,Need intro,
+Tenstorrent,1,Jim Keller,,Tenstorrent,Charlie,Reach via Charlie,
+LDV Partners,1,Li Lin,li@ldvpartners.com,Hailo; Alcatraz AI; Nanit; Sight Diagnostics,Daniil,Reached out on Mar 10,
+Foundation Capital,1,"Steve Vassallo, Paul Holland",paulh@foundationcap.com,Cerebras; Eightfold; Brilliant; OpsMx,Bryan,—,
+Celesta Capital,1,"Lip-Bu Tan, Steve Fu",lbtan@waldenintl.com,Celestial AI; Inpher; Fungible; SMIC,Geoff/Duane/Dino,—,
+NEA,2,Lila Tretikov,ltretikov@nea.com,Databricks; Cohere; SambaNova; Desktop Metal,—,"Waiting infra partner intro, Charlie via Clickhouse",
+Raptor/Rosen,2,Greg Rosen,,,Bryan,For follow-ons,
+Anzu Partners,2,—,,Lightelligence; GaN Systems; Edge Impulse; Arieca,—,—,
+Mayfield,2,Navin Chaddha,nchaddha@mayfield.com,Nuvia; Groq; Recogni; Rocketlane,—,—,
+KDT,2,Isaac Sigron,isigron@yahoo.com,Celestial AI; Mythic; Standard Cognition; Desktop Metal,Charlie/Leo,—,
+Prosperity7,2,Abhishek Shukla,abhishek.shukla@p7vc.com,SambaNova; Neural Magic; G42; Exo Imaging,Roman,"Roman knows, Yoav knows",
+Root VC,2,Chrissy Meyer; Lee Edwards,,RightHand Robotics; Nanotronics; Motive; Fictiv,—,—,
+Amplify,2,Mike Dauber,mike@amplifypartners.com,Run.ai; Tecton; Snorkel; Fiddler; OctoML,Roman/Leo,—,
+IQT,2,,,Graphcore; Hailo; PsiQuantum; Duality; Kipu AI,Bryan,—,
+Rally Ventures,2,—,,Infinera; DroneDeploy; Vidyard; Cybrary,Leo,Asked Leo,
+Riot Ventures,2,—,,Machina Labs; Reveal Tech; Nubix; SurfaceInk,Leo,Asked Leo,
+Counterpart Ventures,2,—,,,—,Not a lead,
+Analog Device Ventures,2,Kimberly Blakemore,Kimberly.Blakemore@analog.com,"strategic, new",,"Discussion on Mar12 (2nd convo), interested in the main round not bridge",
+Bessemer,3,,,Pinecone; Lambda Labs; Snyk; Databricks,—,—,
+Millennium New Horizons,3,—,,Hailo; Flex Logix; Movellus; Untether AI,—,—,
+Alpha Wave,3,—,,Cerebras; Rebellion Defense; Swim.ai; G42,—,—,
+Greylock,3,Jerry Chen,,Cohere; Abnormal; Cresta; Clubhouse infra,Roman,Roman knows,
+M12,3,Michelle Gonzales,michelle.gonzalez@m12.vc,OpenAI; AnyVision; Contrast Security; Arkestro,—,Reached out on Mar 1 (no response),
+GV,3,—,,Anthropic; SambaNova; Lambda Labs; Abacus.ai,—,—,
+Madrona,3,Matt McIlwain,matt@madrona.com,OctoML; Snowflake; Tesorio; Terraclear,—,—,
+Two Sigma,3,—,,Pinecone; Imbue; PredictionGuard; Cresta,—,—,
+Sutter Hill,3,—,,Snowflake; Arista; Illumio; Pure Storage,—,—,
+Sierra Ventures,3,—,,,—,—,
+fj,3,—,,AI/HW,—,Daniil ,
+Battery,3,—,,Semis,—,—,
+CRV,3,—,,,—,—,
+Menlo,3,—,,Pinecone; Abnormal Security; Anduril; Clarifai,—,—,
+Spark Capital,3,,,Fivetran; SentinelOne; Cruise; Postmates,Bryan,No intro,
+Redline,3,—,,Graphcore; Kalray; Syntiant,—,—,
+FirstMark,3,,,Dataiku; Hyperscience; ClickHouse; Starburst,Justin,Justin suggestion,
+Work-Bench,3,,,CockroachDB; Tetrate; FireHydrant; Alluxio,Justin,Justin suggestion,
+VVUS,3,,,Modular AI; Perplexity; Baseten; Together AI,Justin,Justin suggestion,
+Hardware Club,3,,,,Daniil,Passed on Mar 10th,
+JCI Ventures,3,,,,Daniil,Passed on Mar 7th,
+,,,,,,,
+Alumni Ventures,,Mason Hale,,,Doug,Was Interested in seed investment with Veevx.  They do not lead.  $250K range,
+Matrix,,Stan Reiss,,,Doug,"Can lead, turned Veevx down but we good traction initially.  May be interested in the combined company",
+TDK Ventures,,Nicolas Sauvauge,,,Doug,May be interested in the combined company. ,
+Miramar,,Bruce Hallett,,,Leo,Had interest in Veevx,
+TEL Ventures,,Todd Mihara,,,Nick from Silicon Catalyst,,
+TSMC Ventures,,,,,Doug,,
+Mayfield,,Gamiel Gran / Navin,,,Nick from Silicon Catalyst,,
+Google Ventures,,Andy Wheeler,,,Leo,,
+Firm,Priority,Partner,Contacts,Relevant Investments,AINekko Contact,Status/Notes,Next Action
+Constructor,1,Serg Bell,sb@constructor.tech,,Tanya,sent the data room,call Marc 3rd
+Engineering Capital,1,Ashmeet Sidana,sidana@engineeringcapital.com,Blaize; Tensil; Cape Privacy; Imbue,Roman,Declined,
+Raptor Group,1,Christian Gallagher,christian.gallagher@raptorgroup.com,Achronix; Groq (secondary); SMT Data,Tanya,Tanya sent,setting up call
+Elevata Ventures,1,"Julian Levy, Nicolas Giuli", ,"Rivos, Samabanova",Roman,Roman sent,
+aal.vc,1,,,,Tanya,Tanya sent update,
+Wild West Capital ,1,Kevin Denuccio,,Zededa,Roman ,Roman sent,
+Red Glass Ventures,1,Bilal Zuberi,,Zededa (as Lux),Roman/Tanya,Tanya sent,
+Energize Capital,1,,,Zededa,Roman,Roman sent,
+Miramar VP,1,Bruce Hallett <bhallett@miramarvp.com>,,,,Leo sent deck ,
+,,,,,,,
+,,,,,,,
+Pegasus,2,https://www.linkedin.com/in/billreichert/,,,Dan,No response ,
+https://crane.vc/,2,,,,David,"sent deck, scheduling time",
+https://www.anfavc.com/,2,,,,Tanya,Tanya sent,
+https://www.daemonventures.vc/,2,,,,Roman,,
+https://www.castle-fund.com/,2,,,,Roman,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+Cleremont,,,,,,,
