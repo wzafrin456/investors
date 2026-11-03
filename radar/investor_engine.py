@@ -14,6 +14,8 @@ import json
 import re
 from pathlib import Path
 
+from . import enrichment_kb
+
 ROOT = Path(__file__).resolve().parent.parent
 RAW_FILE = ROOT / "data" / "raw_leo_investors.txt"
 CSV_FILE = ROOT / "data" / "investors.csv"
@@ -786,8 +788,10 @@ def parse_raw_leo_list(raw_text: str = None) -> list[dict]:
     enriched = []
     for idx, (k, row) in enumerate(merged_map.items(), start=1):
         inv_id = "INV-" + hashlib.sha1(k.encode("utf-8")).hexdigest()[:8].upper()
+        enrichment_kb.enrich_investor_contact_fields(inv_id, row)
         fit = _classify_and_score_investor(row)
         row.update(fit)
+        enrichment_kb.enrich_investor_contact_fields(inv_id, row)
         row["id"] = inv_id
 
         # Apply any persisted user edits from output/investor_state.json
@@ -802,6 +806,10 @@ def parse_raw_leo_list(raw_text: str = None) -> list[dict]:
             row["our_contact"] = st["assigned_owner"]
         row["updated_at"] = st.get("updated_at", "")
         row["updated_by"] = st.get("updated_by", "")
+        row["deck_opens"] = int(st.get("deck_opens") or (1 if "deck sent" in (row.get("latest_status") or "").lower() or "looking at deck" in (row.get("latest_status") or "").lower() else 0))
+        row["pdf_downloads"] = int(st.get("pdf_downloads") or 0)
+        row["last_opened_at"] = st.get("last_opened_at", "")
+        row["follow_up_date"] = st.get("follow_up_date", "")
 
         row["display_phone"] = row["mobile_phone"] or row["corporate_phone"] or ""
         row["phone_kind"] = "Mobile" if row["mobile_phone"] else ("Office" if row["corporate_phone"] else "")
@@ -849,6 +857,7 @@ def update_investor_status(
     comment: str = None,
     next_action: str = None,
     assigned_owner: str = None,
+    follow_up_date: str = None,
     updated_by: str = "Warren",
 ) -> dict:
     iid = (inv_id or "").strip()
@@ -864,6 +873,8 @@ def update_investor_status(
         cur["next_action"] = str(next_action).strip()[:200]
     if assigned_owner is not None:
         cur["assigned_owner"] = str(assigned_owner).strip()[:80]
+    if follow_up_date is not None:
+        cur["follow_up_date"] = str(follow_up_date).strip()[:40]
     cur["updated_by"] = updated_by
     cur["updated_at"] = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     state[iid] = cur
@@ -872,6 +883,24 @@ def update_investor_status(
     rows = get_all_investors(persist_csv=True)
     updated_row = next((r for r in rows if r["id"] == iid), None)
     return {"ok": True, "id": iid, "investor": updated_row}
+
+
+def record_investor_engagement(inv_id: str, event_type: str = "open") -> dict:
+    """Record when an investor opens a pitch link or downloads a 2-page PDF VC Tear-Sheet."""
+    iid = (inv_id or "").strip()
+    if not iid:
+        return {"ok": False}
+    state = load_state()
+    cur = state.get(iid) or {}
+    now_str = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    if event_type == "pdf":
+        cur["pdf_downloads"] = int(cur.get("pdf_downloads") or 0) + 1
+    else:
+        cur["deck_opens"] = int(cur.get("deck_opens") or 0) + 1
+        cur["last_opened_at"] = now_str
+    state[iid] = cur
+    save_state(state)
+    return {"ok": True, "id": iid, "state": cur}
 
 
 CSV_COLUMNS = [
@@ -904,12 +933,29 @@ def build_summary_metrics(rows: list[dict] = None) -> dict:
     tier_b = [r for r in rows if r["tier"] == "B"]
     tier_c = [r for r in rows if r["tier"] == "C"]
     with_email = [r for r in rows if r.get("email")]
+    with_linkedin = [r for r in rows if r.get("person_linkedin")]
     with_phone = [r for r in rows if r.get("display_phone")]
     warren_contacts = [r for r in rows if "warren" in (r.get("our_contact") or "").lower()]
     leo_contacts = [r for r in rows if "leo" in (r.get("our_contact") or "").lower()]
     active_convos = [
         r for r in rows
         if (r.get("latest_status") or "").lower() not in ("", "not contacted", "declined", "not a lead")
+        and "passed" not in (r.get("latest_status") or "").lower()
+    ]
+    decks_sent = [
+        r for r in rows
+        if any(k in (r.get("latest_status") or "").lower() for k in ("deck", "call", "meeting", "intro", "sent", "committed", "pitch"))
+        or int(r.get("deck_opens") or 0) > 0
+    ]
+    decks_opened = [
+        r for r in rows
+        if int(r.get("deck_opens") or 0) > 0 or int(r.get("pdf_downloads") or 0) > 0
+        or "looking at deck" in (r.get("latest_status") or "").lower()
+    ]
+    tier_sa_followup = [
+        r for r in rows
+        if r["tier"] in ("S", "A")
+        and (r.get("latest_status") or "").lower() not in ("declined", "not a lead", "committed", "deprioritize / skip")
         and "passed" not in (r.get("latest_status") or "").lower()
     ]
 
@@ -925,11 +971,19 @@ def build_summary_metrics(rows: list[dict] = None) -> dict:
         "tier_c_rate": f"{len(tier_c)} of {total} ({round(len(tier_c) / denom * 100, 1)}%)",
         "with_email_count": len(with_email),
         "with_email_rate": f"{len(with_email)} of {total} ({round(len(with_email) / denom * 100, 1)}%)",
+        "with_linkedin_count": len(with_linkedin),
+        "with_linkedin_rate": f"{len(with_linkedin)} of {total} ({round(len(with_linkedin) / denom * 100, 1)}%)",
         "with_phone_count": len(with_phone),
         "with_phone_rate": f"{len(with_phone)} of {total} ({round(len(with_phone) / denom * 100, 1)}%)",
         "warren_contact_count": len(warren_contacts),
         "leo_contact_count": len(leo_contacts),
         "active_convo_count": len(active_convos),
+        "decks_sent_count": len(decks_sent),
+        "decks_sent_rate": f"{len(decks_sent)} of {total} ({round(len(decks_sent) / denom * 100, 1)}%)",
+        "decks_opened_count": len(decks_opened),
+        "decks_opened_rate": f"{len(decks_opened)} of {total} ({round(len(decks_opened) / denom * 100, 1)}%)",
+        "tier_sa_followup_count": len(tier_sa_followup),
+        "tier_sa_followup_rate": f"{len(tier_sa_followup)} of {len(tier_s) + len(tier_a)} ({round(len(tier_sa_followup) / max(1, len(tier_s) + len(tier_a)) * 100, 1)}%)",
     }
 
 
@@ -965,3 +1019,4 @@ def build_executive_vc_report(rows: list[dict] = None) -> dict:
         "wave3_enterprise_ai_leads": tier_a[:15],
         "deprioritize_hardware_funds": tier_c[:15],
     }
+

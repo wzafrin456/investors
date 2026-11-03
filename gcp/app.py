@@ -26,7 +26,7 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from radar import access, gemini_vc, investor_engine
+from radar import access, gemini_vc, investor_digest, investor_engine, pdf_memo
 
 USER = os.environ.get("BOARD_USER", "dokimo")
 PASSWORD = os.environ.get("BOARD_PASSWORD", "")
@@ -195,9 +195,10 @@ NAV_BAR_HTML = """
     <a class="dk-nav-brand" href="/">🏛️ Dokimo Investor Watch &amp; Gemini VC Fit Board</a>
     <div class="dk-nav-links">
       <a href="/" class="__ACT_BOARD__">1. VC Fit &amp; Priority Board (/)</a>
-      <a href="/report" class="__ACT_REPORT__">2. Executive VC Research Report (/report)</a>
-      <a href="/outreach" class="__ACT_OUTREACH__">3. Leo &amp; Warren Outreach Studio (/outreach)</a>
-      <a href="/chat" class="__ACT_CHAT__">4. Ask Gemini VC Strategist (/chat)</a>
+      <a href="/report" class="__ACT_REPORT__">2. Executive VC Report (/report)</a>
+      <a href="/outreach" class="__ACT_OUTREACH__">3. Outreach Studio (/outreach)</a>
+      <a href="/digest" class="__ACT_DIGEST__">4. Pipeline Digest &amp; Follow-Up (/digest)</a>
+      <a href="/chat" class="__ACT_CHAT__">5. Ask Gemini VC Strategist (/chat)</a>
       <a href="/api/investors/export.csv">⬇ Export CSV</a>
     </div>
   </div>
@@ -216,6 +217,7 @@ def inject_nav(page_html: str, viewer: dict, active_tab: str = "board") -> str:
         .replace("__ACT_BOARD__", "active" if active_tab == "board" else "")
         .replace("__ACT_REPORT__", "active" if active_tab == "report" else "")
         .replace("__ACT_OUTREACH__", "active" if active_tab == "outreach" else "")
+        .replace("__ACT_DIGEST__", "active" if active_tab == "digest" else "")
         .replace("__ACT_CHAT__", "active" if active_tab == "chat" else "")
         .replace("__ACT_ACC__", "active" if active_tab == "access" else "")
     )
@@ -563,9 +565,13 @@ function renderRows(){{
     tdAct.appendChild(statusMsg);
 
     var btnRow = makeEl('div', {{style:'display:flex;flex-wrap:wrap;gap:4px'}});
-    var gemBtn = makeEl('button', {{className:'btn-sm pri'}}, '✨ Gemini IC Memo & Blurb');
+    var gemBtn = makeEl('button', {{className:'btn-sm pri'}}, '✨ Gemini IC Memo');
     gemBtn.onclick = function(){{ openGeminiModal(r); }};
     btnRow.appendChild(gemBtn);
+
+    var pdfUrl = '/api/investors/pdf-memo?id=' + encodeURIComponent(r.id);
+    var pdfLink = makeEl('a', {{href:pdfUrl, target:'_blank', rel:'noopener', className:'btn-sm', style:'background:#0f172a;color:#fff;border-color:#0f172a'}}, '📄 2-Page PDF Tear-Sheet');
+    btnRow.appendChild(pdfLink);
 
     if(r.email){{
       var gmUrl = 'https://mail.google.com/mail/?view=cm&fs=1&to=' + encodeURIComponent(r.email) + '&su=' + encodeURIComponent(r.direct_email_subject) + '&body=' + encodeURIComponent(r.direct_email_body);
@@ -732,8 +738,10 @@ def render_outreach_html() -> str:
               <b style="font-size:15px;margin-left:6px">{html.escape(r['fund'])}</b> — {html.escape(r['person'] or 'Partnership')}
               <span class="chip ok" style="margin-left:6px">Warm Contact: {html.escape(r['our_contact'])}</span>
             </div>
-            <div style="display:flex;gap:6px">
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <a class="btn-sm" style="background:#0f172a;color:#fff;border-color:#0f172a" href="/api/investors/pdf-memo?id={urllib.parse.quote(r['id'])}" target="_blank" rel="noopener">📄 1-Click 2-Page PDF VC Tear-Sheet</a>
               <a class="btn-sm ok" href="{html.escape(gm_url, quote=True)}" target="_blank" rel="noopener">✉️ 1-Click Open in Gmail ({html.escape(r['email'] or 'Add Email')})</a>
+              <a class="btn-sm" href="{html.escape(r.get('person_linkedin') or '#', quote=True)}" target="_blank" rel="noopener">in LinkedIn ↗</a>
             </div>
           </div>
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:10px">
@@ -759,6 +767,67 @@ def render_outreach_html() -> str:
   </div>
 </header>
 <div style="margin-top:14px">{''.join(cards)}</div>
+</body></html>"""
+
+
+def render_digest_html(mode: str = "daily") -> str:
+    payload = investor_digest.build_digest_payload(mode=mode)
+    m = payload["metrics"]
+    return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Investor Pipeline Digest &amp; Follow-Up Center · Dokimo.ai</title>
+<style>{SHARED_CSS}</style></head><body>
+<header class="masthead">
+  <div>
+    <h1>📬 Daily &amp; Weekly Investor Pipeline Digest (Decks Sent, Opens &amp; Priority Follow-Ups)</h1>
+    <div class="sub">
+      Automated <b>Daily 7:00 AM EST</b> &amp; <b>Friday 4:30 PM EST Weekly</b> Investor Pipeline Digest to <b>warren@dokimo.ai</b> and <b>Leo</b> — tracking which Tier-S and Tier-A VCs received decks, opened tracked pitch links, downloaded 2-page PDF Tear-Sheets, or need a follow-up today.
+    </div>
+  </div>
+  <div class="runbox">
+    Enriched Contacts: <b>{html.escape(m['with_email_rate'])}</b><br>
+    LinkedIn Profiles: <b>{html.escape(m['with_linkedin_rate'])}</b><br>
+    Decks Sent / Engaged: <b>{html.escape(m['decks_sent_rate'])}</b>
+  </div>
+</header>
+
+<div class="controls-wrap" style="margin-top:12px">
+  <div class="controls" style="justify-content:space-between">
+    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+      <span class="lbl">Digest Mode</span>
+      <a class="f {'on' if mode != 'weekly' else ''}" href="/digest?mode=daily" style="text-decoration:none">☀️ Daily 7:00 AM EST Digest</a>
+      <a class="f {'on' if mode == 'weekly' else ''}" href="/digest?mode=weekly" style="text-decoration:none">📅 Friday Weekly Pipeline Recap</a>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <input id="dig-rcpts" type="text" value="warren@dokimo.ai, leo@dokimo.ai" style="width:280px;padding:6px 10px;border:1px solid var(--rule2);border-radius:4px;font-size:12px">
+      <button class="btn-sm ok" onclick="sendDigestNow('{html.escape(mode)}')" style="padding:7px 14px;font-size:12.5px">📨 1-Click Email Digest Now to Warren &amp; Leo</button>
+      <span id="dig-status" style="font-size:12px;font-weight:700;color:var(--quiet)"></span>
+    </div>
+  </div>
+</div>
+
+<div style="margin-top:12px">
+  {payload['html_body']}
+</div>
+
+<script>
+function sendDigestNow(mode){{
+  var st = document.getElementById('dig-status');
+  var rcpts = (document.getElementById('dig-rcpts').value || '').split(',').map(function(s){{return s.trim();}}).filter(Boolean);
+  st.textContent = 'Sending via Gmail API (warren@dokimo.ai)...';
+  fetch('/api/investors/send-digest', {{
+    method:'POST',
+    headers:{{'Content-Type':'application/json'}},
+    body:JSON.stringify({{mode:mode, recipients:rcpts}})
+  }}).then(function(r){{ return r.json(); }}).then(function(d){{
+    if(d.ok){{
+      st.textContent = '✓ Sent to ' + (d.sent_to || []).join(', ');
+    }} else {{
+      st.textContent = '⚠ Error: ' + ((d.errors || []).join('; ') || d.error || 'Failed');
+    }}
+  }});
+}}
+</script>
 </body></html>"""
 
 
@@ -915,6 +984,34 @@ class Handler(BaseHTTPRequestHandler):
             self.send_json({"ok": True, "service": "dokimo-investors"})
             return
 
+        if path.startswith("/pitch/"):
+            inv_id = urllib.parse.unquote(path[len("/pitch/"):].strip("/"))
+            sync_from_gcs(["output/investor_state.json"])
+            investor_engine.record_investor_engagement(inv_id, event_type="open")
+            push_to_gcs(["output/investor_state.json", "data/investors.csv"])
+            rows = investor_engine.get_all_investors(persist_csv=False)
+            inv = next((r for r in rows if r["id"].upper() == inv_id.upper()), rows[0] if rows else {"id": inv_id, "fund": inv_id})
+            pdf_bytes, fname = pdf_memo.generate_investor_tearsheet_pdf(inv)
+            self.send_response(200)
+            self.send_header("Content-Type", "application/pdf")
+            self.send_header("Content-Disposition", f'inline; filename="{fname}"')
+            self.send_header("Content-Length", str(len(pdf_bytes)))
+            self.send_security_headers()
+            self.end_headers()
+            self.wfile.write(pdf_bytes)
+            return
+
+        if path == "/api/cron/investor-digest":
+            cron_tok = (qs.get("key") or [""])[0] or self.headers.get("X-Refresh-Token", "")
+            if REFRESH_TOKEN and cron_tok != REFRESH_TOKEN and not self.authenticate_viewer():
+                self.send_json({"error": "unauthorized cron"}, 401)
+                return
+            sync_from_gcs()
+            mode = (qs.get("mode") or ["daily"])[0]
+            res = investor_digest.send_investor_digest_email(mode=mode)
+            self.send_json(res)
+            return
+
         if path == "/logout":
             self.redirect("/login", clear_cookie=True)
             return
@@ -951,6 +1048,10 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/outreach":
             self.send_html(inject_nav(render_outreach_html(), viewer, active_tab="outreach"))
             return
+        if path == "/digest":
+            mode = (qs.get("mode") or ["daily"])[0]
+            self.send_html(inject_nav(render_digest_html(mode=mode), viewer, active_tab="digest"))
+            return
         if path == "/chat":
             self.send_html(inject_nav(render_chat_html(), viewer, active_tab="chat"))
             return
@@ -960,6 +1061,29 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/api/investors":
             rows = investor_engine.get_all_investors(persist_csv=True)
             self.send_json({"ok": True, "metrics": investor_engine.build_summary_metrics(rows), "investors": rows})
+            return
+        if path == "/api/investors/digest":
+            mode = (qs.get("mode") or ["daily"])[0]
+            self.send_json(investor_digest.build_digest_payload(mode=mode))
+            return
+        if path == "/api/investors/pdf-memo":
+            inv_id = (qs.get("id") or ["INV-001"])[0].strip()
+            rows = investor_engine.get_all_investors(persist_csv=False)
+            inv = next((r for r in rows if r["id"].upper() == inv_id.upper()), None)
+            if not inv:
+                inv = next((r for r in rows if inv_id.lower() in r["fund"].lower()), rows[0])
+            investor_engine.record_investor_engagement(inv["id"], event_type="pdf")
+            push_to_gcs(["output/investor_state.json"])
+            pdf_bytes, fname = pdf_memo.generate_investor_tearsheet_pdf(inv)
+            dl = (qs.get("download") or ["0"])[0] == "1"
+            disp = "attachment" if dl else "inline"
+            self.send_response(200)
+            self.send_header("Content-Type", "application/pdf")
+            self.send_header("Content-Disposition", f'{disp}; filename="{fname}"')
+            self.send_header("Content-Length", str(len(pdf_bytes)))
+            self.send_security_headers()
+            self.end_headers()
+            self.wfile.write(pdf_bytes)
             return
         if path == "/api/investors/report":
             self.send_json(investor_engine.build_executive_vc_report())
@@ -1039,6 +1163,13 @@ class Handler(BaseHTTPRequestHandler):
             res = gemini_vc.ask_gemini_vc_strategist(
                 question=str(payload.get("question") or ""),
             )
+            self.send_json(res)
+            return
+
+        if path == "/api/investors/send-digest":
+            mode = str(payload.get("mode") or "daily")
+            rcpts = payload.get("recipients") or ["warren@dokimo.ai", "leo@dokimo.ai"]
+            res = investor_digest.send_investor_digest_email(recipients=rcpts, mode=mode)
             self.send_json(res)
             return
 

@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from radar import access, gemini_vc, investor_engine
+from radar import access, gemini_vc, investor_digest, investor_engine, pdf_memo
 
 
 class TestInvestorEngine(unittest.TestCase):
@@ -17,15 +17,34 @@ class TestInvestorEngine(unittest.TestCase):
 
         # Verify total equals exact sum of tiers (Cross-layer numeric consistency)
         total = metrics["total_investors"]
-        self.assertGreaterEqual(total, 140)
+        self.assertEqual(total, 213)
         self.assertEqual(
             total,
             metrics["tier_s_count"] + metrics["tier_a_count"] + metrics["tier_b_count"] + metrics["tier_c_count"],
         )
 
+        # Verify 100% enrichment of partner emails and LinkedIn URLs across all 213 rows
+        self.assertEqual(metrics["with_email_count"], 213)
+        self.assertEqual(metrics["with_email_rate"], "213 of 213 (100.0%)")
+        self.assertEqual(metrics["with_linkedin_count"], 213)
+        self.assertEqual(metrics["with_linkedin_rate"], "213 of 213 (100.0%)")
+
         # Verify every rate includes its denominator
-        for k in ["tier_s_rate", "tier_a_rate", "tier_b_rate", "tier_c_rate", "with_email_rate", "with_phone_rate"]:
+        for k in ["tier_s_rate", "tier_a_rate", "tier_b_rate", "tier_c_rate", "with_email_rate", "with_linkedin_rate", "with_phone_rate"]:
             self.assertIn(f"of {total}", metrics[k])
+
+        # Verify 2-page PDF VC Tear-Sheet generation
+        pdf_bytes, fname = pdf_memo.generate_investor_tearsheet_pdf(rows[0])
+        self.assertTrue(pdf_bytes.startswith(b"%PDF-1.4"))
+        self.assertIn(b"/Count 2", pdf_bytes)
+        self.assertTrue(fname.endswith(".pdf"))
+
+        # Verify Daily & Weekly Investor Pipeline Digest payload
+        dig_daily = investor_digest.build_digest_payload(mode="daily")
+        self.assertTrue(dig_daily["ok"])
+        self.assertIn("213 of 213 (100.0%)", dig_daily["html_body"])
+        self.assertGreater(len(dig_daily["warren_queue"]), 5)
+        self.assertGreater(len(dig_daily["leo_queue"]), 5)
 
         # Verify top bullseye investors are ranked in Tier S
         by_fund = {r["fund"].lower(): r for r in rows}

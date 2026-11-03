@@ -17,3 +17,4 @@ Standalone repository (`/home/warre/investors`) and Google Cloud Run application
    - `/report` — Executive Research Report: *Who Is the Right VC for Dokimo?*
    - `/outreach` — Leo & Warren Warm-Intro & Direct Outreach Studio
    - `/chat` — Ask Gemini VC Strategist
+

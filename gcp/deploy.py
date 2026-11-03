@@ -68,7 +68,7 @@ def deploy():
         "--cpu", "1",
         "--max-instances", "4",
         "--set-env-vars", f"GOOGLE_CLOUD_PROJECT={PROJECT},GCP_REGION={REGION},GCS_BUCKET={BUCKET},BOARD_USER=dokimo",
-        "--set-secrets", f"BOARD_PASSWORD={PW_SECRET}:latest,REFRESH_TOKEN={TOK_SECRET}:latest",
+        "--set-secrets", f"BOARD_PASSWORD={PW_SECRET}:latest,REFRESH_TOKEN={TOK_SECRET}:latest,GMAIL_OAUTH_CLIENT=gmail-oauth-client:latest,GMAIL_TOKEN_WARREN=gmail-token-warren:latest",
         "--quiet",
     ])
 
@@ -79,3 +79,4 @@ def deploy():
 
 if __name__ == "__main__":
     deploy()
+
