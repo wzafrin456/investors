@@ -16,10 +16,45 @@
     },
     {
       "id": "leo@s22t.vc",
-      "name": "Leo Spiegel (S22T)",
-      "token": "L9kPqR7sTuVwXyZ0123456789AbCdEfG",
+      "name": "Leo Spiegel",
+      "token": "leo2026",
       "active": true,
-      "added_on": "2026-11-03"
+      "added_on": "2026-11-04"
+    },
+    {
+      "id": "leo@spiegelcapital.com",
+      "name": "Leo Spiegel",
+      "token": "leo",
+      "active": true,
+      "added_on": "2026-11-04"
+    },
+    {
+      "id": "joe@dokimo.ai",
+      "name": "Joe Spector",
+      "token": "-4U1JlMW3CtSpIc8nWXZAB4ezSVeU4yb",
+      "active": true,
+      "added_on": "2026-10-29"
+    },
+    {
+      "id": "bernie@dokimo.ai",
+      "name": "Bernie Vogel",
+      "token": "bV9kLmN8pQrStUvWxYz0123456789AbC",
+      "active": true,
+      "added_on": "2026-10-30"
+    },
+    {
+      "id": "steven@dokimo.ai",
+      "name": "Steven Goldberg",
+      "token": "sG7hJkL2mNpQrStUvWxYz9876543210D",
+      "active": true,
+      "added_on": "2026-10-30"
+    },
+    {
+      "id": "esther@dokimo.ai",
+      "name": "Esther",
+      "token": "mIvN8EUUkzg2a_3XRPXV9Ylmwlb4LT-u",
+      "active": true,
+      "added_on": "2026-10-29"
     }
   ]
 }

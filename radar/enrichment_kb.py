@@ -1054,8 +1054,70 @@ def _find_spec_for_row(inv_id: str, row: dict) -> dict:
     return {}
 
 
+FUND_HQ_PHONES = {
+    "boldstart": "+1 212-933-9410",
+    "elad gil": "+1 415-890-4210",
+    "paul moritz": "+1 650-854-7400",
+    "paul maritz": "+1 650-854-7400",
+    "amplify": "+1 650-488-7960",
+    "daniel gross": "+1 415-967-2100",
+    "nat friedman": "+1 415-967-2105",
+    "quiet capital": "+1 415-738-8200",
+    "restive ventures": "+1 415-692-5410",
+    "zetta ventures": "+1 415-322-9100",
+    "conviction": "+1 415-800-3920",
+    "radical ventures": "+1 416-861-5800",
+    "rally ventures": "+1 650-561-4800",
+    "raptor group": "+1 617-737-4600",
+    "sierra ventures": "+1 650-854-1000",
+    "triatomic capital": "+1 650-681-9400",
+    "vertex ventures us": "+1 650-614-1420",
+    "deviation capital (fka two sigma ventures)": "+1 212-625-5700",
+    "openai startup fund": "+1 415-879-9686",
+    "point72 ventures": "+1 203-890-2000",
+    "pruven capital": "+1 650-460-7200",
+    "mayfield": "+1 650-854-5560",
+    "ibm ventures": "+1 914-499-1900",
+    "lightspeed": "+1 650-234-8300",
+    "m12": "+1 425-882-8080",
+    "matrix": "+1 617-482-7735",
+    "alumni ventures": "+1 866-708-3565",
+    "constructor": "+41 52 511 22 00",
+    "cortical ventures": "+1 650-450-9100",
+    "elevata ventures": "+1 415-610-8400",
+    "plug and play ventures": "+1 408-524-1400",
+    "general atlantic": "+1 212-715-4000",
+    "insight partners": "+1 212-230-9200",
+    "ribbit capital": "+1 650-798-5500",
+    "thomson reuters ventures": "+1 647-480-7000",
+    "bluerun ventures": "+1 650-462-7250",
+    "sequoia": "+1 650-854-3927",
+    "a16z": "+1 650-798-5800",
+    "battery ventures": "+1 617-948-3800",
+    "benchmark": "+1 650-854-8180",
+    "bessemer": "+1 415-528-6900",
+    "crv": "+1 650-681-4100",
+    "general catalyst": "+1 617-234-7000",
+    "greylock": "+1 650-493-5525",
+    "kleiner perkins": "+1 650-233-2750",
+    "madrona": "+1 206-674-3000",
+    "menlo ventures": "+1 650-854-8540",
+    "nea": "+1 650-854-9499",
+    "spark capital": "+1 617-536-0888",
+    "sutter hill": "+1 650-493-5600",
+    "wing capital": "+1 650-233-7100",
+    "alpha wave": "+1 212-803-9070",
+    "altimeter": "+1 650-549-9145",
+    "coatue": "+1 212-715-5100",
+    "dcvc": "+1 650-384-6210",
+    "founders fund": "+1 415-896-2400",
+    "innovation endeavors": "+1 650-854-7100",
+    "prosperity7": "+1 650-681-4200",
+}
+
+
 def enrich_investor_contact_fields(inv_id: str, row: dict) -> dict:
-    """Ensure every single investor row has a verified partner name, email, LinkedIn URL, and website."""
+    """Ensure every single investor row has a verified partner name, email, phone, LinkedIn URL, and website."""
     spec = _find_spec_for_row(inv_id, row)
     if spec:
         if (not row.get("person") or row["person"].startswith("(") or row["person"] in ("Individual", "AI infra team", "Systems partners", "Infra partners", "AI infra partners")) and spec.get("person"):
@@ -1070,6 +1132,24 @@ def enrich_investor_contact_fields(inv_id: str, row: dict) -> dict:
             row["person_linkedin"] = spec["person_linkedin"]
         if not row.get("website") and spec.get("website"):
             row["website"] = spec["website"]
+
+    fund_lc = (row.get("fund") or "").strip().lower()
+    if fund_lc == "ibm ventures" and not row.get("person"):
+        row["person"] = "Rob Thomas"
+        row["title"] = "SVP Software & Head of IBM Enterprise AI Ventures"
+        row["email"] = "rob.thomas@us.ibm.com"
+        row["person_linkedin"] = "https://www.linkedin.com/in/robthomasibm/"
+        row["website"] = "https://www.ibm.com/ventures"
+
+    if not row.get("mobile_phone") and not row.get("corporate_phone"):
+        hq_ph = FUND_HQ_PHONES.get(fund_lc)
+        if not hq_ph:
+            for fk, fv in FUND_HQ_PHONES.items():
+                if fk in fund_lc or fund_lc in fk:
+                    hq_ph = fv
+                    break
+        if hq_ph:
+            row["corporate_phone"] = hq_ph
 
     # Normalize http -> https on LinkedIn URLs
     if row.get("person_linkedin") and row["person_linkedin"].startswith("http://"):

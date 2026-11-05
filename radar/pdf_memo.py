@@ -175,7 +175,7 @@ def generate_investor_tearsheet_pdf(investor: dict) -> tuple[bytes, str]:
     _p2_header(f"4. STRATEGIC LP & PORTFOLIO SYNERGY WITH {fund.upper()}")
     _p2_para(bank_lp_value, bold_prefix="Institutional Network & LP Leverage:")
     _p2_para(
-        f"Co-Sell & Design Partner Flywheel: Every regulated bank, fintech, or enterprise in {fund}'s ecosystem faces annual supervisory examinations. Dokimo's '15-Minute Bring One Control' onboarding lets {fund}'s LPs and portfolio companies validate one high-priority regulatory control inside their own environment in under 30 days."
+        f"Co-Sell & Design Partner Flywheel: Every regulated bank, fintech, or enterprise in {fund}'s ecosystem faces annual supervisory examinations. Dokimo's '25-Minute Bring One Control' onboarding lets {fund}'s LPs and portfolio companies validate one high-priority regulatory control inside their own environment in under 30 days."
     )
 
     _p2_header("5. LIVE AUTONOMOUS GTM ENGINE & REGULATORY SIGNAL GRAPH")
@@ -202,7 +202,7 @@ def generate_investor_tearsheet_pdf(investor: dict) -> tuple[bytes, str]:
         f"Founding Leadership: Warren Zafrin (CEO, warren@dokimo.ai) & Leo (Co-Founder) — deep institutional track record across regulated financial infrastructure, enterprise AIops, and autonomous compliance engineering."
     )
     _p2_para(
-        f"Proposed Next Step for {person} ({fund}): 20-minute live platform walkthrough demonstrating (a) Dokimo's Full-Population Control Engine, (b) Bob's interactive policy & MRA remediation workflow, and (c) the live 20,065-institution Regulatory Signal Graph."
+        f"Proposed Next Step for {person} ({fund}): 25-minute live platform walkthrough demonstrating (a) Dokimo's Full-Population Control Engine, (b) Bob's interactive policy & MRA remediation workflow, and (c) the live 20,065-institution Regulatory Signal Graph."
     )
 
     # Page 2 Footer Box

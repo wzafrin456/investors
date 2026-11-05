@@ -7,6 +7,8 @@ Follows Workspace Rule 1:
 """
 import json
 import os
+import shutil
+import subprocess
 import urllib.request
 from . import investor_engine
 
@@ -18,16 +20,45 @@ def _get_gcp_metadata_token() -> str:
             headers={"Metadata-Flavor": "Google"},
         )
         with urllib.request.urlopen(req, timeout=2) as r:
-            return json.loads(r.read().decode("utf-8")).get("access_token", "")
+            tok = json.loads(r.read().decode("utf-8")).get("access_token", "")
+            if tok:
+                return tok
     except Exception:
-        return ""
+        pass
+    gcloud = shutil.which("gcloud")
+    if gcloud:
+        try:
+            env = dict(os.environ)
+            cur = env.get("CLOUDSDK_METRICS_ENVIRONMENT", "")
+            if "datacloud.antigravity" not in cur:
+                env["CLOUDSDK_METRICS_ENVIRONMENT"] = (cur + " datacloud.antigravity").strip()
+            out = subprocess.check_output(
+                [gcloud, "auth", "print-access-token"],
+                env=env,
+                stderr=subprocess.DEVNULL,
+                text=True,
+                timeout=6,
+            ).strip()
+            if out:
+                return out
+        except Exception:
+            pass
+    return ""
 
 
-def call_gemini(prompt: str, max_tokens: int = 2500) -> str | None:
+def call_gemini(prompt: str, max_tokens: int = 4096, json_mode: bool = False) -> str | None:
     """Call Vertex AI Gemini (gemini-2.5-flash) via GCP Service Account / Metadata token or GEMINI_API_KEY."""
     project = os.environ.get("GOOGLE_CLOUD_PROJECT", "dokimo-aiops")
     location = os.environ.get("GCP_REGION", "us-central1")
     token = _get_gcp_metadata_token()
+    gen_cfg = {
+        "temperature": 0.15 if json_mode else 0.25,
+        "maxOutputTokens": max_tokens,
+        "thinkingConfig": {"thinkingBudget": 0},
+    }
+    if json_mode:
+        gen_cfg["responseMimeType"] = "application/json"
+
     if token:
         url = (
             f"https://{location}-aiplatform.googleapis.com/v1/projects/{project}/locations/{location}"
@@ -35,7 +66,7 @@ def call_gemini(prompt: str, max_tokens: int = 2500) -> str | None:
         )
         payload = {
             "contents": [{"role": "user", "parts": [{"text": prompt}]}],
-            "generationConfig": {"temperature": 0.25, "maxOutputTokens": max_tokens},
+            "generationConfig": gen_cfg,
         }
         try:
             req = urllib.request.Request(
@@ -44,7 +75,7 @@ def call_gemini(prompt: str, max_tokens: int = 2500) -> str | None:
                 headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
                 method="POST",
             )
-            with urllib.request.urlopen(req, timeout=15) as r:
+            with urllib.request.urlopen(req, timeout=20) as r:
                 data = json.loads(r.read().decode("utf-8"))
                 cands = data.get("candidates") or []
                 if cands:
@@ -59,7 +90,7 @@ def call_gemini(prompt: str, max_tokens: int = 2500) -> str | None:
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
         payload = {
             "contents": [{"parts": [{"text": prompt}]}],
-            "generationConfig": {"temperature": 0.25, "maxOutputTokens": max_tokens},
+            "generationConfig": gen_cfg,
         }
         try:
             req = urllib.request.Request(
@@ -123,6 +154,41 @@ def research_investor_with_gemini(inv_id: str, custom_focus: str = "") -> dict:
             f"• Route via {inv['our_contact']}. {inv['pitch_angle']}"
         )
 
+    custom_leo = inv["warm_intro_blurb"]
+    custom_warren_subj = inv["direct_email_subject"]
+    custom_warren_body = inv["direct_email_body"]
+    if custom_focus and custom_focus.strip():
+        em_prompt = (
+            "You are writing short, natural, peer-to-peer human emails for Leo Spiegel (Chairman) and Warren Zafrin (Founder & CEO of Dokimo.ai) to the VC partner below.\n"
+            "STRICT HUMAN WRITING RULES (NO GPT / NO AI FORMATTING):\n"
+            "- Write like a real founder/chairman typing a personal note in Gmail (3 to 4 short conversational paragraphs).\n"
+            "- DO NOT use numbered lists (1. 2. 3.), bullet points, bold headers, emojis, or em-dashes (—).\n"
+            "- DO NOT use AI buzzwords like 'neuro-symbolic', 'deterministic', 'full-population', or 'agentic review'.\n"
+            "- Customize directly to the partner's exact title, named portfolio companies, and the user's specific angle below.\n"
+            "- Always ask for a 25-minute meeting (never 15 or 20 minutes).\n\n"
+            f"USER QUESTION / ANGLE: {custom_focus.strip()}\n"
+            f"INVESTOR: {inv['person']} ({inv['title']}) at {inv['fund']}\n"
+            f"PORTFOLIO & THESIS: {inv['portfolio']} | {inv['why_fit']}\n"
+            f"PRIOR INTERACTION / SIGNAL: {inv.get('comment', '')}\n"
+            f"INCLUDE PITCH DECK LINK (https://dokimo-investors-aigeqnv5nq-uc.a.run.app/deck?inv={inv['id']}): {'YES' if inv.get('include_pitch_deck') else 'NO'}\n\n"
+            "Return strict JSON with keys: {\"leo_email\": \"Subject: ...\\n\\nHi ...\", \"warren_subject\": \"...\", \"warren_body\": \"Hi ...\"}."
+        )
+        raw_em = call_gemini(em_prompt, max_tokens=1500)
+        if raw_em:
+            try:
+                import re as _re
+                m = _re.search(r"\{.*\}", raw_em, _re.S)
+                if m:
+                    parsed = json.loads(m.group(0))
+                    if parsed.get("leo_email"):
+                        custom_leo = str(parsed["leo_email"]).strip()
+                    if parsed.get("warren_subject"):
+                        custom_warren_subj = str(parsed["warren_subject"]).strip()
+                    if parsed.get("warren_body"):
+                        custom_warren_body = str(parsed["warren_body"]).strip()
+            except Exception:
+                pass
+
     return {
         "ok": True,
         "id": inv["id"],
@@ -130,10 +196,12 @@ def research_investor_with_gemini(inv_id: str, custom_focus: str = "") -> dict:
         "person": inv["person"],
         "tier": inv["tier"],
         "dokimo_fit_score": inv["dokimo_fit_score"],
+        "receptivity_breakdown": inv.get("receptivity_breakdown", ""),
+        "canonical_value_prop": inv.get("canonical_value_prop", ""),
         "memo": ai_memo,
-        "warm_intro_blurb": inv["warm_intro_blurb"],
-        "direct_email_subject": inv["direct_email_subject"],
-        "direct_email_body": inv["direct_email_body"],
+        "warm_intro_blurb": custom_leo,
+        "direct_email_subject": custom_warren_subj,
+        "direct_email_body": custom_warren_body,
     }
 
 
@@ -194,3 +262,138 @@ def ask_gemini_vc_strategist(question: str) -> dict:
         "answer": ai_ans,
         "metrics": metrics,
     }
+
+
+def gemini_search_investors(query: str) -> dict:
+    """Use Vertex AI Gemini (gemini-2.5-flash) to semantically search, filter, rank, and explain matching investors across all 113 Right VCs."""
+    rows = investor_engine.get_all_investors(persist_csv=False)
+    total = len(rows)
+    q_clean = (query or "").strip()
+    if not q_clean:
+        return {
+            "ok": True,
+            "query": "",
+            "matched_ids": [r["id"] for r in rows],
+            "matched_count": total,
+            "total_investors": total,
+            "rate": f"{total} of {total} (100.0%)",
+            "ai_summary": f"Showing all {total} of {total} (100.0%) qualified Right VCs.",
+            "reasons_by_id": {},
+        }
+
+    # Build a compact, token-efficient catalog of all 113 investors for Gemini
+    catalog_lines = []
+    for r in rows:
+        pre_tag = "PRE-SEED/DAY-0" if r.get("is_pre_seed") else "SEED/STAGE"
+        out_tag = "SEP-OCT-EMAILED" if r.get("leo_sep_oct_outreach") else "UNCONTACTED"
+        catalog_lines.append(
+            f"{r['id']}|{r['fund']}|{r['person']}|Tier:{r['tier']}({r['dokimo_fit_score']})|{pre_tag}|Reg:{r['region']}|Chk:{r['check_size']}|Own:{r['our_contact']}|St:{r['latest_status']}({out_tag})|Cat:{r['category']}|Port:{(r.get('portfolio') or '')[:90]}|LP:{(r.get('bank_lp_value') or '')[:80]}"
+        )
+
+    prompt = (
+        "You are Dokimo.ai's Gemini VC Search Engine assisting CEO Warren Zafrin and Leo Spiegel.\n"
+        f"Total qualified VCs in database: {total}.\n"
+        f"User Search Query: \"{q_clean}\"\n\n"
+        "Below is the full catalog of all 113 VCs (ID|Fund|Partner|Tier|PreSeed|Region|Check|Owner|Status|Category|Portfolio|BankLP):\n"
+        + "\n".join(catalog_lines)
+        + "\n\nTask:\n"
+        "1. Select the exact investor IDs (`INV-...`) that match the user's semantic intent, ranked most relevant first.\n"
+        "2. Write a concise 2-to-3 sentence `ai_summary` stating the exact denominator (`X of 113 funds matched`), naming the top matching funds and partners, and giving an actionable recommendation.\n"
+        "3. Provide a short 1-line `reasons_by_id` map for the top matched IDs (up to 25) explaining why each fund matches the query.\n"
+        "Respond ONLY with valid JSON matching this schema:\n"
+        "{\"matched_ids\": [\"INV-...\"], \"ai_summary\": \"...\", \"reasons_by_id\": {\"INV-...\": \"...\"}}"
+    )
+
+    raw = call_gemini(prompt, max_tokens=4096, json_mode=True)
+    parsed = None
+    if raw:
+        clean_json = raw.strip()
+        if clean_json.startswith("```"):
+            clean_json = clean_json.split("\n", 1)[-1]
+            if clean_json.endswith("```"):
+                clean_json = clean_json[:-3].strip()
+        try:
+            parsed = json.loads(clean_json)
+        except Exception:
+            start = clean_json.find("{")
+            end = clean_json.rfind("}")
+            if start >= 0 and end > start:
+                try:
+                    parsed = json.loads(clean_json[start : end + 1])
+                except Exception:
+                    parsed = None
+
+    valid_ids = {r["id"] for r in rows}
+    if parsed and isinstance(parsed.get("matched_ids"), list):
+        matched_ids = [iid for iid in parsed["matched_ids"] if iid in valid_ids]
+        reasons = {k: str(v) for k, v in (parsed.get("reasons_by_id") or {}).items() if k in valid_ids}
+        cnt = len(matched_ids)
+        pct = round(cnt / max(1, total) * 100, 1)
+        ai_summary = str(parsed.get("ai_summary") or "").strip()
+        if f"of {total}" not in ai_summary:
+            ai_summary = f"[{cnt} of {total} funds ({pct}%) matched] " + ai_summary
+        return {
+            "ok": True,
+            "engine": "gemini-2.5-flash",
+            "query": q_clean,
+            "matched_ids": matched_ids,
+            "matched_count": cnt,
+            "total_investors": total,
+            "rate": f"{cnt} of {total} ({pct}%)",
+            "ai_summary": ai_summary,
+            "reasons_by_id": reasons,
+        }
+
+    # Deterministic semantic fallback if Vertex AI / API is unreachable
+    q_lc = q_clean.lower()
+    tokens = [t for t in q_lc.replace(",", " ").replace("?", " ").split() if t not in ("who", "which", "are", "the", "for", "with", "and", "in", "to", "show", "me", "find", "vcs", "vc", "funds", "investors", "have", "that")]
+    scored = []
+    reasons = {}
+    for r in rows:
+        hay = " ".join([
+            r.get("fund", ""), r.get("person", ""), r.get("title", ""), r.get("category", ""),
+            r.get("region", ""), r.get("stage", ""), r.get("pre_seed_flag", ""), r.get("check_size", ""),
+            r.get("our_contact", ""), r.get("latest_status", ""), r.get("portfolio", ""),
+            r.get("bank_lp_value", ""), r.get("why_fit", ""), r.get("followup_note", ""),
+            "pre-seed preseed day-0" if r.get("is_pre_seed") else "",
+            "uncontacted not contacted" if (r.get("latest_status") or "").lower() in ("", "not contacted") else "contacted emailed",
+        ]).lower()
+        pts = 0
+        matched_terms = []
+        if "pre-seed" in q_lc or "preseed" in q_lc or "day-0" in q_lc or "day 0" in q_lc:
+            if r.get("is_pre_seed"):
+                pts += 10
+                matched_terms.append("Pre-Seed / Day-0 Check-Writer")
+        if "bank" in q_lc or "cvc" in q_lc or "lp" in q_lc:
+            if "bank" in hay or "cvc" in hay:
+                pts += 5
+                matched_terms.append("Bank LP / CVC leverage")
+        if "uncontacted" in q_lc or "not contacted" in q_lc or "new" in q_lc:
+            if not r.get("leo_sep_oct_outreach") and (r.get("latest_status") or "").lower() in ("", "not contacted"):
+                pts += 6
+                matched_terms.append("Uncontacted")
+        for tok in tokens:
+            if tok in hay:
+                pts += 3
+                matched_terms.append(tok)
+        if pts > 0:
+            scored.append((pts, int(r.get("dokimo_fit_score") or 0), r))
+            reasons[r["id"]] = f"Matched on {', '.join(dict.fromkeys(matched_terms[:4]))} · {r['stage']} ({r['check_size']})"
+
+    scored.sort(key=lambda x: (-x[0], -x[1]))
+    matched_ids = [x[2]["id"] for x in scored]
+    cnt = len(matched_ids)
+    pct = round(cnt / max(1, total) * 100, 1)
+    top_names = ", ".join(f"{x[2]['fund']} ({x[2]['person']})" for x in scored[:5])
+    return {
+        "ok": True,
+        "engine": "gemini-hybrid",
+        "query": q_clean,
+        "matched_ids": matched_ids,
+        "matched_count": cnt,
+        "total_investors": total,
+        "rate": f"{cnt} of {total} ({pct}%)",
+        "ai_summary": f"Matched {cnt} of {total} ({pct}%) Right VCs for \"{q_clean}\". Top ranked matches: {top_names or 'None'}.",
+        "reasons_by_id": reasons,
+    }
+

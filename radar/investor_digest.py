@@ -368,3 +368,191 @@ def send_investor_digest_email(recipients: list[str] = None, mode: str = "daily"
         "errors": errors,
         "generated_at": payload["generated_at"],
     }
+
+
+from email.mime.application import MIMEApplication
+from pathlib import Path
+import re
+
+ROOT_DIR = Path(__file__).resolve().parent.parent
+PITCH_DECK_PDF_PATH = ROOT_DIR / "data" / "Dokimo_Pitch.pdf"
+PIXEL_GIF = base64.b64decode("R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7")
+
+
+def build_investor_mime_message(
+    inv_id: str,
+    sender: str,
+    to_email: str,
+    subject: str,
+    plain_body: str,
+    include_pitch_deck: bool = False,
+    attach_pdf: bool = False,
+    for_eml_draft: bool = False,
+) -> MIMEMultipart:
+    """Build a multipart MIME message for an investor strictly from Warren Zafrin or Leo Spiegel.
+    - Embeds the 1x1 open-tracking pixel (/t/o/<inv_id>.gif) and auto-links the tracked /deck?inv=<inv_id> URL.
+    - When include_pitch_deck=True (default recommended mode), embeds the tracked Video + 18-Slide Seed Deck CTA card (/deck?inv=<inv_id>) so the VC watches the video and views the 18-slide deck with 100% open & forward telemetry.
+    - When attach_pdf=True, also attaches Dokimo_Pitch.pdf as Dokimo_AI_Investor_Pitch_Deck.pdf.
+    """
+    snd_key = (sender or "warren").strip().lower()
+    if snd_key not in investor_engine.ALLOWED_INVESTOR_SENDERS:
+        raise ValueError("Investor emails may ONLY be sent from Warren Zafrin or Leo Spiegel.")
+    sender_name, sender_email = investor_engine.ALLOWED_INVESTOR_SENDERS[snd_key]
+
+    clean_body = (plain_body or "").strip()
+    if clean_body.lower().startswith("subject:"):
+        nl = clean_body.find("\n")
+        if nl > 0:
+            if not subject:
+                subject = clean_body[8:nl].strip()
+            clean_body = clean_body[nl + 1 :].lstrip("\r\n")
+
+    has_pdf = bool(attach_pdf and PITCH_DECK_PDF_PATH.exists())
+    outer = MIMEMultipart("mixed") if has_pdf else MIMEMultipart("alternative")
+    if for_eml_draft:
+        outer["X-Unsent"] = "1"
+    outer["Subject"] = subject or "Dokimo.ai — Autonomous Full-Population Control Validation"
+    outer["From"] = f'"{sender_name}" <{sender_email}>'
+    outer["Reply-To"] = f"{sender_name} <{sender_email}>"
+    outer["To"] = (to_email or "").strip()
+
+    alt = MIMEMultipart("alternative") if has_pdf else outer
+    alt.attach(MIMEText(clean_body, "plain", "utf-8"))
+
+    raw_paras = [p.strip() for p in clean_body.split("\n\n") if p.strip()]
+    pixel_url = f"{PUBLIC_URL}/t/o/{urllib.parse.quote(inv_id or 'INV-001')}.gif"
+    deck_portal_url = f"{PUBLIC_URL}/deck?inv={urllib.parse.quote(inv_id or 'INV-001')}"
+    pdf_portal_url = f"{PUBLIC_URL}/deck/pdf?inv={urllib.parse.quote(inv_id or 'INV-001')}"
+    open_beacon = f'<img src="{html.escape(pixel_url, quote=True)}" width="1" height="1" alt="" style="display:block;width:1px;height:1px;border:0;opacity:0" />'
+
+    html_paras = []
+    for idx_p, p in enumerate(raw_paras):
+        esc_p = html.escape(p).replace("\n", "<br>")
+        esc_p = re.sub(
+            r"(https?://[^\s<\"')]+)",
+            r'<a href="\1" style="color:#1d4ed8;text-decoration:underline;font-weight:600">\1</a>',
+            esc_p,
+        )
+        html_paras.append(f'<p style="margin:0 0 12px 0">{esc_p}</p>')
+        if idx_p == 0:
+            html_paras.append(open_beacon)
+
+    if include_pitch_deck and deck_portal_url not in clean_body:
+        html_paras.append(
+            f'<p style="margin:0 0 12px 0">'
+            f'Here is the link to our 18-slide Seed Deck and 90-second product walkthrough:<br>'
+            f'<a href="{html.escape(deck_portal_url, quote=True)}" style="color:#1d4ed8;text-decoration:underline;font-weight:600">{html.escape(deck_portal_url)}</a>'
+            f' &nbsp;&middot;&nbsp; '
+            f'<a href="{html.escape(pdf_portal_url, quote=True)}" style="color:#1d4ed8;text-decoration:underline">Download PDF Deck</a>'
+            f'</p>'
+        )
+
+    if has_pdf:
+        html_paras.append(
+            '<p style="margin:0 0 12px 0;font-size:13px;color:#334155">'
+            '<i>Attached: Dokimo_AI_Investor_Pitch_Deck.pdf (18-Slide Seed Round Deck)</i>'
+            '</p>'
+        )
+
+    html_body = (
+        '<div dir="ltr" style="font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,Arial,sans-serif;font-size:14px;line-height:1.55;color:#0f172a">'
+        + "".join(html_paras)
+        + "</div>"
+    )
+    alt.attach(MIMEText(html_body, "html", "utf-8"))
+
+    if has_pdf:
+        outer.attach(alt)
+        pdf_bytes = PITCH_DECK_PDF_PATH.read_bytes()
+        pdf_part = MIMEApplication(pdf_bytes, _subtype="pdf")
+        pdf_part.add_header("Content-Disposition", 'attachment; filename="Dokimo_AI_Investor_Pitch_Deck.pdf"')
+        outer.attach(pdf_part)
+
+    return outer
+
+
+def build_investor_eml_bytes(
+    inv_id: str,
+    sender: str,
+    to_email: str,
+    subject: str,
+    plain_body: str,
+    include_pitch_deck: bool = False,
+    attach_pdf: bool = False,
+) -> tuple[bytes, str]:
+    msg = build_investor_mime_message(
+        inv_id=inv_id,
+        sender=sender,
+        to_email=to_email,
+        subject=subject,
+        plain_body=plain_body,
+        include_pitch_deck=include_pitch_deck,
+        attach_pdf=attach_pdf,
+        for_eml_draft=True,
+    )
+    safe_id = re.sub(r"[^A-Za-z0-9_-]+", "_", inv_id or "investor")
+    snd_tag = "Leo" if "leo" in (sender or "").lower() else "Warren"
+    deck_tag = "_with_PitchDeckLink" if include_pitch_deck else ""
+    if attach_pdf:
+        deck_tag = "_with_PitchDeckPDF"
+    return msg.as_bytes(), f"Dokimo_{snd_tag}_{safe_id}{deck_tag}.eml"
+
+
+def create_investor_gmail_draft(
+    inv_id: str,
+    sender: str,
+    to_email: str,
+    subject: str,
+    plain_body: str,
+    include_pitch_deck: bool = False,
+    attach_pdf: bool = False,
+) -> dict:
+    """Create an UNSENT Gmail Draft (users.drafts.create) with rich links, open tracking pixel, and optional PDF attachment.
+    NEVER sends automatically — Warren or Leo must open Gmail Drafts and manually click Send.
+    """
+    snd_key = (sender or "warren").strip().lower()
+    if snd_key not in investor_engine.ALLOWED_INVESTOR_SENDERS:
+        return {"ok": False, "error": "Investor drafts may ONLY be created for Warren Zafrin or Leo Spiegel."}
+    if not to_email or "@" not in to_email:
+        return {"ok": False, "error": "Missing valid recipient email address."}
+
+    msg = build_investor_mime_message(
+        inv_id=inv_id,
+        sender=snd_key,
+        to_email=to_email,
+        subject=subject,
+        plain_body=plain_body,
+        include_pitch_deck=include_pitch_deck,
+        attach_pdf=attach_pdf,
+        for_eml_draft=False,
+    )
+    tok = _gmail_access_token()
+    raw_b64 = base64.urlsafe_b64encode(msg.as_bytes()).decode("ascii")
+    req = urllib.request.Request(
+        "https://gmail.googleapis.com/gmail/v1/users/me/drafts",
+        data=json.dumps({"message": {"raw": raw_b64}}).encode("utf-8"),
+        headers={"Authorization": "Bearer " + tok, "Content-Type": "application/json"},
+        method="POST",
+    )
+    with urllib.request.urlopen(req, timeout=25) as r:
+        resp_data = json.loads(r.read().decode("utf-8"))
+    draft_id = resp_data.get("id", "")
+    msg_id = (resp_data.get("message") or {}).get("id", "")
+    sender_name, sender_email = investor_engine.ALLOWED_INVESTOR_SENDERS[snd_key]
+    return {
+        "ok": True,
+        "draft_only": True,
+        "id": inv_id,
+        "draft_id": draft_id,
+        "msg_id": msg_id,
+        "sender_name": sender_name,
+        "sender_email": sender_email,
+        "to_email": to_email,
+        "deck_included": bool(include_pitch_deck),
+        "deck_attached": bool(attach_pdf and PITCH_DECK_PDF_PATH.exists()),
+    }
+
+
+def send_investor_email_with_telemetry(*args, **kwargs) -> dict:
+    """Direct API sending is disabled on the Investor Board — creates an unsent Gmail Draft instead."""
+    return create_investor_gmail_draft(*args, **kwargs)

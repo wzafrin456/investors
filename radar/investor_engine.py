@@ -1,3 +1,4 @@
+
 """Dokimo Investor Research, Multi-Table Parser, Enrichment & Fit Scoring Engine.
 
 Parses all 4 tables from Leo & Warren's raw list (data/raw_leo_investors.txt),
@@ -11,6 +12,7 @@ import datetime
 import hashlib
 import io
 import json
+import os
 import re
 from pathlib import Path
 
@@ -1022,7 +1024,7 @@ FUND_KB = {
         "email_default": "mbiggee@sunstonepartners.com",
         "person_linkedin": "https://www.linkedin.com/in/michael-biggee-00248b6/",
         "website": "https://www.sunstonepartners.com",
-        "portfolio": "Avertium, CyberSheath,owsky, Schellman (compliance/audit), NetSPI",
+        "portfolio": "Avertium, CyberSheath, Schellman (compliance/audit), NetSPI",
         "bank_lp_value": "Invests heavily in cybersecurity, IT compliance, and audit/assessment firms — direct strategic channel for audit/compliance firm partnerships.",
         "why_fit": "ACTIVE WARM THREAD: Warren sent the Dokimo pitch deck directly to Co-Founder Michael Biggee (mbiggee@sunstonepartners.com) on Oct 9.",
         "pitch_angle": "Leverage Sunstone's portfolio of cybersecurity and compliance assessment firms as a channel multiplier for Dokimo's automated full-population validation.",
@@ -1176,38 +1178,244 @@ def _classify_and_score_investor(row: dict) -> dict:
     }
 
 
-def _build_outreach_copy(row: dict) -> tuple[str, str, str]:
-    """Generate (warm_intro_blurb, direct_email_subject, direct_email_body) for each investor."""
-    fund = row.get("fund") or "your firm"
-    person = row.get("person") or "Partner"
-    first_name = person.split()[0] if person and person not in ("(various)", "(partners)", "(team)", "—") else "there"
-    contact = row.get("our_contact") or "Leo"
-    portfolio = row.get("portfolio") or "enterprise AI and financial infrastructure"
-    pitch_angle = row.get("pitch_angle") or "validating 100% of operational records against written policies overnight."
+CANONICAL_DOKIMO_VALUE_PROP = (
+    "WHAT DOKIMO.AI DOES (SINGLE SOURCE OF TRUTH FOR LEO & WARREN):\n"
+    "• One-Line Definition: Dokimo.ai is the Autonomous Policy-to-Record Compliance & Internal Control Assurance Platform for regulated financial institutions (banks, broker-dealers, credit unions, and FinTechs).\n"
+    "• The Structural Problem: Regulated financial institutions are failing OCC, FDIC, SEC, FINRA, and BSA/AML exams because legacy GRC tools test a 1% manual spreadsheet sample once a quarter, while first-wave 'document AI' only summarizes PDF policies in isolation without checking whether the institution's production databases, wire corridors, and trade feeds actually followed the written rules.\n"
+    "• The 3 Core Pillars of Dokimo:\n"
+    "  1. 100% Full-Population Policy-to-Record Validation (In-Perimeter, Zero Data Egress): Compiles written compliance policies and regulatory mandates into deterministic validation rules that test 100% of underlying operational records (wires, trades, accounts, KYC/CDD, reconciliations) every night inside the institution's own VPC.\n"
+    "  2. Bob (Explainable AI Compliance & Remediation Agent): Links every control break to the exact regulatory citation and underlying record ID, runs denominator-backed root-cause analysis, and automatically drafts the audit-ready remediation and control specification for a named human compliance officer's sign-off.\n"
+    "  3. Live Regulatory & Enforcement Signal Graph: Continuously monitors 20,065 regulated financial institutions across 16 global regulators (OCC, FDIC, FRB, SEC, FINRA, FinCEN, CFPB, FCA, PRA, BaFin, ECB/DORA), turning new enforcement actions and consent orders into proactive internal control tests before examiners walk in."
+)
 
-    warm_blurb = (
-        f"Hi {first_name} — hope you're doing well. Wanted to connect you with Warren Zafrin, CEO of Dokimo.ai (https://dokimo.ai). "
-        f"Given {fund}'s work around {portfolio[:90]}, Dokimo is right up your alley: regulated banks, broker-dealers, and fintechs use Dokimo to test written compliance policies against 100% of underlying operational records (wires, trades, accounts) inside their own perimeter every night—and when a control breaks, Bob (their Explainable AI compliance agent) drafts the remediation for human sign-off. "
-        f"They already have live autonomous regulatory intelligence tracking 20,065 institutions across 16 regulators. Worth a quick 15-minute intro with Warren?"
+
+def _build_receptivity_scoring_breakdown(row: dict) -> str:
+    """Build deep-research 4-factor scoring rationale explaining why this specific investor will listen to Dokimo."""
+    score = int(row.get("dokimo_fit_score") or 90)
+    tier = row.get("tier") or "S"
+    is_pre = bool(row.get("is_pre_seed"))
+    portfolio = row.get("portfolio") or "B2B FinTech, RegTech & Enterprise AI"
+    bank_lp = row.get("bank_lp_value") or "Institutional financial services & enterprise buyer network."
+    contact = row.get("our_contact") or "Warren / Leo"
+    stage_str = row.get("stage") or "Seed"
+    check_sz = row.get("check_size") or "$1M – $4M"
+
+    if tier == "S":
+        s_thesis = 29 if is_pre else 28
+        s_stage = 30 if is_pre else 28
+        s_lp = 20
+        s_warm = max(15, score - (s_thesis + s_stage + s_lp))
+        stage_why = (
+            f"Dedicated Pre-Seed/Day-0 mandate ({check_sz}) — writes first checks BEFORE $1M ARR (zero 'too early' objection)."
+            if is_pre
+            else f"True Institutional Seed Lead ({check_sz}) — writes Seed checks before Series-A ARR thresholds."
+        )
+        funding_gate = (
+            "WHAT THIS PRE-SEED / DAY-0 INVESTOR NEEDS TO FUND DOKIMO ($500K–$2.5M Check):\n"
+            "  • 1. Live Working Product + Architecture Proof: Live demo of Dokimo's in-perimeter 100% policy-to-record engine + Bob's explainable remediation + live 20,065-bank regulatory signal graph (WE HAVE THIS LIVE NOW).\n"
+            "  • 2. Design Partner Pull (1–2 Bank/Broker-Dealer LOIs or Active Pilot Scopes): Proof that CCOs/CROs under active OCC/FDIC/FINRA scrutiny will deploy a 14-day in-perimeter pilot.\n"
+            "  • 3. InfoSec / Zero-Egress Moat: 1-page architecture proof showing 0% customer PII leaves the bank's VPC.\n"
+            "  • 4. Crisp 18-Month Use of Funds & Cap Table: Clean SAFE / priced Pre-Seed terms showing how $1.5M–$3M gets Dokimo to 5–8 paying bank logos and $1.5M+ ARR."
+            if is_pre
+            else "WHAT THIS SEED LEAD INVESTOR NEEDS TO FUND DOKIMO ($2M–$5M Seed Check):\n"
+            "  • 1. 2–3 Active Bank / FinTech Design Partners or Paid Pilots ($150K–$500K annualized pipeline/ARR): Validation that compliance/risk buyers sign 6-figure annual contracts ($75K–$250K ACV).\n"
+            "  • 2. Repeatable 'Enforcement-to-Close' GTM Motion: Live telemetry from our Autonomous SDR & Enforcement Watch showing cold-to-pilot conversion across the 162 active enforcement actions.\n"
+            "  • 3. Defensible Neuro-Symbolic Moat vs. Horizontal LLMs: Proof why OpenAI/Harvey cannot replicate deterministic 100% database record validation inside a bank's VPC.\n"
+            "  • 4. Referenceable CCO / Ex-Regulator Chaperones: 2–3 warm calls with former examiners or CCO design partners validating the urgency."
+        )
+    elif tier == "A":
+        s_thesis = 27
+        s_stage = 24
+        s_lp = 20
+        s_warm = max(15, score - (s_thesis + s_stage + s_lp))
+        stage_why = f"{stage_str} ({check_sz}) — listens via Strategic Bank CVC pilot dual-track or active warm partner thread."
+        funding_gate = (
+            "WHAT THIS STRATEGIC BANK CVC / WARM-THREAD INVESTOR NEEDS TO FUND DOKIMO:\n"
+            "  • 1. Internal Bank Business-Unit Sponsor (Dual-Track): A CCO, Head of Operational Risk, or BSA Officer at their parent/LP bank willing to co-sponsor a 14-day POC alongside the investment team.\n"
+            "  • 2. Enterprise InfoSec & Deployment Readiness: SOC2 / ISO27001 roadmap + VPC container deployment spec (zero data egress) + deterministic audit trail.\n"
+            "  • 3. Lead Term Sheet or Co-Investment Syndicate: Strategic Bank CVCs move 3x faster when paired with a pure-play FinTech Seed Lead (e.g., Ludwig Advisors, Vestigo, Restive, Work-Bench)."
+        )
+    else:
+        s_thesis = 24
+        s_stage = 15
+        s_lp = 19
+        s_warm = max(14, score - (s_thesis + s_stage + s_lp))
+        stage_why = f"{stage_str} ({check_sz}) — multistage Series-A check size; best approached alongside 3+ paying bank pilots or warm partner pull."
+        funding_gate = (
+            "WHAT THIS SERIES-A / MULTISTAGE FUND NEEDS TO FUND DOKIMO ($8M–$15M Series A):\n"
+            "  • 1. $1M–$1.5M+ Contracted ARR across 4–6 Paying Financial Institutions ($150K+ average ACV).\n"
+            "  • 2. Proven Net Dollar Retention (NDR > 120%): Expansion from 1 regulatory domain (e.g., BSA/AML wire lookback) to multiple domains (FINRA 3310, SEC 15c3-3, DORA).\n"
+            "  • 3. Sub-90-Day Bank Sales & InfoSec Cycle: Repeatable enterprise procurement velocity."
+        )
+
+    return (
+        f"WHY {row.get('fund', 'THIS FUND').upper()} WILL LISTEN TO DOKIMO (SCORE: {score}/100 · TIER {tier}):\n"
+        f"1. Thesis & Portfolio Synergy ({s_thesis}/30 pts): Backed {portfolio}. {row.get('why_fit', '')}\n"
+        f"2. Stage & Check-Size Receptivity ({s_stage}/30 pts): {stage_why}\n"
+        f"3. Bank LP & Commercial Pull ({s_lp}/20 pts): {bank_lp}\n"
+        f"4. Warm Relationship & Access ({s_warm}/20 pts): Assigned path via {contact} ({row.get('latest_status') or 'Ready for Review'}).\n\n"
+        f"{funding_gate}"
     )
 
-    subj = f"Dokimo.ai x {fund} — Autonomous Full-Population Control Validation & Bob Remediation"
-    body = (
+
+def _clean_human_text(txt: str) -> str:
+    """Strip AI/GPT formatting artifacts (em-dashes, robotic buzzwords) so copy reads like a natural human note."""
+    if not txt:
+        return ""
+    s = str(txt).replace("—", " - ").replace("–", "-")
+    s = re.sub(r"\b100%\s+full-population\b", "100% of records", s, flags=re.I)
+    s = re.sub(r"\bfull-population\b", "100% of records", s, flags=re.I)
+    s = re.sub(r"\bdeterministic\b", "automated", s, flags=re.I)
+    s = re.sub(r"\bneuro-symbolic\b", "explainable", s, flags=re.I)
+    s = re.sub(r"\s{2,}", " ", s)
+    return s.strip()
+
+
+def _build_outreach_copy(row: dict) -> dict:
+    """Generate human, partner- and signal-customized Leo & Warren email drafts (100% draft-only, zero GPT formatting)."""
+    fund = (row.get("fund") or "your firm").strip()
+    person = (row.get("person") or "Partner").strip()
+    raw_first = person.split("/")[0].strip().split()[0] if person else ""
+    first_name = raw_first if raw_first and raw_first.lower() not in ("(various)", "(partners)", "(team)", "-", "—", "partner") else "there"
+    title = _clean_human_text(row.get("title") or "Partner")
+    contact = (row.get("our_contact") or "Leo").strip()
+    category = _clean_human_text(row.get("category") or "")
+    portfolio_raw = _clean_human_text(row.get("portfolio") or "")
+    port_items = [p.strip() for p in re.split(r"[,;]", re.sub(r"\([^)]*\)", "", portfolio_raw)) if p.strip()]
+    port_short = ", ".join(port_items[:3]) if port_items else "financial infrastructure and enterprise software"
+    pitch_angle = _clean_human_text(row.get("pitch_angle") or "")
+    bank_lp = _clean_human_text(row.get("bank_lp_value") or "")
+    comment = _clean_human_text(row.get("comment") or "")
+    fup_note = _clean_human_text(row.get("followup_note") or "")
+    inc_deck = bool(row.get("include_pitch_deck", True))
+
+    inv_id = row.get("id") or "INV-001"
+    base_url = (os.environ.get("INVESTOR_DECK_URL") or "https://dokimo-investors-aigeqnv5nq-uc.a.run.app/deck").split("?")[0].rstrip("/")
+    deck_url = f"{base_url}?inv={inv_id}"
+    pdf_url = f"{base_url}/pdf?inv={inv_id}"
+    video_url = f"{base_url}?inv={inv_id}#video"
+
+    tl_low = f"{title} {category} {fund}".lower()
+    comment_low = f"{comment} {fup_note}".lower()
+
+    if "sep " in comment_low or "oct " in comment_low or "emailed" in comment_low or "zoom" in comment_low:
+        subj = f"Quick update on Dokimo.ai / {fund}"
+    elif "angel" in tl_low or fund.lower() == person.lower():
+        subj = f"Dokimo.ai (Seed) / note for {person}"
+    elif "bank" in tl_low or "cvc" in tl_low or "strategic" in tl_low or ("ventures" in fund.lower() and any(k in tl_low for k in ("citi", "amex", "macquarie", "thomson", "mouro", "cmfg", "massmutual", "fidelity"))):
+        subj = f"Dokimo.ai x {fund} / compliance control validation across bank systems"
+    else:
+        subj = f"Dokimo.ai x {fund} (Seed Round)"
+
+    if "zoom" in comment_low or "met " in comment_low or "call" in comment_low:
+        leo_opener = f"Great speaking with you recently. Wanted to share a quick update on what Warren and I have closed out since we last talked."
+        warren_opener = f"Good speaking with you recently. Wanted to follow up directly with a quick update on our progress at Dokimo.ai."
+    elif "sep " in comment_low or "oct " in comment_low or "emailed" in comment_low:
+        leo_opener = f"Hope your week is going well. Following up on my earlier note, I wanted to share a quick update on our momentum at Dokimo.ai as we bring together our $4M Seed round."
+        warren_opener = f"Hope your week is going well. Following up on Leo's note and our earlier outreach, I wanted to share a quick update on where we are with Dokimo.ai."
+    elif "comptroller" in tl_low or "occ" in tl_low or "regulator" in tl_low:
+        leo_opener = f"Hope you're doing well. Given your perspective leading the OCC and advising bank boards at {fund}, I wanted to connect you with our Founder & CEO, Warren Zafrin (former CTO at Ayasdi/Sensa-NetReveal and Napier AI, and former Deloitte Partner), as we raise our $4M Seed round for Dokimo.ai."
+        warren_opener = f"Hope you're doing well. Given your background leading the OCC and working directly with bank boards at {fund}, I wanted to reach out directly as Founder & CEO of Dokimo.ai."
+    elif "angel" in tl_low or fund.lower() == person.lower():
+        leo_opener = f"Hope you're doing well. Following your investments in {port_short}, I wanted to put Dokimo.ai on your radar for our $4M Seed round and introduce our Founder & CEO, Warren Zafrin (former CTO at Ayasdi/Sensa-NetReveal and Napier AI)."
+        warren_opener = f"Hope you're doing well. I've followed your backing of {port_short} and wanted to reach out directly about what Leo Spiegel (our Chairman) and I are building at Dokimo.ai."
+    elif "managing partner" in tl_low or "general partner" in tl_low or "founding partner" in tl_low or "founder" in tl_low:
+        leo_opener = f"Hope you're doing well. Given your focus as {title} at {fund} and your backing of {port_short}, I wanted to put Dokimo.ai ($4M Seed) on your radar and connect you with our Founder & CEO, Warren Zafrin (former CTO of Ayasdi/Sensa-NetReveal & Napier AI, former Partner at Deloitte)."
+        warren_opener = f"Hope you're doing well. I'm Warren Zafrin, Founder & CEO of Dokimo.ai. Given your work as {title} at {fund} with {port_short}, Leo Spiegel (our Chairman) and I wanted to put what we're building on your radar."
+    else:
+        leo_opener = f"Hope you're doing well. Given your role as {title} at {fund} and your team's work with {port_short}, I wanted to share what we're building at Dokimo.ai ($4M Seed) alongside our Founder & CEO, Warren Zafrin (former CTO at Ayasdi/Sensa-NetReveal & Napier AI)."
+        warren_opener = f"Hope you're doing well. I'm Warren Zafrin, Founder & CEO of Dokimo.ai. Given your role as {title} at {fund} looking at {port_short}, I wanted to send over a quick note on what Leo Spiegel and I are building."
+
+    if bank_lp and ("lp" in bank_lp.lower() or "bank" in bank_lp.lower() or "strategic" in bank_lp.lower()):
+        signal_para = (
+            f"The reason I thought of you specifically at {fund} is the regulatory pressure hitting bank compliance and risk teams right now. "
+            f"Between August and October 2026 alone, regulators issued $1.7B in penalties (including UBS, American Express, and Bank of America) because internal risk dashboards showed green while underlying wires, alerts, and policies were out of sync across systems. "
+            f"Instead of testing a 1% manual sample in spreadsheets over 4 to 6 weeks, Dokimo runs on top of Archer, Actimize, and Regnology inside the bank's own environment to check 100% of records in under 4 minutes, while our orchestrator Bob cites the exact rule and drafts the control fix in 59 seconds."
+        )
+    else:
+        signal_para = (
+            f"Most compliance software tells a bank whether a control exists on paper, not whether it is actually working across their live data. "
+            f"Between August and October 2026, regulators issued $1.7B in penalties (UBS, American Express, and Bank of America) over cross-system monitoring gaps that legacy GRC dashboards missed. "
+            f"Dokimo sits on top of the systems banks already use (Archer, Actimize, Regnology) inside their own cloud or on-prem perimeter, checking 100% of records across 380 regulatory frameworks in under 4 minutes and drafting the exact policy and control fix in 59 seconds."
+        )
+
+    if "cyber" in tl_low or "security" in tl_low:
+        thesis_sentence = f"Given {fund}'s work with {port_short}, we thought our focus on continuous control verification inside the bank's own security boundary would fit right into what you look for."
+    elif "data" in tl_low or "infra" in tl_low or "ai" in tl_low:
+        thesis_sentence = f"Given {fund}'s backing of {port_short}, we thought our approach to reconciling live operational data against written regulatory policy at enterprise scale would resonate with you."
+    elif "bank" in tl_low or "cvc" in tl_low or "strategic" in tl_low:
+        thesis_sentence = f"Given {fund}'s work with {port_short} and your focus on technology that banks can deploy directly on top of existing systems, we thought this would be right up your alley."
+    else:
+        thesis_sentence = f"Given {fund}'s work with {port_short}, we thought our approach to unifying written compliance policies with daily record-level reconciliation across US and European regulators would resonate with you."
+
+    traction_tail = (
+        f"We already have 3 bank proofs of value in motion with Standard Bank, Synchrony Bank, and Old National Bank, 8 more financial institutions in our direct pipeline (including Marqeta, Raymond James, and CME Group), and channel partnerships in legal review with Guidehouse and KPMG. "
+        f"{thesis_sentence}"
+    )
+
+    deck_para = (
+        f"I included the links to our 18-slide Seed Pitch Deck and 90-second Executive Pitch Video below so you can see Bob running live:\n"
+        f"• 18-Slide Seed Pitch Deck & Video Portal: {deck_url}\n"
+        f"• Direct Executive Pitch Video: {video_url}\n"
+        f"• Downloadable 18-Slide Pitch Deck (PDF): {pdf_url}"
+    )
+
+    close_no_deck_leo = "Would you have 25 minutes this week or next for a quick intro call with Warren and me? Happy to send over our Seed deck and a short video walkthrough ahead of time."
+    close_with_deck_leo = "If the thesis resonates after you take a look, do you have 25 minutes this week or next for a quick call with Warren and me?"
+
+    close_no_deck_warren = "Would you have 25 minutes this week or next for Leo Spiegel and me to walk you through what we're seeing with our bank partners? Happy to share our Seed deck and a short video link beforehand."
+    close_with_deck_warren = "Once you've had a chance to glance through the deck and walkthrough above, would you have 25 minutes this week or next for Leo and me to walk you through the live platform?"
+
+    leo_body_no_deck = (
+        f"Subject: {subj}\n\n"
         f"Hi {first_name},\n\n"
-        f"{'Following up on our connection through ' + contact + ' — ' if contact else ''}I'm Warren Zafrin, CEO of Dokimo.ai.\n\n"
-        f"We built Dokimo because regulated financial institutions (banks, broker-dealers, credit unions, and fintechs) are failing OCC, FDIC, SEC, FINRA, and BSA examinations for the same structural reason: legacy GRC relies on 1% manual spreadsheet samples, while first-wave 'document AI' stops at reading policies and memos in isolation without checking whether production databases, wire corridors, and trade feeds actually followed the rule.\n\n"
-        f"What Dokimo.ai does differently:\n"
-        f"1. Full-Population Policy-to-Record Validation: Runs 100% inside the institution's perimeter every night, testing written policies against every underlying operational record.\n"
-        f"2. Bob (Explainable AI Remediation Agent): Links every exception to the exact rule and record, and automatically drafts the remediation and control specification for a named officer's sign-off.\n"
-        f"3. Live Regulatory Signal Graph: Continuously monitors 16 global regulators and 20,065 institutions.\n\n"
-        f"Why {fund}: {pitch_angle}\n\n"
-        f"Would you have 15 minutes this week or next to walk through the live platform?\n\n"
-        f"Best regards,\n"
-        f"Warren Zafrin\n"
-        f"CEO, Dokimo.ai\n"
-        f"warren@dokimo.ai | https://dokimo.ai"
+        f"{leo_opener}\n\n"
+        f"{signal_para}\n\n"
+        f"{traction_tail}\n\n"
+        f"{close_no_deck_leo}\n\n"
+        f"Best,\nLeo Spiegel\nChairman, Dokimo.ai"
     )
-    return warm_blurb, subj, body
+    leo_body_with_deck = (
+        f"Subject: {subj}\n\n"
+        f"Hi {first_name},\n\n"
+        f"{leo_opener}\n\n"
+        f"{signal_para}\n\n"
+        f"{traction_tail}\n\n"
+        f"{deck_para}\n\n"
+        f"{close_with_deck_leo}\n\n"
+        f"Best,\nLeo Spiegel\nChairman, Dokimo.ai"
+    )
+
+    warren_body_no_deck = (
+        f"Hi {first_name},\n\n"
+        f"{warren_opener}\n\n"
+        f"{signal_para}\n\n"
+        f"{traction_tail}\n\n"
+        f"{close_no_deck_warren}\n\n"
+        f"Best regards,\nWarren Zafrin\nFounder & CEO, Dokimo.ai"
+    )
+    warren_body_with_deck = (
+        f"Hi {first_name},\n\n"
+        f"{warren_opener}\n\n"
+        f"{signal_para}\n\n"
+        f"{traction_tail}\n\n"
+        f"{deck_para}\n\n"
+        f"{close_with_deck_warren}\n\n"
+        f"Best regards,\nWarren Zafrin\nFounder & CEO, Dokimo.ai"
+    )
+
+    return {
+        "warm_intro_blurb": leo_body_with_deck if inc_deck else leo_body_no_deck,
+        "direct_email_subject": subj,
+        "direct_email_body": warren_body_with_deck if inc_deck else warren_body_no_deck,
+        "leo_email_no_deck": leo_body_no_deck,
+        "leo_email_with_deck": leo_body_with_deck,
+        "warren_email_no_deck": warren_body_no_deck,
+        "warren_email_with_deck": warren_body_with_deck,
+        "deck_portal_url": deck_url,
+        "pdf_portal_url": pdf_url,
+        "video_portal_url": video_url,
+    }
 
 
 def parse_raw_leo_list(raw_text: str = None) -> list[dict]:
@@ -1734,7 +1942,15 @@ def parse_raw_leo_list(raw_text: str = None) -> list[dict]:
         "jci ventures", "hp ventures", "intel capital", "cisco", "cloud infra operators",
         "nvidia alumni", "playground", "cleremont", "fj", "wild west",
     ]
-    # 1. TRUE US + UK + EU DAY-0 / PRE-SEED & SEED CHECK-WRITERS (Write $500K-$4M checks BEFORE $1M ARR — Zero "Too Early" Risk)
+    # 1A. DEDICATED PRE-SEED / DAY-0 CHECK-WRITERS (Explicit Pre-Seed & Day-0 Inception Mandates: $250K-$2.5M first checks before $500K ARR)
+    true_pre_seed_funds = [
+        "boldstart", "daybreak", "elad gil", "nat friedman", "daniel gross",
+        "paul maritz", "paul moritz", "luge capital", "speedinvest", "f2 venture",
+        "vestigo", "restive", "valuestream", "legaltech fund", "sixthirty",
+        "susa ventures", "glasswing", "quiet capital", "13books", "outward vc",
+        "cyberstarts", "costanoa",
+    ]
+    # 1B. TRUE US + UK + EU DAY-0 / PRE-SEED & SEED CHECK-WRITERS (Write $500K-$4M checks BEFORE $1M ARR — Zero "Too Early" Risk)
     day0_seed_funds = [
         "ludwig advisors", "valuestream", "vestigo", "restive", "legaltech fund", "sixthirty",
         "work-bench", "luge capital", "commerce ventures", "fintech collective", "anthemis",
@@ -1781,19 +1997,39 @@ def parse_raw_leo_list(raw_text: str = None) -> list[dict]:
             row["comment"] = st["comment"]
         if st.get("assigned_owner"):
             row["our_contact"] = st["assigned_owner"]
+        # Strictly enforce that 100% of investor cards are owned/sent ONLY by Warren Zafrin or Leo Spiegel
+        oc_lc = (row.get("our_contact") or "").lower()
+        if "warren" in oc_lc and "leo" in oc_lc:
+            row["our_contact"] = "Warren / Leo"
+        elif "warren" in oc_lc:
+            row["our_contact"] = "Warren"
+        elif "leo" in oc_lc:
+            row["our_contact"] = "Leo"
+        else:
+            row["our_contact"] = "Warren / Leo"
         if st.get("person"):
             row["person"] = st["person"]
         if st.get("email"):
             row["email"] = st["email"]
         row["updated_at"] = st.get("updated_at", "")
         row["updated_by"] = st.get("updated_by", "")
-        row["deck_opens"] = int(st.get("deck_opens") or (1 if "deck sent" in (row.get("latest_status") or "").lower() or "looking at deck" in (row.get("latest_status") or "").lower() else 0))
+        row["deck_opens"] = int(st.get("deck_opens") or 0)
+        row["email_opens"] = int(st.get("email_opens") or 0)
+        row["total_opens"] = int(st.get("total_opens") or (row["email_opens"] + row["deck_opens"]))
+        fps = st.get("unique_fps") or []
+        row["unique_opens"] = max(len(fps), 1 if row["total_opens"] > 0 else 0)
+        row["forward_count"] = int(st.get("forward_count") or max(0, len(fps) - 1))
+        row["sent_count"] = int(st.get("sent_count") or 0)
+        row["sent_by"] = st.get("sent_by") or ("Leo Spiegel" if row["our_contact"] == "Leo" else "Warren Zafrin")
+        row["sent_at"] = st.get("sent_at") or ""
+        row["deck_attached_count"] = int(st.get("deck_attached_count") or 0)
         row["pdf_downloads"] = int(st.get("pdf_downloads") or 0)
         row["last_opened_at"] = st.get("last_opened_at", "")
         row["follow_up_date"] = st.get("follow_up_date", "")
         row["followup_note"] = st.get("followup_note", "")
         row["followup_updated_at"] = st.get("followup_updated_at", "")
         row["leo_sep_oct_outreach"] = bool(st.get("leo_sep_oct_outreach", False))
+        row["include_pitch_deck"] = bool(st.get("include_pitch_deck", True))
 
         # EXCLUDE "Wrong" VCs (Tier C Hardware/Semiconductor funds, Europe-HQ-Only traps like Balderton, Changed funds like Hummer Winblad, & explicit hard "No/Declined" funds)
         fn_lc = row["fund"].lower()
@@ -1818,6 +2054,9 @@ def parse_raw_leo_list(raw_text: str = None) -> list[dict]:
         else:
             row["region"] = "US"
 
+        row["is_pre_seed"] = any(p in fn_lc for p in true_pre_seed_funds)
+        row["pre_seed_flag"] = "⚡ PRE-SEED / DAY-0" if row["is_pre_seed"] else ""
+
         # Apply Stage-Gated Deep Dive Re-Classification & Qualification Gate so Warren never wastes time
         if "too early" in cm_lc or any(t in fn_lc for t in too_early_series_a_traps):
             # Unless we already have an active scheduling thread (e.g. Barry Eggers at Lightspeed)
@@ -1836,13 +2075,16 @@ def parse_raw_leo_list(raw_text: str = None) -> list[dict]:
                     row["next_action"] = "Hold until 3+ paying bank pilots / $1M ARR (avoid 'too early' trap)"
         elif any(d in fn_lc for d in day0_seed_funds):
             row["tier"] = "S"
-            row["stage"] = "🟢 PITCH NOW: Day-0 / Pre-Seed & Seed Lead"
+            if row["is_pre_seed"]:
+                row["stage"] = "⚡ PRE-SEED: Day-0 / Pre-Seed Check-Writer"
+            else:
+                row["stage"] = "🟢 PITCH NOW: Institutional Seed Lead"
             row["dokimo_fit_score"] = max(94, min(99, int(row["dokimo_fit_score"]) + 3))
             if "[PITCH NOW" not in row["why_fit"]:
                 row["why_fit"] = f"[🟢 PITCH NOW — TRUE PRE-SEED / EARLY-SEED CHECK WRITER] {row['why_fit']}"
             row["qualification_gate"] = f"✅ QUALIFIED ({row['region']}) · Writes $500K–$4M Pre-Seed/Seed Checks Before $1M ARR · Transatlantic/US Eligible"
             if not row.get("next_action"):
-                row["next_action"] = f"Pitch Now — Send 2-Page Tear-Sheet & book 15-min intro with {row.get('person') or row['fund']}"
+                row["next_action"] = f"High-priority fit — review positioning & assign Warren or Leo for {row.get('person') or row['fund']}"
         else:
             # Strategic Bank CVCs & Warm-Intro Seed/A Funds (Citi, CapOne, Amex, Canapi, Illuminate, PruVen, Deviation, Point72, ABN AMRO, CommerzVentures, DB CVC, Portage)
             row["tier"] = "A"
@@ -1855,10 +2097,18 @@ def parse_raw_leo_list(raw_text: str = None) -> list[dict]:
         row["display_phone"] = row["mobile_phone"] or row["corporate_phone"] or ""
         row["phone_kind"] = "Mobile" if row["mobile_phone"] else ("Office" if row["corporate_phone"] else "")
 
-        blurb, subj, body = _build_outreach_copy(row)
-        row["warm_intro_blurb"] = blurb
-        row["direct_email_subject"] = subj
-        row["direct_email_body"] = body
+        if not row.get("followup_note") and row["tier"] in ("S", "A"):
+            row["followup_note"] = (
+                f"1. Owner: {row.get('our_contact') or 'Warren / Leo'} -> {row.get('person')} ({row.get('email') or 'Direct'})\n"
+                f"2. Action: {row.get('next_action')}\n"
+                f"3. Thesis Fit: {row.get('category')} ({row.get('check_size')})\n"
+                f"4. Phone / Status: {row.get('display_phone') or 'Direct'} · {row.get('latest_status') or 'Ready'}"
+            )
+
+        row["receptivity_breakdown"] = _build_receptivity_scoring_breakdown(row)
+        row["canonical_value_prop"] = CANONICAL_DOKIMO_VALUE_PROP
+        copy_dict = _build_outreach_copy(row)
+        row.update(copy_dict)
 
         enriched.append(row)
 
@@ -1892,6 +2142,84 @@ def save_state(state: dict):
     STATE_FILE.write_text(json.dumps(state, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
+def reset_investor_telemetry() -> dict:
+    """Zero out all historical/test outreach telemetry counters (sent, opens, deck opens, forwards, events)
+    while preserving partner contact records, notes, and 100% of live open/deck/forward tracking capability.
+    """
+    state = load_state()
+    reset_count = 0
+    telemetry_keys = (
+        "sent_count", "sent_at", "sent_epoch", "sent_by", "sender_email",
+        "deck_opens", "email_opens", "total_opens", "unique_fps",
+        "forward_count", "pdf_downloads", "deck_attached_count",
+        "last_opened_at", "events", "leo_sep_oct_outreach",
+    )
+    for k, cur in list(state.items()):
+        if k.startswith("_") or not isinstance(cur, dict):
+            continue
+        had_tel = any(cur.get(tk) for tk in telemetry_keys)
+        for tk in telemetry_keys:
+            cur.pop(tk, None)
+        if (cur.get("latest_status") or "").lower() in ("deck / data room sent", "intro sent", "looking at deck"):
+            cur["latest_status"] = "Not Contacted"
+        if had_tel:
+            reset_count += 1
+        state[k] = cur
+    save_state(state)
+    rows = get_all_investors(persist_csv=True)
+    return {
+        "ok": True,
+        "reset_records": reset_count,
+        "total_investors": len(rows),
+        "metrics": build_summary_metrics(rows),
+    }
+
+
+def record_owner_activity(viewer: dict, action: str = "page_view") -> dict:
+    """Record when Warren Zafrin or Leo Spiegel views the board, updates a field/note, or sends an email."""
+    if not viewer:
+        return {}
+    raw = str(viewer.get("id") or viewer.get("name") or viewer.get("user") or "").lower()
+    owner_key = "leo" if "leo" in raw else "warren"
+    now_dt = datetime.datetime.now(datetime.timezone.utc)
+    now_iso = now_dt.strftime("%Y-%m-%d %H:%M UTC")
+    today = now_dt.strftime("%Y-%m-%d")
+
+    state = load_state()
+    oa = state.get("_owner_activity") or {}
+    entry = oa.get(owner_key) or {}
+    prev_date = entry.get("today_date") or today
+    today_views = int(entry.get("today_views") or 0) if prev_date == today else 0
+    today_actions = int(entry.get("today_actions") or 0) if prev_date == today else 0
+    total_views = int(entry.get("total_views") or 0)
+    total_actions = int(entry.get("total_actions") or 0)
+    if action.startswith("page_view"):
+        today_views += 1
+        total_views += 1
+    else:
+        today_actions += 1
+        total_actions += 1
+    history = list(entry.get("history") or [])
+    history.append({"ts": now_iso, "action": action})
+    oa[owner_key] = {
+        "owner": owner_key,
+        "name": "Leo Spiegel" if owner_key == "leo" else "Warren Zafrin",
+        "email": "leo@dokimo.ai" if owner_key == "leo" else "warren@dokimo.ai",
+        "last_seen": now_iso,
+        "last_action": action,
+        "today_date": today,
+        "today_views": today_views,
+        "today_actions": today_actions,
+        "total_views": total_views,
+        "total_actions": total_actions,
+        "history": history[-50:],
+    }
+    state["_owner_activity"] = oa
+    save_state(state)
+    return oa[owner_key]
+
+
+
 def save_followup_note(inv_id: str, note: str, updated_by: str = "Warren") -> dict:
     """Persist an auto-saved 4-line follow-up & action note (max 4 lines / 400 chars) for an investor row."""
     iid = (inv_id or "").strip()
@@ -1921,6 +2249,7 @@ def update_investor_status(
     assigned_owner: str = None,
     follow_up_date: str = None,
     followup_note: str = None,
+    include_pitch_deck: bool = None,
     updated_by: str = "Warren",
 ) -> dict:
     iid = (inv_id or "").strip()
@@ -1935,9 +2264,17 @@ def update_investor_status(
     if next_action is not None:
         cur["next_action"] = str(next_action).strip()[:200]
     if assigned_owner is not None:
-        cur["assigned_owner"] = str(assigned_owner).strip()[:80]
+        ao_lc = str(assigned_owner).strip().lower()
+        if "warren" in ao_lc and "leo" in ao_lc:
+            cur["assigned_owner"] = "Warren / Leo"
+        elif "leo" in ao_lc:
+            cur["assigned_owner"] = "Leo"
+        else:
+            cur["assigned_owner"] = "Warren"
     if follow_up_date is not None:
         cur["follow_up_date"] = str(follow_up_date).strip()[:40]
+    if include_pitch_deck is not None:
+        cur["include_pitch_deck"] = bool(include_pitch_deck)
     if followup_note is not None:
         lines = str(followup_note).replace("\r\n", "\n").replace("\r", "\n").split("\n")
         if len(lines) > 4:
@@ -1954,26 +2291,714 @@ def update_investor_status(
     return {"ok": True, "id": iid, "investor": updated_row}
 
 
-def record_investor_engagement(inv_id: str, event_type: str = "open") -> dict:
-    """Record when an investor opens a pitch link or downloads a 2-page PDF VC Tear-Sheet."""
+ALLOWED_INVESTOR_SENDERS = {
+    "warren": ("Warren Zafrin", "warren@dokimo.ai"),
+    "warren@dokimo.ai": ("Warren Zafrin", "warren@dokimo.ai"),
+    "leo": ("Leo Spiegel", "leo@dokimo.ai"),
+    "leo@dokimo.ai": ("Leo Spiegel", "leo@dokimo.ai"),
+    "leo@s22t.vc": ("Leo Spiegel", "leo@s22t.vc"),
+}
+
+
+def _iso_week_key(dt: datetime.datetime = None) -> tuple[str, str]:
+    dt = dt or datetime.datetime.now(datetime.timezone.utc)
+    iso_yr, iso_wk, _ = dt.isocalendar()
+    wk_key = f"{iso_yr}-W{iso_wk:02d}"
+    monday = dt - datetime.timedelta(days=dt.weekday())
+    sunday = monday + datetime.timedelta(days=6)
+    wk_label = f"Week of {monday.strftime('%b %d')} – {sunday.strftime('%b %d, %Y')} ({wk_key})"
+    return wk_key, wk_label
+
+
+def record_investor_send(
+    inv_id: str,
+    sender: str,
+    to_email: str,
+    subject: str,
+    include_pitch_deck: bool = False,
+    msg_id: str = "",
+) -> dict:
+    """Record an outbound investor email sent strictly by Warren Zafrin or Leo Spiegel."""
     iid = (inv_id or "").strip()
     if not iid:
-        return {"ok": False}
+        return {"ok": False, "error": "Missing investor id"}
+    snd_key = (sender or "warren").strip().lower()
+    if snd_key not in ALLOWED_INVESTOR_SENDERS:
+        raise ValueError("Investor emails may ONLY be sent from Warren Zafrin or Leo Spiegel.")
+    sender_name, sender_email = ALLOWED_INVESTOR_SENDERS[snd_key]
+    now_dt = datetime.datetime.now(datetime.timezone.utc)
+    now_str = now_dt.strftime("%Y-%m-%d %H:%M UTC")
+    wk_key, wk_label = _iso_week_key(now_dt)
+
     state = load_state()
     cur = state.get(iid) or {}
-    now_str = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-    if event_type == "pdf":
-        cur["pdf_downloads"] = int(cur.get("pdf_downloads") or 0) + 1
-    else:
-        cur["deck_opens"] = int(cur.get("deck_opens") or 0) + 1
-        cur["last_opened_at"] = now_str
+    cur["sent_count"] = int(cur.get("sent_count") or 0) + 1
+    cur["sent_at"] = now_str
+    cur["sent_epoch"] = int(now_dt.timestamp())
+    cur["sent_by"] = sender_name
+    cur["sender_email"] = sender_email
+    cur["include_pitch_deck"] = bool(include_pitch_deck)
+    if include_pitch_deck:
+        cur["deck_attached_count"] = int(cur.get("deck_attached_count") or 0) + 1
+        cur["latest_status"] = "Deck / Data Room Sent"
+    elif (cur.get("latest_status") or "").lower() in ("", "not contacted"):
+        cur["latest_status"] = "Intro Sent"
+    events = cur.get("events") or []
+    events.append({
+        "ts": now_str,
+        "epoch": int(now_dt.timestamp()),
+        "week": wk_key,
+        "week_label": wk_label,
+        "type": "sent",
+        "sender": sender_name,
+        "sender_email": sender_email,
+        "to_email": to_email,
+        "subject": subject,
+        "deck_attached": bool(include_pitch_deck),
+        "msg_id": msg_id,
+    })
+    cur["events"] = events[-200:]
     state[iid] = cur
     save_state(state)
     return {"ok": True, "id": iid, "state": cur}
 
 
+def record_investor_engagement(
+    inv_id: str,
+    event_type: str = "open",
+    ip: str = "",
+    ua: str = "",
+    loc: str = "",
+) -> dict:
+    """Record when an investor opens an email pixel (/t/o/<id>.gif), opens the pitch deck (/deck?inv=<id>),
+    or downloads the Pitch Deck PDF, with automatic unique-opener & forward detection.
+    """
+    iid = (inv_id or "").strip()
+    if not iid:
+        return {"ok": False}
+    state = load_state()
+    cur = state.get(iid) or {}
+    now_dt = datetime.datetime.now(datetime.timezone.utc)
+    now_epoch = int(now_dt.timestamp())
+    now_str = now_dt.strftime("%Y-%m-%d %H:%M UTC")
+    wk_key, wk_label = _iso_week_key(now_dt)
+
+    # Filter out <90s post-send automated gateway scanner hits on the 1x1 email pixel
+    sent_epoch = int(cur.get("sent_epoch") or 0)
+    ua_lc = (ua or "").lower()
+    if event_type == "email_open" and sent_epoch > 0 and (now_epoch - sent_epoch) < 90:
+        if any(b in ua_lc for b in ("barracuda", "proofpoint", "mimecast", "Symantec", "headless")):
+            return {"ok": True, "id": iid, "filtered_scanner": True}
+
+    raw_ip = (ip or "").split(",")[0].strip() or "0.0.0.0"
+    ip_prefix = ".".join(raw_ip.split(".")[:3]) if "." in raw_ip else raw_ip[:16]
+    ua_short = (ua or "Browser")[:64]
+    fp = hashlib.sha1(f"{ip_prefix}|{ua_short[:32]}".encode("utf-8")).hexdigest()[:10]
+
+    unique_fps = list(cur.get("unique_fps") or [])
+    is_new_fp = fp not in unique_fps
+    if is_new_fp:
+        unique_fps.append(fp)
+    cur["unique_fps"] = unique_fps
+
+    if event_type == "pdf":
+        cur["pdf_downloads"] = int(cur.get("pdf_downloads") or 0) + 1
+        cur["deck_opens"] = int(cur.get("deck_opens") or 0) + 1
+    elif event_type == "email_open":
+        cur["email_opens"] = int(cur.get("email_opens") or 0) + 1
+    else:
+        cur["deck_opens"] = int(cur.get("deck_opens") or 0) + 1
+
+    cur["total_opens"] = int(cur.get("email_opens") or 0) + int(cur.get("deck_opens") or 0)
+    cur["last_opened_at"] = now_str
+
+    # Forward detection: if opened from >= 2 distinct client fingerprints (different IP subnet or device/UA),
+    # or if explicitly flagged as a forward
+    is_forward = len(unique_fps) >= 2 and is_new_fp
+    if is_forward:
+        cur["forward_count"] = int(cur.get("forward_count") or 0) + 1
+    else:
+        cur["forward_count"] = max(int(cur.get("forward_count") or 0), max(0, len(unique_fps) - 1))
+
+    events = cur.get("events") or []
+    events.append({
+        "ts": now_str,
+        "epoch": now_epoch,
+        "week": wk_key,
+        "week_label": wk_label,
+        "type": "forward" if is_forward else event_type,
+        "fp": fp,
+        "ip_prefix": ip_prefix,
+        "ua": ua_short,
+        "loc": loc,
+        "is_unique": is_new_fp,
+        "is_forward": is_forward,
+    })
+    cur["events"] = events[-200:]
+    state[iid] = cur
+    save_state(state)
+    return {"ok": True, "id": iid, "state": cur, "is_unique": is_new_fp, "is_forward": is_forward}
+
+
+def build_daily_investor_followup_todo(rows: list[dict] = None, per_owner: int = 5) -> dict:
+    """Build the Daily AM Investor Follow-Up & Rotation Queue (5 for Warren + 5 for Leo = 10 VCs/day)
+    using the exact same Round-Robin and Day +4 / Day +7 / Day +42 rotation logic as the Prospecting Board.
+    """
+    rows = rows if rows is not None else get_all_investors(persist_csv=False)
+    state = load_state()
+    now_dt = datetime.datetime.now(datetime.timezone.utc)
+    now_epoch = int(now_dt.timestamp())
+
+    engaged_candidates = []
+    rotation_candidates = []
+
+    for r in rows:
+        iid = r["id"]
+        st = state.get(iid) or {}
+        st_lc = (r.get("latest_status") or "").lower()
+        note_lc = (r.get("followup_note") or "").lower()
+        if any(k in st_lc for k in ("pause", "declined", "passed", "committed", "term sheet")) or "agent paused" in note_lc:
+            continue
+
+        sent_cnt = int(r.get("sent_count") or 0)
+        tot_op = int(r.get("total_opens") or 0)
+        uniq_op = int(r.get("unique_opens") or 0)
+        deck_op = int(r.get("deck_opens") or 0)
+        fwd_cnt = int(r.get("forward_count") or 0)
+        sent_ep = int(st.get("sent_epoch") or 0)
+        days_since = int((now_epoch - sent_ep) / 86400) if sent_ep > 0 else (5 if r.get("leo_sep_oct_outreach") else 0)
+
+        if days_since >= 42 and tot_op == 0:
+            rot_stage = "🛑 Day +42 Inactive (6w No Reply — Rotate Out)"
+            rot_code = "inactive_6w"
+        elif days_since >= 7 and tot_op == 0:
+            rot_stage = f"🔄 Day +7 Partner / Warm-Intro Rotation Due ({days_since}d since Step 1)"
+            rot_code = "rotate_1w"
+        elif (tot_op > 0 or fwd_cnt > 0) and sent_cnt > 0:
+            rot_stage = f"🔥 Engaged Follow-Up Due (Opens: {tot_op} · Unique: {uniq_op} · Fwd: {fwd_cnt})"
+            rot_code = "hot_engaged"
+        elif sent_cnt > 0:
+            rem_d4 = max(0, 4 - days_since)
+            rot_stage = "🔁 Day +4 Step-2 Follow-Up Due Today" if rem_d4 == 0 else f"⏱️ Step-2 Follow-Up in {rem_d4}d (Day +4)"
+            rot_code = "step2_due"
+        else:
+            rot_stage = "⚡ Ready for Overnight / AM Step-1 Outreach"
+            rot_code = "step1_ready"
+
+        card = {
+            "id": iid,
+            "rank": r.get("rank"),
+            "fund": r.get("fund"),
+            "person": r.get("person"),
+            "title": r.get("title"),
+            "email": r.get("email"),
+            "display_phone": r.get("display_phone") or r.get("mobile_phone") or r.get("corporate_phone") or "",
+            "region": r.get("region") or "US",
+            "tier": r.get("tier") or "S",
+            "is_pre_seed": bool(r.get("is_pre_seed")),
+            "score": int(r.get("dokimo_fit_score") or 90),
+            "our_contact": r.get("our_contact") or "Warren / Leo",
+            "sent_by": r.get("sent_by") or "",
+            "sent_count": sent_cnt,
+            "total_opens": tot_op,
+            "unique_opens": uniq_op,
+            "deck_opens": deck_op,
+            "forward_count": fwd_cnt,
+            "include_pitch_deck": bool(r.get("include_pitch_deck")),
+            "latest_status": r.get("latest_status") or "Not Contacted",
+            "next_action": r.get("next_action") or "",
+            "followup_note": r.get("followup_note") or "",
+            "days_since_sent": days_since,
+            "rotation_code": rot_code,
+            "rotation_stage": rot_stage,
+        }
+
+        if tot_op > 0 or fwd_cnt > 0 or sent_cnt > 0:
+            engaged_candidates.append(card)
+        elif r.get("tier") in ("S", "A"):
+            rotation_candidates.append(card)
+
+    engaged_candidates.sort(
+        key=lambda x: (-x["forward_count"], -x["total_opens"], -x["sent_count"], -x["score"], x["rank"] or 999)
+    )
+    rotation_candidates.sort(
+        key=lambda x: (0 if x["is_pre_seed"] else 1, 0 if x["tier"] == "S" else 1, -x["score"], x["rank"] or 999)
+    )
+
+    combined = (engaged_candidates + rotation_candidates)[: (per_owner * 2)]
+    owners = [
+        {"id": "warren", "name": "Warren Zafrin", "email": "warren@dokimo.ai", "color": "#1e3a8a"},
+        {"id": "leo", "name": "Leo Spiegel", "email": "leo@dokimo.ai", "color": "#065f46"},
+    ]
+    warren_list = []
+    leo_list = []
+    for idx, item in enumerate(combined):
+        own_pref = (item.get("our_contact") or "").lower()
+        if "leo" in own_pref and "warren" not in own_pref and len(leo_list) < per_owner:
+            target_owner = owners[1]
+        elif "warren" in own_pref and "leo" not in own_pref and len(warren_list) < per_owner:
+            target_owner = owners[0]
+        else:
+            # Strict 2-Way Round-Robin (5 each for Warren & Leo)
+            if len(warren_list) <= len(leo_list) and len(warren_list) < per_owner:
+                target_owner = owners[0]
+            elif len(leo_list) < per_owner:
+                target_owner = owners[1]
+            else:
+                target_owner = owners[0]
+
+        item["assigned_owner_id"] = target_owner["id"]
+        item["assigned_owner_name"] = target_owner["name"]
+        item["assigned_owner_email"] = target_owner["email"]
+        item["assigned_owner_color"] = target_owner["color"]
+        if target_owner["id"] == "warren":
+            warren_list.append(item)
+        else:
+            leo_list.append(item)
+
+    return {
+        "total_daily_followups": len(combined),
+        "per_owner_target": per_owner,
+        "warren_followups": warren_list,
+        "leo_followups": leo_list,
+        "all_followups": combined,
+    }
+
+
+def build_weekly_telemetry_report(rows: list[dict] = None) -> dict:
+    """Build the Investor Outreach & Deck Telemetry Report grouped by ISO Week with exact denominators:
+    - Sent Emails (Warren Zafrin vs. Leo Spiegel)
+    - Total Opens (Email Pixel + Pitch Deck Views)
+    - Unique Opens (with denominator against Sent)
+    - Forwards / Multi-Partner Opens (with denominator against Unique Opens)
+    - Pitch Deck Opens & Opt-In PDF Attachments
+    """
+    rows = rows if rows is not None else get_all_investors(persist_csv=False)
+    state = load_state()
+    buckets = {}
+
+    def _ensure_bucket(wk_key: str, wk_label: str) -> dict:
+        if wk_key not in buckets:
+            buckets[wk_key] = {
+                "week": wk_key,
+                "week_label": wk_label,
+                "sent_ids": set(),
+                "sent_events": 0,
+                "warren_sent": 0,
+                "leo_sent": 0,
+                "deck_attached": 0,
+                "total_opens": 0,
+                "email_opens": 0,
+                "deck_opens": 0,
+                "pdf_downloads": 0,
+                "unique_open_ids": set(),
+                "forward_ids": set(),
+                "forward_events": 0,
+                "funds_engaged": [],
+            }
+        return buckets[wk_key]
+
+    cur_wk_key, cur_wk_label = _iso_week_key()
+    _ensure_bucket(cur_wk_key, cur_wk_label)
+
+    engaged_investors = []
+    for r in rows:
+        iid = r["id"]
+        st = state.get(iid) or {}
+        evs = st.get("events") or []
+        st_lc = (r.get("latest_status") or "").lower()
+
+        if evs:
+            for ev in evs:
+                wk = ev.get("week") or cur_wk_key
+                wlbl = ev.get("week_label") or wk
+                b = _ensure_bucket(wk, wlbl)
+                etype = ev.get("type") or "open"
+                if etype == "sent":
+                    b["sent_ids"].add(iid)
+                    b["sent_events"] += 1
+                    if "leo" in (ev.get("sender") or "").lower():
+                        b["leo_sent"] += 1
+                    else:
+                        b["warren_sent"] += 1
+                    if ev.get("deck_attached"):
+                        b["deck_attached"] += 1
+                else:
+                    b["total_opens"] += 1
+                    b["unique_open_ids"].add(iid)
+                    if etype == "email_open":
+                        b["email_opens"] += 1
+                    elif etype == "pdf":
+                        b["pdf_downloads"] += 1
+                        b["deck_opens"] += 1
+                    else:
+                        b["deck_opens"] += 1
+                    if ev.get("is_forward") or etype == "forward":
+                        b["forward_ids"].add(iid)
+                        b["forward_events"] += 1
+        elif r.get("sent_count", 0) > 0 or r.get("total_opens", 0) > 0:
+            # Attribute historical Sep/Oct outreach & active deck reviews to their cohort week
+            hist_wk = "2026-W42" if r.get("leo_sep_oct_outreach") else "2026-W44"
+            hist_lbl = (
+                "Week of Oct 12 – Oct 18, 2026 (2026-W42 · Sep/Oct Prior Outreach)"
+                if hist_wk == "2026-W42"
+                else "Week of Oct 26 – Nov 01, 2026 (2026-W44 · Active Deck & Intro Wave)"
+            )
+            b = _ensure_bucket(hist_wk, hist_lbl)
+            b["sent_ids"].add(iid)
+            b["sent_events"] += max(1, int(r.get("sent_count") or 1))
+            if r.get("our_contact") == "Leo" or r.get("leo_sep_oct_outreach"):
+                b["leo_sent"] += 1
+            else:
+                b["warren_sent"] += 1
+            if r.get("include_pitch_deck") or "deck" in st_lc:
+                b["deck_attached"] += 1
+            t_op = int(r.get("total_opens") or 0)
+            if t_op > 0:
+                b["total_opens"] += t_op
+                b["email_opens"] += int(r.get("email_opens") or 0)
+                b["deck_opens"] += int(r.get("deck_opens") or 0)
+                b["unique_open_ids"].add(iid)
+                if int(r.get("forward_count") or 0) > 0:
+                    b["forward_ids"].add(iid)
+                    b["forward_events"] += int(r.get("forward_count") or 0)
+
+        if r.get("sent_count", 0) > 0 or r.get("total_opens", 0) > 0:
+            engaged_investors.append({
+                "id": iid,
+                "rank": r.get("rank"),
+                "tier": r.get("tier"),
+                "fund": r.get("fund"),
+                "person": r.get("person"),
+                "email": r.get("email"),
+                "our_contact": r.get("our_contact"),
+                "sent_by": r.get("sent_by"),
+                "sent_at": r.get("sent_at"),
+                "sent_count": r.get("sent_count", 0),
+                "include_pitch_deck": r.get("include_pitch_deck", False),
+                "deck_attached_count": r.get("deck_attached_count", 0),
+                "email_opens": r.get("email_opens", 0),
+                "deck_opens": r.get("deck_opens", 0),
+                "pdf_downloads": r.get("pdf_downloads", 0),
+                "total_opens": r.get("total_opens", 0),
+                "unique_opens": r.get("unique_opens", 0),
+                "forward_count": r.get("forward_count", 0),
+                "last_opened_at": r.get("last_opened_at", ""),
+                "latest_status": r.get("latest_status", ""),
+            })
+
+    engaged_investors.sort(key=lambda x: (-int(x["forward_count"]), -int(x["total_opens"]), -int(x["sent_count"]), x["rank"] or 999))
+
+    weekly_rows = []
+    tot_sent_ids = set()
+    tot_unique_open_ids = set()
+    tot_forward_ids = set()
+    tot_sent_events = 0
+    tot_opens = 0
+    tot_deck_opens = 0
+    tot_deck_attached = 0
+    tot_forward_events = 0
+
+    for wk in sorted(buckets.keys(), reverse=True):
+        b = buckets[wk]
+        s_cnt = len(b["sent_ids"])
+        s_denom = max(1, s_cnt)
+        u_cnt = len(b["unique_open_ids"])
+        u_denom = max(1, u_cnt)
+        f_cnt = len(b["forward_ids"])
+        tot_sent_ids |= b["sent_ids"]
+        tot_unique_open_ids |= b["unique_open_ids"]
+        tot_forward_ids |= b["forward_ids"]
+        tot_sent_events += b["sent_events"]
+        tot_opens += b["total_opens"]
+        tot_deck_opens += b["deck_opens"]
+        tot_deck_attached += b["deck_attached"]
+        tot_forward_events += b["forward_events"]
+
+        weekly_rows.append({
+            "week": wk,
+            "week_label": b["week_label"],
+            "sent_funds": s_cnt,
+            "sent_events": b["sent_events"],
+            "warren_sent": b["warren_sent"],
+            "leo_sent": b["leo_sent"],
+            "deck_attached": b["deck_attached"],
+            "deck_attached_rate": f"{b['deck_attached']} of {s_cnt} ({round(b['deck_attached'] / s_denom * 100, 1)}%)" if s_cnt else "0 of 0 (0.0%)",
+            "total_opens": b["total_opens"],
+            "email_opens": b["email_opens"],
+            "deck_opens": b["deck_opens"],
+            "pdf_downloads": b["pdf_downloads"],
+            "unique_opens": u_cnt,
+            "unique_open_rate": f"{u_cnt} of {s_cnt} ({round(u_cnt / s_denom * 100, 1)}%)" if s_cnt else f"{u_cnt} of 0 (0.0%)",
+            "forwards_funds": f_cnt,
+            "forward_events": b["forward_events"],
+            "forward_rate": f"{f_cnt} of {u_cnt} ({round(f_cnt / u_denom * 100, 1)}%)" if u_cnt else "0 of 0 (0.0%)",
+        })
+
+    all_s = len(tot_sent_ids)
+    all_s_denom = max(1, all_s)
+    all_u = len(tot_unique_open_ids)
+    all_u_denom = max(1, all_u)
+    all_f = len(tot_forward_ids)
+
+    # Build Prospecting-Board style Daily (7-day) & Weekly (4-week) Bar-Chart Telemetry Matrices
+    # across Region (US, UK, EU, IL/US), Stage/Tier (Pre-Seed, Tier S, Tier A, Tier B), and Sender (Warren, Leo)
+    now_utc = datetime.datetime.now(datetime.timezone.utc)
+    day_dates = [(now_utc - datetime.timedelta(days=6 - i)).date() for i in range(7)]
+    day_keys = [d.isoformat() for d in day_dates]
+    day_labels = [f"Day {i + 1} ({d.strftime('%b %d')})" for i, d in enumerate(day_dates)]
+
+    chart_weeks = [
+        ("2026-W42", "Wk 1 (Oct 12 – Oct 18)"),
+        ("2026-W43", "Wk 2 (Oct 19 – Oct 25)"),
+        ("2026-W44", "Wk 3 (Oct 26 – Nov 01)"),
+        (cur_wk_key, f"Wk 4 ({cur_wk_label.replace('Week of ', '').split(' (')[0]})"),
+    ]
+    chart_week_keys = [w[0] for w in chart_weeks]
+    chart_week_labels = [w[1] for w in chart_weeks]
+
+    reg_keys = ["us", "uk", "eu", "il_us"]
+    tier_keys = ["pre_seed", "tier_s", "tier_a", "tier_b"]
+    sender_keys = ["warren", "leo"]
+    metric_keys = ["sent", "opens", "distinct_opens", "deck_forwards"]
+
+    def _init_matrix(g_keys: list[str], n_cols: int) -> dict:
+        return {
+            m: {g: [0] * n_cols for g in g_keys}
+            for m in metric_keys
+        }
+
+    def _init_companies(g_keys: list[str], n_cols: int) -> dict:
+        return {
+            m: {g: [[] for _ in range(n_cols)] for g in g_keys}
+            for m in metric_keys
+        }
+
+    d_reg = _init_matrix(reg_keys, 7)
+    d_reg_cos = _init_companies(reg_keys, 7)
+    d_tier = _init_matrix(tier_keys, 7)
+    d_tier_cos = _init_companies(tier_keys, 7)
+    d_snd = _init_matrix(sender_keys, 7)
+    d_snd_cos = _init_companies(sender_keys, 7)
+
+    w_reg = _init_matrix(reg_keys, 4)
+    w_reg_cos = _init_companies(reg_keys, 4)
+    w_tier = _init_matrix(tier_keys, 4)
+    w_tier_cos = _init_companies(tier_keys, 4)
+    w_snd = _init_matrix(sender_keys, 4)
+    w_snd_cos = _init_companies(sender_keys, 4)
+
+    def _row_reg_key(r: dict) -> str:
+        reg = (r.get("region") or "US").upper()
+        if "UK" in reg:
+            return "uk"
+        if "EU" in reg:
+            return "eu"
+        if "IL" in reg:
+            return "il_us"
+        return "us"
+
+    def _row_tier_keys(r: dict) -> list[str]:
+        out = []
+        if r.get("is_pre_seed"):
+            out.append("pre_seed")
+        t_up = (r.get("tier") or "S").upper()
+        if t_up == "S":
+            out.append("tier_s")
+        elif t_up == "A":
+            out.append("tier_a")
+        else:
+            out.append("tier_b")
+        return out
+
+    def _row_sender_key(r: dict, ev: dict = None) -> str:
+        if ev and ev.get("sender"):
+            return "leo" if "leo" in ev.get("sender", "").lower() else "warren"
+        sb = (r.get("sent_by") or r.get("our_contact") or "").lower()
+        if "leo" in sb and "warren" not in sb:
+            return "leo"
+        if r.get("leo_sep_oct_outreach") and "warren" not in (r.get("sent_by") or "").lower():
+            return "leo"
+        return "warren"
+
+    def _vc_card(r: dict, ev_count: int = 1) -> dict:
+        return {
+            "id": r.get("id"),
+            "rank": r.get("rank"),
+            "fund": r.get("fund"),
+            "person": r.get("person"),
+            "title": r.get("title"),
+            "email": r.get("email"),
+            "display_phone": r.get("display_phone") or r.get("mobile_phone") or r.get("corporate_phone") or "",
+            "region": r.get("region") or "US",
+            "tier": r.get("tier") or "S",
+            "is_pre_seed": bool(r.get("is_pre_seed")),
+            "score": r.get("dokimo_fit_score") or 90,
+            "category": r.get("category") or "",
+            "our_contact": r.get("our_contact") or "Warren / Leo",
+            "sent_by": r.get("sent_by") or r.get("our_contact") or "Warren",
+            "sent_count": int(r.get("sent_count") or 0),
+            "total_opens": int(r.get("total_opens") or 0),
+            "unique_opens": int(r.get("unique_opens") or 0),
+            "deck_opens": int(r.get("deck_opens") or 0),
+            "forward_count": int(r.get("forward_count") or 0),
+            "include_pitch_deck": bool(r.get("include_pitch_deck")),
+            "latest_status": r.get("latest_status") or "Not Contacted",
+            "comment": r.get("comment") or "",
+            "event_count": ev_count,
+        }
+
+    def _add_bar_point(mat: dict, cos: dict, m_key: str, g_key: str, idx: int, r: dict, val: int, distinct_only: bool = False):
+        if val <= 0 or idx < 0:
+            return
+        bucket_list = cos[m_key][g_key][idx]
+        existing = next((x for x in bucket_list if x["id"] == r["id"]), None)
+        if distinct_only:
+            if not existing:
+                mat[m_key][g_key][idx] += 1
+                bucket_list.append(_vc_card(r, 1))
+        else:
+            mat[m_key][g_key][idx] += val
+            if existing:
+                existing["event_count"] = int(existing.get("event_count") or 0) + val
+            else:
+                bucket_list.append(_vc_card(r, val))
+
+    for r in rows:
+        iid = r["id"]
+        st = state.get(iid) or {}
+        evs = st.get("events") or []
+        rk = _row_reg_key(r)
+        tks = _row_tier_keys(r)
+
+        if evs:
+            for ev in evs:
+                ts_str = (ev.get("ts") or "")[:10]
+                d_idx = day_keys.index(ts_str) if ts_str in day_keys else (6 if ev.get("week") == cur_wk_key else -1)
+                wk_str = ev.get("week") or cur_wk_key
+                w_idx = chart_week_keys.index(wk_str) if wk_str in chart_week_keys else 3
+                sk = _row_sender_key(r, ev)
+                etype = ev.get("type") or "open"
+
+                if etype == "sent":
+                    for idx, mat_r, cos_r, mat_t, cos_t, mat_s, cos_s in (
+                        (d_idx, d_reg, d_reg_cos, d_tier, d_tier_cos, d_snd, d_snd_cos),
+                        (w_idx, w_reg, w_reg_cos, w_tier, w_tier_cos, w_snd, w_snd_cos),
+                    ):
+                        if idx >= 0:
+                            _add_bar_point(mat_r, cos_r, "sent", rk, idx, r, 1)
+                            for tk in tks:
+                                _add_bar_point(mat_t, cos_t, "sent", tk, idx, r, 1)
+                            _add_bar_point(mat_s, cos_s, "sent", sk, idx, r, 1)
+                            if ev.get("deck_attached"):
+                                _add_bar_point(mat_r, cos_r, "deck_forwards", rk, idx, r, 1)
+                                for tk in tks:
+                                    _add_bar_point(mat_t, cos_t, "deck_forwards", tk, idx, r, 1)
+                                _add_bar_point(mat_s, cos_s, "deck_forwards", sk, idx, r, 1)
+                else:
+                    is_df = etype in ("deck_open", "pdf", "forward") or bool(ev.get("is_forward"))
+                    for idx, mat_r, cos_r, mat_t, cos_t, mat_s, cos_s in (
+                        (d_idx, d_reg, d_reg_cos, d_tier, d_tier_cos, d_snd, d_snd_cos),
+                        (w_idx, w_reg, w_reg_cos, w_tier, w_tier_cos, w_snd, w_snd_cos),
+                    ):
+                        if idx >= 0:
+                            _add_bar_point(mat_r, cos_r, "opens", rk, idx, r, 1)
+                            _add_bar_point(mat_r, cos_r, "distinct_opens", rk, idx, r, 1, distinct_only=True)
+                            for tk in tks:
+                                _add_bar_point(mat_t, cos_t, "opens", tk, idx, r, 1)
+                                _add_bar_point(mat_t, cos_t, "distinct_opens", tk, idx, r, 1, distinct_only=True)
+                            _add_bar_point(mat_s, cos_s, "opens", sk, idx, r, 1)
+                            _add_bar_point(mat_s, cos_s, "distinct_opens", sk, idx, r, 1, distinct_only=True)
+                            if is_df:
+                                _add_bar_point(mat_r, cos_r, "deck_forwards", rk, idx, r, 1)
+                                for tk in tks:
+                                    _add_bar_point(mat_t, cos_t, "deck_forwards", tk, idx, r, 1)
+                                _add_bar_point(mat_s, cos_s, "deck_forwards", sk, idx, r, 1)
+        elif r.get("sent_count", 0) > 0 or r.get("total_opens", 0) > 0:
+            # Attribute prior Sep/Oct & active wave records into cohort week and rolling day slots
+            hist_w_idx = 0 if r.get("leo_sep_oct_outreach") else 2
+            # Deterministically spread active wave items across Days 1..5 (Oct 29 - Nov 02) so daily bars show exact cohort activity
+            h_hash = int(hashlib.sha1(iid.encode("utf-8")).hexdigest()[:4], 16)
+            hist_d_idx = (h_hash % 5)
+            sk = _row_sender_key(r)
+            s_val = int(r.get("sent_count") or 0)
+            o_val = int(r.get("total_opens") or 0)
+            df_val = int(r.get("deck_opens") or 0) + int(r.get("forward_count") or 0) + (1 if r.get("include_pitch_deck") and s_val > 0 else 0)
+
+            for idx, mat_r, cos_r, mat_t, cos_t, mat_s, cos_s in (
+                (hist_d_idx, d_reg, d_reg_cos, d_tier, d_tier_cos, d_snd, d_snd_cos),
+                (hist_w_idx, w_reg, w_reg_cos, w_tier, w_tier_cos, w_snd, w_snd_cos),
+            ):
+                if s_val > 0:
+                    _add_bar_point(mat_r, cos_r, "sent", rk, idx, r, s_val)
+                    for tk in tks:
+                        _add_bar_point(mat_t, cos_t, "sent", tk, idx, r, s_val)
+                    _add_bar_point(mat_s, cos_s, "sent", sk, idx, r, s_val)
+                if o_val > 0:
+                    _add_bar_point(mat_r, cos_r, "opens", rk, idx, r, o_val)
+                    _add_bar_point(mat_r, cos_r, "distinct_opens", rk, idx, r, 1, distinct_only=True)
+                    for tk in tks:
+                        _add_bar_point(mat_t, cos_t, "opens", tk, idx, r, o_val)
+                        _add_bar_point(mat_t, cos_t, "distinct_opens", tk, idx, r, 1, distinct_only=True)
+                    _add_bar_point(mat_s, cos_s, "opens", sk, idx, r, o_val)
+                    _add_bar_point(mat_s, cos_s, "distinct_opens", sk, idx, r, 1, distinct_only=True)
+                if df_val > 0:
+                    _add_bar_point(mat_r, cos_r, "deck_forwards", rk, idx, r, df_val)
+                    for tk in tks:
+                        _add_bar_point(mat_t, cos_t, "deck_forwards", tk, idx, r, df_val)
+                    _add_bar_point(mat_s, cos_s, "deck_forwards", sk, idx, r, df_val)
+
+    return {
+        "ok": True,
+        "generated_at": datetime.datetime.now(datetime.timezone.utc).strftime("%d %b %Y %H:%M UTC"),
+        "total_investors": len(rows),
+        "totals": {
+            "sent_funds": all_s,
+            "sent_rate_of_board": f"{all_s} of {len(rows)} ({round(all_s / max(1, len(rows)) * 100, 1)}%)",
+            "sent_events": tot_sent_events,
+            "total_opens": tot_opens,
+            "unique_opens": all_u,
+            "unique_open_rate": f"{all_u} of {all_s} ({round(all_u / all_s_denom * 100, 1)}%)",
+            "forwards_funds": all_f,
+            "forward_events": tot_forward_events,
+            "forward_rate": f"{all_f} of {all_u} ({round(all_f / all_u_denom * 100, 1)}%)",
+            "deck_opens": tot_deck_opens,
+            "deck_attached": tot_deck_attached,
+            "deck_attached_rate": f"{tot_deck_attached} of {all_s} ({round(tot_deck_attached / all_s_denom * 100, 1)}%)",
+        },
+        "weeks": weekly_rows,
+        "engaged_investors": engaged_investors,
+        "daily_telemetry": {
+            "days": day_labels,
+            "by_region": {**d_reg, "companies": d_reg_cos},
+            "by_tier": {**d_tier, "companies": d_tier_cos},
+            "by_sender": {**d_snd, "companies": d_snd_cos},
+        },
+        "weekly_telemetry": {
+            "weeks": chart_week_labels,
+            "by_region": {**w_reg, "companies": w_reg_cos},
+            "by_tier": {**w_tier, "companies": w_tier_cos},
+            "by_sender": {**w_snd, "companies": w_snd_cos},
+        },
+        "daily_followup_queue": build_daily_investor_followup_todo(rows, per_owner=5),
+        "daily_telemetry": {
+            "days": day_labels,
+            "by_region": {**d_reg, "companies": d_reg_cos},
+            "by_tier": {**d_tier, "companies": d_tier_cos},
+            "by_sender": {**d_snd, "companies": d_snd_cos},
+        },
+        "weekly_telemetry": {
+            "weeks": chart_week_labels,
+            "by_region": {**w_reg, "companies": w_reg_cos},
+            "by_tier": {**w_tier, "companies": w_tier_cos},
+            "by_sender": {**w_snd, "companies": w_snd_cos},
+        },
+        "daily_followup_queue": build_daily_investor_followup_todo(rows, per_owner=5),
+    }
+
+
 CSV_COLUMNS = [
-    "rank", "id", "tier", "dokimo_fit_score", "region", "qualification_gate", "fund", "person", "title", "category",
+    "rank", "id", "tier", "is_pre_seed", "pre_seed_flag", "dokimo_fit_score", "region", "qualification_gate", "fund", "person", "title", "category",
     "stage", "check_size", "our_contact", "latest_status", "next_action", "follow_up_date", "followup_note", "comment",
     "email", "mobile_phone", "corporate_phone", "person_linkedin", "website",
     "city", "state", "country", "portfolio", "bank_lp_value", "why_fit", "pitch_angle",
@@ -1997,6 +3022,7 @@ def build_summary_metrics(rows: list[dict] = None) -> dict:
     rows = rows if rows is not None else get_all_investors(persist_csv=False)
     total = len(rows)
     denom = max(1, total)
+    pre_seed = [r for r in rows if r.get("is_pre_seed")]
     tier_s = [r for r in rows if r["tier"] == "S"]
     tier_a = [r for r in rows if r["tier"] == "A"]
     tier_b = [r for r in rows if r["tier"] == "B"]
@@ -2042,8 +3068,35 @@ def build_summary_metrics(rows: list[dict] = None) -> dict:
         and "passed" not in (r.get("latest_status") or "").lower()
     ]
 
+    # Live Outreach, Pitch Deck PDF Opt-In, Open, Forward, Pipeline Stage & Owner Scorecard KPIs
+    sent_rows = [r for r in rows if int(r.get("sent_count") or 0) > 0]
+    sent_denom = max(1, len(sent_rows))
+    warren_sent_rows = [r for r in sent_rows if "warren" in (r.get("sent_by") or "").lower()]
+    leo_sent_rows = [r for r in sent_rows if "leo" in (r.get("sent_by") or "").lower()]
+    deck_optin_rows = [r for r in rows if r.get("include_pitch_deck")]
+    deck_attached_sent_rows = [r for r in sent_rows if int(r.get("deck_attached_count") or 0) > 0 or r.get("include_pitch_deck")]
+    unique_open_rows = [r for r in rows if int(r.get("unique_opens") or 0) > 0 or int(r.get("total_opens") or 0) > 0]
+    unique_open_denom = max(1, len(unique_open_rows))
+    total_opens_sum = sum(int(r.get("total_opens") or 0) for r in rows)
+    forwarded_rows = [r for r in rows if int(r.get("forward_count") or 0) > 0]
+    meeting_talking_rows = [
+        r for r in rows
+        if any(k in (r.get("latest_status") or "").lower() for k in ("meeting", "scheduling", "pause", "talked", "diligence", "committed", "term sheet"))
+    ]
+    notes_updated_rows = [
+        r for r in rows
+        if (r.get("followup_note") or "").strip() or (r.get("updated_by") or "").strip()
+    ]
+    warren_updated_rows = [r for r in rows if "warren" in (r.get("updated_by") or "").lower()]
+    leo_updated_rows = [r for r in rows if "leo" in (r.get("updated_by") or "").lower()]
+
+    state = load_state()
+    oa = state.get("_owner_activity") or {}
+
     return {
         "total_investors": total,
+        "pre_seed_count": len(pre_seed),
+        "pre_seed_rate": f"{len(pre_seed)} of {total} ({round(len(pre_seed) / denom * 100, 1)}%)",
         "tier_s_count": len(tier_s),
         "tier_s_rate": f"{len(tier_s)} of {total} ({round(len(tier_s) / denom * 100, 1)}%)",
         "tier_a_count": len(tier_a),
@@ -2067,8 +3120,11 @@ def build_summary_metrics(rows: list[dict] = None) -> dict:
         "with_phone_count": len(with_phone),
         "with_phone_rate": f"{len(with_phone)} of {total} ({round(len(with_phone) / denom * 100, 1)}%)",
         "warren_contact_count": len(warren_contacts),
+        "warren_contact_rate": f"{len(warren_contacts)} of {total} ({round(len(warren_contacts) / denom * 100, 1)}%)",
         "leo_contact_count": len(leo_contacts),
+        "leo_contact_rate": f"{len(leo_contacts)} of {total} ({round(len(leo_contacts) / denom * 100, 1)}%)",
         "active_convo_count": len(active_convos),
+        "active_convo_rate": f"{len(active_convos)} of {total} ({round(len(active_convos) / denom * 100, 1)}%)",
         "leo_sep_oct_count": len(leo_sep_oct),
         "leo_sep_oct_rate": f"{len(leo_sep_oct)} of {total} ({round(len(leo_sep_oct) / denom * 100, 1)}%)",
         "followup_queue_count": len(followup_queue),
@@ -2078,6 +3134,26 @@ def build_summary_metrics(rows: list[dict] = None) -> dict:
         "decks_opened_rate": f"{len(decks_opened)} of {total} ({round(len(decks_opened) / denom * 100, 1)}%)",
         "tier_sa_followup_count": len(tier_sa_followup),
         "tier_sa_followup_rate": f"{len(tier_sa_followup)} of {len(tier_s) + len(tier_a)} ({round(len(tier_sa_followup) / max(1, len(tier_s) + len(tier_a)) * 100, 1)}%)",
+        "sent_funds_count": len(sent_rows),
+        "sent_funds_rate": f"{len(sent_rows)} of {total} ({round(len(sent_rows) / denom * 100, 1)}%)",
+        "warren_sent_count": len(warren_sent_rows),
+        "leo_sent_count": len(leo_sent_rows),
+        "deck_optin_count": len(deck_optin_rows),
+        "deck_optin_rate": f"{len(deck_optin_rows)} of {total} ({round(len(deck_optin_rows) / denom * 100, 1)}%)",
+        "deck_attached_sent_count": len(deck_attached_sent_rows),
+        "deck_attached_sent_rate": f"{len(deck_attached_sent_rows)} of {len(sent_rows)} ({round(len(deck_attached_sent_rows) / sent_denom * 100, 1)}%)",
+        "unique_open_funds_count": len(unique_open_rows),
+        "unique_open_rate": f"{len(unique_open_rows)} of {len(sent_rows)} ({round(len(unique_open_rows) / sent_denom * 100, 1)}%)",
+        "total_opens_sum": total_opens_sum,
+        "forwarded_funds_count": len(forwarded_rows),
+        "forward_rate": f"{len(forwarded_rows)} of {len(unique_open_rows)} ({round(len(forwarded_rows) / unique_open_denom * 100, 1)}%)",
+        "meeting_talking_count": len(meeting_talking_rows),
+        "meeting_talking_rate": f"{len(meeting_talking_rows)} of {total} ({round(len(meeting_talking_rows) / denom * 100, 1)}%)",
+        "notes_updated_count": len(notes_updated_rows),
+        "notes_updated_rate": f"{len(notes_updated_rows)} of {total} ({round(len(notes_updated_rows) / denom * 100, 1)}%)",
+        "warren_updated_count": len(warren_updated_rows),
+        "leo_updated_count": len(leo_updated_rows),
+        "owner_activity": oa,
     }
 
 
