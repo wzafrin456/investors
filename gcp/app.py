@@ -1247,6 +1247,13 @@ function renderRows(){{
       var telBadgeTxt = '📊 Sent:' + (r.sent_count||0) + ' · Opens:' + (r.total_opens||0) + ' · Unique:' + (r.unique_opens||0) + ((r.forward_count||0) > 0 ? (' · 🔁 Fwd:' + r.forward_count) : '');
       assignRow.appendChild(makeEl('span', {{className:'chip', style:'background:#dcfce7;color:#166534;border:1px solid #86efac;font-weight:700;font-size:10px'}}, telBadgeTxt));
     }}
+    if((r.sent_count || 0) > 0){{
+      var dupRowTxt = '🛡️ Duplicate Guard: Sent by ' + (r.sent_by || 'Warren/Leo') + ' (CC: ' + (r.cc_email || 'leo@dokimo.ai') + ')';
+      assignRow.appendChild(makeEl('span', {{className:'chip', style:'background:#fef3c7;color:#92400e;border:1px solid #fcd34d;font-weight:700;font-size:10px'}}, dupRowTxt));
+    }} else {{
+      var ccHint = (curOwner.toLowerCase() === 'leo') ? 'CC: warren@dokimo.ai' : 'CC: leo@dokimo.ai';
+      assignRow.appendChild(makeEl('span', {{className:'chip', style:'background:#eff6ff;color:#1e40af;border:1px solid #bfdbfe;font-weight:700;font-size:10px'}}, '👥 Auto-' + ccHint));
+    }}
 
     var deckBtn = makeEl('button', {{
       className:'btn-sm',
@@ -1330,7 +1337,15 @@ function renderRows(){{
     tdAct.appendChild(fupBox);
 
     var btnRow = makeEl('div', {{style:'display:flex;flex-wrap:wrap;gap:4px'}});
-    var gemBtn = makeEl('button', {{className:'btn-sm pri', style:'width:100%;text-align:center;padding:5px 8px'}}, '✨ Review & Send Email Draft (With Video & Pitch Deck)');
+    var alreadySent = (r.sent_count || 0) > 0;
+    var gemBtn = makeEl('button', {{
+      className: alreadySent ? 'btn-sm' : 'btn-sm pri',
+      style: alreadySent
+        ? 'width:100%;text-align:center;padding:5px 8px;background:#fffbeb;color:#92400e;border-color:#f59e0b;font-weight:700'
+        : 'width:100%;text-align:center;padding:5px 8px'
+    }}, alreadySent
+      ? ('🛡️ Already Emailed by ' + (r.sent_by || 'Team') + ' (Duplicate Guard Active — View / Step-2)')
+      : '✨ Review & Send Email Draft (Auto-CC Warren/Leo + Video & Deck)');
     gemBtn.onclick = function(){{ openGeminiModal(r); }};
     btnRow.appendChild(gemBtn);
     tdAct.appendChild(btnRow);
@@ -1543,45 +1558,140 @@ function openGeminiModal(r){{
       }}
     }}
 
+    // DUPLICATE EMAIL PREVENTION GUARD & MUTUAL CC BANNER (WARREN <-> LEO)
+    var dupGuardBar = makeEl('div', {{style:'margin-top:12px;padding:12px 14px;border-radius:6px'}});
+    var fupUnlockChk = makeEl('input', {{type:'checkbox', style:'width:auto;margin:0'}});
+    var fupUnlockLabel = makeEl('label', {{style:'display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#92400e;cursor:pointer;margin-top:6px;background:#fff;padding:4px 10px;border:1px solid #f59e0b;border-radius:4px'}});
+    fupUnlockLabel.appendChild(fupUnlockChk);
+    fupUnlockLabel.appendChild(document.createTextNode('🔓 Unlock for Intentional Step-2 Follow-Up Email (Still Enforces Mutual CC)'));
+    body.appendChild(dupGuardBar);
+
     var sec2Hdr = makeEl('div', {{style:'display:flex;justify-content:space-between;align-items:center;margin-top:12px;flex-wrap:wrap;gap:6px'}});
-    sec2Hdr.appendChild(makeEl('div', {{style:'font-weight:700;font-size:13px;color:var(--quiet)'}}, '2. Human-Approved Email Draft for Leo Spiegel <leo@dokimo.ai> (Review/Edit Below, Then Click to Send in Gmail)'));
+    sec2Hdr.appendChild(makeEl('div', {{style:'font-weight:700;font-size:13px;color:var(--quiet)'}}, '2. Human-Approved Email Draft for Leo Spiegel <leo@dokimo.ai> · Auto-CC: Warren Zafrin <warren@dokimo.ai>'));
     var leoBtnGrp = makeEl('div', {{style:'display:flex;gap:6px;flex-wrap:wrap'}});
-    var saveLeoDraftBtn = makeEl('button', {{className:'btn-sm ok', style:'background:#15803d;color:#fff;border-color:#15803d'}}, '📝 Save to Gmail Drafts (Leo)');
-    var openLeoEmailBtn = makeEl('button', {{className:'btn-sm pri'}}, '✉️ Copy Rich + Open Gmail (Leo Hits Send)');
+    var saveLeoDraftBtn = makeEl('button', {{className:'btn-sm ok', style:'background:#15803d;color:#fff;border-color:#15803d'}}, '📝 Save to Gmail Drafts (Leo -> CC Warren)');
+    var openLeoEmailBtn = makeEl('button', {{className:'btn-sm pri'}}, '✉️ Copy Rich + Open Gmail (Leo -> CC Warren)');
     var copyLeoRichBtn = makeEl('button', {{className:'btn-sm'}}, '✨ Copy Rich Content');
-    var dlLeoEmlBtn = makeEl('button', {{className:'btn-sm'}}, '📥 .EML Draft');
+    var dlLeoEmlBtn = makeEl('button', {{className:'btn-sm'}}, '📥 .EML Draft (CC Warren)');
+    var leoHdrMeta = makeEl('div', {{style:'margin-top:6px;padding:6px 10px;background:#ecfdf5;border:1px solid #6ee7b7;border-radius:4px;font:11.5px/1.4 ui-monospace,monospace;color:#065f46'}});
+    leoHdrMeta.innerHTML = '<b>From:</b> Leo Spiegel &lt;leo@dokimo.ai&gt; &nbsp;|&nbsp; <b>To:</b> ' + escHtml(r.email || '') + ' &nbsp;|&nbsp; <b>CC (Automatic):</b> <span style="background:#065f46;color:#fff;padding:1px 6px;border-radius:3px;font-weight:700">Warren Zafrin &lt;warren@dokimo.ai&gt;</span>';
     var leoTa = makeEl('textarea', {{style:'width:100%;min-height:185px;font:12px/1.5 ui-monospace,monospace;padding:10px;border:1px solid var(--rule2);border-radius:6px;margin-top:6px'}}, leoEmailTxt);
     var leoPreview = makeEl('div', {{style:'margin-top:6px;padding:10px 12px;background:#ffffff;border:1px dashed #cbd5e1;border-radius:6px;font-size:12.5px'}});
 
+    var sec3Hdr = makeEl('div', {{style:'display:flex;justify-content:space-between;align-items:center;margin-top:14px;flex-wrap:wrap;gap:6px'}});
+    sec3Hdr.appendChild(makeEl('div', {{style:'font-weight:700;font-size:13px;color:var(--ink)'}}, '3. Human-Approved Email Draft for Warren Zafrin <warren@dokimo.ai> · Auto-CC: Leo Spiegel <leo@dokimo.ai>'));
+    var warrenBtnGrp = makeEl('div', {{style:'display:flex;gap:6px;flex-wrap:wrap'}});
+    var saveWarrenDraftBtn = makeEl('button', {{className:'btn-sm ok', style:'background:#15803d;color:#fff;border-color:#15803d'}}, '📝 Save to Gmail Drafts (Warren -> CC Leo)');
+    var openWarrenEmailBtn = makeEl('button', {{className:'btn-sm pri'}}, '✉️ Copy Rich + Open Gmail (Warren -> CC Leo)');
+    var copyWarrenRichBtn = makeEl('button', {{className:'btn-sm'}}, '✨ Copy Rich Content');
+    var dlWarrenEmlBtn = makeEl('button', {{className:'btn-sm'}}, '📥 .EML Draft (CC Leo)');
+    var warrenHdrMeta = makeEl('div', {{style:'margin-top:6px;padding:6px 10px;background:#eff6ff;border:1px solid #93c5fd;border-radius:4px;font:11.5px/1.4 ui-monospace,monospace;color:#1e3a8a'}});
+    warrenHdrMeta.innerHTML = '<b>From:</b> Warren Zafrin &lt;warren@dokimo.ai&gt; &nbsp;|&nbsp; <b>To:</b> ' + escHtml(r.email || '') + ' &nbsp;|&nbsp; <b>CC (Automatic):</b> <span style="background:#1e3a8a;color:#fff;padding:1px 6px;border-radius:3px;font-weight:700">Leo Spiegel &lt;leo@dokimo.ai&gt;</span>';
+    var warrenTa = makeEl('textarea', {{style:'width:100%;min-height:185px;font:12px/1.5 ui-monospace,monospace;padding:10px;border:1px solid var(--rule2);border-radius:6px;margin-top:6px'}}, warrenEmailTxt);
+    var warrenPreview = makeEl('div', {{style:'margin-top:6px;padding:10px 12px;background:#ffffff;border:1px dashed #cbd5e1;border-radius:6px;font-size:12.5px'}});
+
+    function syncDuplicateGuardUi(){{
+      var isSent = (r.sent_count || 0) > 0;
+      var blocked = isSent && !fupUnlockChk.checked;
+      dupGuardBar.replaceChildren();
+      if(isSent){{
+        dupGuardBar.style.cssText = 'margin-top:12px;padding:12px 14px;background:#fffbeb;border:2px solid #f59e0b;border-left:6px solid #d97706;border-radius:6px';
+        var warnTitle = makeEl('div', {{style:'font-weight:800;font-size:13px;color:#92400e'}}, '🛡️ DUPLICATE EMAIL GUARD ACTIVE — Already Contacted (' + (r.sent_count || 1) + ' prior send' + ((r.sent_count||1)>1?'s':'') + ')');
+        var warnSub = makeEl('div', {{style:'font-size:12px;color:#78350f;margin-top:3px'}},
+          'Sent by ' + (r.sent_by || 'Warren Zafrin') + (r.sent_at ? (' on ' + r.sent_at) : '') +
+          ' to ' + (r.email || r.fund) + ' (Auto-CC: ' + (r.cc_email || 'leo@dokimo.ai') + '). ' +
+          'Duplicate initial outreach is blocked so neither Warren nor Leo can accidentally send a second email to the same investor.'
+        );
+        dupGuardBar.appendChild(warnTitle);
+        dupGuardBar.appendChild(warnSub);
+        dupGuardBar.appendChild(fupUnlockLabel);
+      }} else {{
+        dupGuardBar.style.cssText = 'margin-top:12px;padding:10px 14px;background:#f0fdf4;border:1px solid #86efac;border-left:5px solid #15803d;border-radius:6px;font-size:12px;color:#14532d';
+        dupGuardBar.innerHTML = '<b>🛡️ Duplicate Email Guard &amp; Mutual Auto-CC Active:</b> Ready for First-Touch Outreach (<b>0 prior sends</b> to <code>' + escHtml(r.email || '') + '</code>). ' +
+          'When <b>Warren</b> sends, <b>Leo (<code>leo@dokimo.ai</code>)</b> is automatically CC\\'d. When <b>Leo</b> sends, <b>Warren (<code>warren@dokimo.ai</code>)</b> is automatically CC\\'d.';
+      }}
+      [saveLeoDraftBtn, openLeoEmailBtn, dlLeoEmlBtn, saveWarrenDraftBtn, openWarrenEmailBtn, dlWarrenEmlBtn].forEach(function(b){{
+        b.disabled = blocked;
+        b.style.opacity = blocked ? '0.45' : '1';
+        b.style.cursor = blocked ? 'not-allowed' : 'pointer';
+      }});
+    }}
+    fupUnlockChk.onchange = syncDuplicateGuardUi;
+
+    function markInvestorSentInUi(senderName, senderEmail, ccEmail, sentAtStr){{
+      r.sent_count = (r.sent_count || 0) + 1;
+      r.sent_by = senderName;
+      r.sender_email = senderEmail;
+      r.cc_email = ccEmail;
+      r.sent_at = sentAtStr || 'Just now';
+      r.duplicate_blocked = true;
+      if(r.include_pitch_deck) r.latest_status = 'Deck / Data Room Sent';
+      else if(!r.latest_status || r.latest_status.toLowerCase() === 'not contacted') r.latest_status = 'Intro Sent';
+      fupUnlockChk.checked = false;
+      syncDuplicateGuardUi();
+      renderRows();
+    }}
+
     function updatePreviews(){{
       var sbL = parseSubjAndBody(leoTa.value);
-      leoPreview.innerHTML = '<div style="font-size:11px;font-weight:700;color:#475569;margin-bottom:4px">👁️ Live Rich Email Preview (Clickable Video &amp; Pitch Deck Links + Open Tracking Pixel Included):</div>' + buildRichHtmlFromPlain(sbL.bdy);
+      leoPreview.innerHTML = '<div style="font-size:11px;font-weight:700;color:#475569;margin-bottom:4px">👁️ Live Rich Email Preview (Auto-CC: warren@dokimo.ai + Clickable Video &amp; Pitch Deck Links + Open Pixel):</div>' + buildRichHtmlFromPlain(sbL.bdy);
       var sbW = parseSubjAndBody(warrenTa.value);
-      warrenPreview.innerHTML = '<div style="font-size:11px;font-weight:700;color:#475569;margin-bottom:4px">👁️ Live Rich Email Preview (Clickable Video &amp; Pitch Deck Links + Open Tracking Pixel Included):</div>' + buildRichHtmlFromPlain(sbW.bdy);
+      warrenPreview.innerHTML = '<div style="font-size:11px;font-weight:700;color:#475569;margin-bottom:4px">👁️ Live Rich Email Preview (Auto-CC: leo@dokimo.ai + Clickable Video &amp; Pitch Deck Links + Open Pixel):</div>' + buildRichHtmlFromPlain(sbW.bdy);
     }}
 
     saveLeoDraftBtn.onclick = function(){{
+      if((r.sent_count || 0) > 0 && !fupUnlockChk.checked){{
+        alert('🛡️ Duplicate Email Blocked: ' + (r.sent_by || 'Warren/Leo') + ' already contacted ' + (r.email || r.fund) + '.');
+        return;
+      }}
       var sb = parseSubjAndBody(leoTa.value);
       saveLeoDraftBtn.disabled = true;
-      saveLeoDraftBtn.textContent = '⏳ Saving Unsent Draft to Gmail...';
+      saveLeoDraftBtn.textContent = '⏳ Saving Unsent Draft to Gmail (CC: warren@dokimo.ai)...';
       fetch('/api/investors/create-draft', {{
         method:'POST',
         headers:{{'Content-Type':'application/json'}},
-        body:JSON.stringify({{id:r.id, sender:'leo', to_email:r.email, subject:sb.subj, body:sb.bdy, include_pitch_deck:!!r.include_pitch_deck, attach_pdf:!!attachPdfChk.checked}})
+        body:JSON.stringify({{id:r.id, sender:'leo', to_email:r.email, subject:sb.subj, body:sb.bdy, include_pitch_deck:!!r.include_pitch_deck, attach_pdf:!!attachPdfChk.checked, force_followup:!!fupUnlockChk.checked}})
       }}).then(function(res){{ return res.json(); }}).then(function(d){{
-        saveLeoDraftBtn.disabled = false;
-        if(!d.ok){{ alert(d.error || 'Could not create draft'); saveLeoDraftBtn.textContent = '📝 Save to Gmail Drafts (Leo)'; return; }}
-        saveLeoDraftBtn.textContent = '✓ Saved in Gmail Drafts (Open Gmail to Send)';
+        if(!d.ok){{
+          syncDuplicateGuardUi();
+          alert(d.error || 'Could not create draft');
+          saveLeoDraftBtn.textContent = '📝 Save to Gmail Drafts (Leo -> CC Warren)';
+          return;
+        }}
+        markInvestorSentInUi('Leo Spiegel', 'leo@dokimo.ai', d.cc_email || 'warren@dokimo.ai', d.sent_at);
+        saveLeoDraftBtn.textContent = '✓ Saved in Gmail Drafts (CC: warren@dokimo.ai)';
         window.open('https://mail.google.com/mail/u/0/#drafts', '_blank', 'noopener');
       }});
     }};
     dlLeoEmlBtn.onclick = function(){{
-      window.open('/api/investors/eml?id=' + encodeURIComponent(r.id) + '&sender=leo&deck=' + (r.include_pitch_deck ? '1' : '0') + '&attach=' + (attachPdfChk.checked ? '1' : '0'), '_blank');
+      if((r.sent_count || 0) > 0 && !fupUnlockChk.checked){{
+        alert('🛡️ Duplicate Email Blocked: ' + (r.sent_by || 'Warren/Leo') + ' already contacted ' + (r.email || r.fund) + '.');
+        return;
+      }}
+      var ff = fupUnlockChk.checked ? '1' : '0';
+      window.open('/api/investors/eml?id=' + encodeURIComponent(r.id) + '&sender=leo&deck=' + (r.include_pitch_deck ? '1' : '0') + '&attach=' + (attachPdfChk.checked ? '1' : '0') + '&force_followup=' + ff, '_blank');
+      markInvestorSentInUi('Leo Spiegel', 'leo@dokimo.ai', 'warren@dokimo.ai', 'Just now');
     }};
     openLeoEmailBtn.onclick = function(){{
+      if((r.sent_count || 0) > 0 && !fupUnlockChk.checked){{
+        alert('🛡️ Duplicate Email Blocked: ' + (r.sent_by || 'Warren/Leo') + ' already contacted ' + (r.email || r.fund) + '.');
+        return;
+      }}
       var sb = parseSubjAndBody(leoTa.value);
-      var u = 'https://mail.google.com/mail/?view=cm&fs=1&to=' + encodeURIComponent(r.email || '') + '&su=' + encodeURIComponent(sb.subj) + '&body=' + encodeURIComponent(sb.bdy);
-      copyRichEmailToClipboard(sb.bdy, openLeoEmailBtn, u);
+      fetch('/api/investors/record-outreach', {{
+        method:'POST',
+        headers:{{'Content-Type':'application/json'}},
+        body:JSON.stringify({{id:r.id, sender:'leo', to_email:r.email, subject:sb.subj, include_pitch_deck:!!r.include_pitch_deck, force_followup:!!fupUnlockChk.checked}})
+      }}).then(function(res){{ return res.json(); }}).then(function(d){{
+        if(!d.ok){{
+          syncDuplicateGuardUi();
+          alert(d.error || 'Duplicate email blocked');
+          return;
+        }}
+        markInvestorSentInUi('Leo Spiegel', 'leo@dokimo.ai', d.cc_email || 'warren@dokimo.ai', (d.state && d.state.sent_at) || 'Just now');
+        var u = 'https://mail.google.com/mail/?view=cm&fs=1&to=' + encodeURIComponent(r.email || '') + '&cc=' + encodeURIComponent('warren@dokimo.ai') + '&su=' + encodeURIComponent(sb.subj) + '&body=' + encodeURIComponent(sb.bdy);
+        copyRichEmailToClipboard(sb.bdy, openLeoEmailBtn, u);
+      }});
     }};
     copyLeoRichBtn.onclick = function(){{
       var sb = parseSubjAndBody(leoTa.value);
@@ -1599,41 +1709,63 @@ function openGeminiModal(r){{
     }}
     sec2Hdr.appendChild(leoBtnGrp);
     body.appendChild(sec2Hdr);
+    body.appendChild(leoHdrMeta);
     body.appendChild(leoTa);
     body.appendChild(leoPreview);
 
-    var sec3Hdr = makeEl('div', {{style:'display:flex;justify-content:space-between;align-items:center;margin-top:14px;flex-wrap:wrap;gap:6px'}});
-    sec3Hdr.appendChild(makeEl('div', {{style:'font-weight:700;font-size:13px;color:var(--ink)'}}, '3. Human-Approved Email Draft for Warren Zafrin <warren@dokimo.ai> (Review/Edit Below, Then Click to Send in Gmail)'));
-    var warrenBtnGrp = makeEl('div', {{style:'display:flex;gap:6px;flex-wrap:wrap'}});
-    var saveWarrenDraftBtn = makeEl('button', {{className:'btn-sm ok', style:'background:#15803d;color:#fff;border-color:#15803d'}}, '📝 Save to Gmail Drafts (Warren)');
-    var openWarrenEmailBtn = makeEl('button', {{className:'btn-sm pri'}}, '✉️ Copy Rich + Open Gmail (Warren Hits Send)');
-    var copyWarrenRichBtn = makeEl('button', {{className:'btn-sm'}}, '✨ Copy Rich Content');
-    var dlWarrenEmlBtn = makeEl('button', {{className:'btn-sm'}}, '📥 .EML Draft');
-    var warrenTa = makeEl('textarea', {{style:'width:100%;min-height:185px;font:12px/1.5 ui-monospace,monospace;padding:10px;border:1px solid var(--rule2);border-radius:6px;margin-top:6px'}}, warrenEmailTxt);
-    var warrenPreview = makeEl('div', {{style:'margin-top:6px;padding:10px 12px;background:#ffffff;border:1px dashed #cbd5e1;border-radius:6px;font-size:12.5px'}});
-
     saveWarrenDraftBtn.onclick = function(){{
+      if((r.sent_count || 0) > 0 && !fupUnlockChk.checked){{
+        alert('🛡️ Duplicate Email Blocked: ' + (r.sent_by || 'Warren/Leo') + ' already contacted ' + (r.email || r.fund) + '.');
+        return;
+      }}
       var sb = parseSubjAndBody(warrenTa.value);
       saveWarrenDraftBtn.disabled = true;
-      saveWarrenDraftBtn.textContent = '⏳ Saving Unsent Draft to Gmail...';
+      saveWarrenDraftBtn.textContent = '⏳ Saving Unsent Draft to Gmail (CC: leo@dokimo.ai)...';
       fetch('/api/investors/create-draft', {{
         method:'POST',
         headers:{{'Content-Type':'application/json'}},
-        body:JSON.stringify({{id:r.id, sender:'warren', to_email:r.email, subject:sb.subj, body:sb.bdy, include_pitch_deck:!!r.include_pitch_deck, attach_pdf:!!attachPdfChk.checked}})
+        body:JSON.stringify({{id:r.id, sender:'warren', to_email:r.email, subject:sb.subj, body:sb.bdy, include_pitch_deck:!!r.include_pitch_deck, attach_pdf:!!attachPdfChk.checked, force_followup:!!fupUnlockChk.checked}})
       }}).then(function(res){{ return res.json(); }}).then(function(d){{
-        saveWarrenDraftBtn.disabled = false;
-        if(!d.ok){{ alert(d.error || 'Could not create draft'); saveWarrenDraftBtn.textContent = '📝 Save to Gmail Drafts (Warren)'; return; }}
-        saveWarrenDraftBtn.textContent = '✓ Saved in Gmail Drafts (Open Gmail to Send)';
+        if(!d.ok){{
+          syncDuplicateGuardUi();
+          alert(d.error || 'Could not create draft');
+          saveWarrenDraftBtn.textContent = '📝 Save to Gmail Drafts (Warren -> CC Leo)';
+          return;
+        }}
+        markInvestorSentInUi('Warren Zafrin', 'warren@dokimo.ai', d.cc_email || 'leo@dokimo.ai', d.sent_at);
+        saveWarrenDraftBtn.textContent = '✓ Saved in Gmail Drafts (CC: leo@dokimo.ai)';
         window.open('https://mail.google.com/mail/u/0/#drafts', '_blank', 'noopener');
       }});
     }};
     dlWarrenEmlBtn.onclick = function(){{
-      window.open('/api/investors/eml?id=' + encodeURIComponent(r.id) + '&sender=warren&deck=' + (r.include_pitch_deck ? '1' : '0') + '&attach=' + (attachPdfChk.checked ? '1' : '0'), '_blank');
+      if((r.sent_count || 0) > 0 && !fupUnlockChk.checked){{
+        alert('🛡️ Duplicate Email Blocked: ' + (r.sent_by || 'Warren/Leo') + ' already contacted ' + (r.email || r.fund) + '.');
+        return;
+      }}
+      var ff = fupUnlockChk.checked ? '1' : '0';
+      window.open('/api/investors/eml?id=' + encodeURIComponent(r.id) + '&sender=warren&deck=' + (r.include_pitch_deck ? '1' : '0') + '&attach=' + (attachPdfChk.checked ? '1' : '0') + '&force_followup=' + ff, '_blank');
+      markInvestorSentInUi('Warren Zafrin', 'warren@dokimo.ai', 'leo@dokimo.ai', 'Just now');
     }};
     openWarrenEmailBtn.onclick = function(){{
+      if((r.sent_count || 0) > 0 && !fupUnlockChk.checked){{
+        alert('🛡️ Duplicate Email Blocked: ' + (r.sent_by || 'Warren/Leo') + ' already contacted ' + (r.email || r.fund) + '.');
+        return;
+      }}
       var sb = parseSubjAndBody(warrenTa.value);
-      var u = 'https://mail.google.com/mail/?view=cm&fs=1&to=' + encodeURIComponent(r.email || '') + '&su=' + encodeURIComponent(sb.subj) + '&body=' + encodeURIComponent(sb.bdy);
-      copyRichEmailToClipboard(sb.bdy, openWarrenEmailBtn, u);
+      fetch('/api/investors/record-outreach', {{
+        method:'POST',
+        headers:{{'Content-Type':'application/json'}},
+        body:JSON.stringify({{id:r.id, sender:'warren', to_email:r.email, subject:sb.subj, include_pitch_deck:!!r.include_pitch_deck, force_followup:!!fupUnlockChk.checked}})
+      }}).then(function(res){{ return res.json(); }}).then(function(d){{
+        if(!d.ok){{
+          syncDuplicateGuardUi();
+          alert(d.error || 'Duplicate email blocked');
+          return;
+        }}
+        markInvestorSentInUi('Warren Zafrin', 'warren@dokimo.ai', d.cc_email || 'leo@dokimo.ai', (d.state && d.state.sent_at) || 'Just now');
+        var u = 'https://mail.google.com/mail/?view=cm&fs=1&to=' + encodeURIComponent(r.email || '') + '&cc=' + encodeURIComponent('leo@dokimo.ai') + '&su=' + encodeURIComponent(sb.subj) + '&body=' + encodeURIComponent(sb.bdy);
+        copyRichEmailToClipboard(sb.bdy, openWarrenEmailBtn, u);
+      }});
     }};
     copyWarrenRichBtn.onclick = function(){{
       var sb = parseSubjAndBody(warrenTa.value);
@@ -1651,8 +1783,10 @@ function openGeminiModal(r){{
     }}
     sec3Hdr.appendChild(warrenBtnGrp);
     body.appendChild(sec3Hdr);
+    body.appendChild(warrenHdrMeta);
     body.appendChild(warrenTa);
     body.appendChild(warrenPreview);
+    syncDuplicateGuardUi();
 
     function toggleSnippetInTextarea(ta, snippetText){{
       var val = ta.value || '';
@@ -1852,12 +1986,34 @@ def render_outreach_html() -> str:
     top_targets = [r for r in rows if r["tier"] in ("S", "A")][:35]
     cards = []
     for r in top_targets:
-        gm_url = (
+        gm_warren_url = (
             "https://mail.google.com/mail/?view=cm&fs=1"
             + "&to=" + urllib.parse.quote(r.get("email") or "")
+            + "&cc=" + urllib.parse.quote("leo@dokimo.ai")
             + "&su=" + urllib.parse.quote(r["direct_email_subject"])
             + "&body=" + urllib.parse.quote(r["direct_email_body"])
         )
+        gm_leo_url = (
+            "https://mail.google.com/mail/?view=cm&fs=1"
+            + "&to=" + urllib.parse.quote(r.get("email") or "")
+            + "&cc=" + urllib.parse.quote("warren@dokimo.ai")
+            + "&su=" + urllib.parse.quote(r["direct_email_subject"])
+            + "&body=" + urllib.parse.quote(r["warm_intro_blurb"])
+        )
+        sent_cnt = int(r.get("sent_count") or 0)
+        if sent_cnt > 0:
+            action_btns_html = (
+                f'<span class="chip warn" style="padding:5px 10px;font-weight:700">'
+                f'🛡️ Duplicate Guard Active: Already Emailed by {html.escape(r.get("sent_by") or "Warren/Leo")} '
+                f'(CC: {html.escape(r.get("cc_email") or "leo@dokimo.ai")})</span>'
+            )
+        else:
+            action_btns_html = (
+                f'<a class="btn-sm ok" href="{html.escape(gm_warren_url, quote=True)}" target="_blank" rel="noopener">'
+                f'✉️ Warren Gmail (Auto-CC: leo@dokimo.ai)</a>'
+                f'<a class="btn-sm pri" href="{html.escape(gm_leo_url, quote=True)}" target="_blank" rel="noopener">'
+                f'✉️ Leo Gmail (Auto-CC: warren@dokimo.ai)</a>'
+            )
         cards.append(f"""
         <div style="background:#fff;border:1px solid var(--rule);border-radius:6px;padding:14px 16px;margin-bottom:12px">
           <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px">
@@ -1866,19 +2022,19 @@ def render_outreach_html() -> str:
               <b style="font-size:15px;margin-left:6px">{html.escape(r['fund'])}</b> — {html.escape(r['person'] or 'Partnership')}
               <span class="chip ok" style="margin-left:6px">Warm Contact: {html.escape(r['our_contact'])}</span>
             </div>
-            <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
               <a class="btn-sm" style="background:#0f172a;color:#fff;border-color:#0f172a" href="/api/investors/pdf-memo?id={urllib.parse.quote(r['id'])}" target="_blank" rel="noopener">📄 1-Click 2-Page PDF VC Tear-Sheet</a>
-              <a class="btn-sm ok" href="{html.escape(gm_url, quote=True)}" target="_blank" rel="noopener">✉️ 1-Click Open in Gmail ({html.escape(r['email'] or 'Add Email')})</a>
+              {action_btns_html}
               <a class="btn-sm" href="{html.escape(r.get('person_linkedin') or '#', quote=True)}" target="_blank" rel="noopener">in LinkedIn ↗</a>
             </div>
           </div>
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:10px">
             <div>
-              <div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase">A. Forwardable Warm-Intro Blurb (For {html.escape(r['our_contact'])} to Send)</div>
+              <div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase">A. Forwardable Warm-Intro Blurb (From Leo &lt;leo@dokimo.ai&gt; · Auto-CC: warren@dokimo.ai)</div>
               <pre class="memo">{html.escape(r['warm_intro_blurb'])}</pre>
             </div>
             <div>
-              <div style="font-size:11px;font-weight:700;color:var(--quiet);text-transform:uppercase">B. Direct Founder Email from Warren Zafrin</div>
+              <div style="font-size:11px;font-weight:700;color:var(--quiet);text-transform:uppercase">B. Direct Founder Email (From Warren &lt;warren@dokimo.ai&gt; · Auto-CC: leo@dokimo.ai)</div>
               <pre class="memo">Subject: {html.escape(r['direct_email_subject'])}\n\n{html.escape(r['direct_email_body'])}</pre>
             </div>
           </div>
@@ -2469,14 +2625,22 @@ body{{margin:0;background:#0f172a;color:#f8fafc;font:15px/1.55 -apple-system,Bli
             if not access.can_send_investor_emails(viewer):
                 self.send_html("Forbidden: Only Leo Spiegel and Warren Zafrin can draft or send investor emails.", 403)
                 return
+            sync_from_gcs(["output/investor_state.json"])
             inv_id = (qs.get("id") or [""])[0].strip()
             sender = (qs.get("sender") or ["warren"])[0].strip().lower()
             inc_deck_q = (qs.get("deck") or [""])[0].strip()
             attach_q = (qs.get("attach") or ["0"])[0].strip()
+            force_fup = ((qs.get("force_followup") or ["0"])[0].strip() == "1")
             rows = investor_engine.get_all_investors(persist_csv=False)
             inv = next((x for x in rows if x.get("id") == inv_id), None)
             if not inv:
                 self.send_html("Investor not found", 404)
+                return
+            dup = investor_engine.check_investor_duplicate_send(
+                inv_id, to_email=inv.get("email") or "", force_followup=force_fup
+            )
+            if dup.get("duplicate_blocked"):
+                self.send_html(dup.get("reason") or "Duplicate email blocked.", 409)
                 return
             inc_deck = (inc_deck_q == "1") if inc_deck_q in ("0", "1") else bool(inv.get("include_pitch_deck"))
             att_pdf = (attach_q == "1")
@@ -2484,15 +2648,26 @@ body{{margin:0;background:#0f172a;color:#f8fafc;font:15px/1.55 -apple-system,Bli
                 body_txt = inv.get("leo_email_with_deck") if inc_deck else inv.get("leo_email_no_deck")
             else:
                 body_txt = inv.get("warren_email_with_deck") if inc_deck else inv.get("warren_email_no_deck")
+            subj_str = inv.get("direct_email_subject") or f"Dokimo.ai x {inv.get('fund')}"
             eml_bytes, fname = investor_digest.build_investor_eml_bytes(
                 inv_id=inv_id,
                 sender=sender,
                 to_email=inv.get("email") or "",
-                subject=inv.get("direct_email_subject") or f"Dokimo.ai x {inv.get('fund')}",
+                subject=subj_str,
                 plain_body=body_txt or "",
                 include_pitch_deck=inc_deck,
                 attach_pdf=att_pdf,
             )
+            investor_engine.record_investor_send(
+                inv_id=inv_id,
+                sender=sender,
+                to_email=inv.get("email") or "",
+                subject=subj_str,
+                include_pitch_deck=inc_deck,
+                msg_id="eml_draft",
+                force_followup=force_fup,
+            )
+            push_to_gcs(["output/investor_state.json", "data/investors.csv"])
             self.send_response(200)
             self.send_header("Content-Type", "message/rfc822")
             self.send_header("Content-Disposition", f'attachment; filename="{fname}"')
@@ -2655,6 +2830,34 @@ body{{margin:0;background:#0f172a;color:#f8fafc;font:15px/1.55 -apple-system,Bli
             self.send_json(res)
             return
 
+        if path == "/api/investors/record-outreach":
+            if not access.can_send_investor_emails(viewer):
+                self.send_json({"ok": False, "error": "Forbidden: Only Leo Spiegel (leo@dokimo.ai) and Warren Zafrin (warren@dokimo.ai) are permitted to draft or send investor emails."}, 403)
+                return
+            sync_from_gcs(["output/investor_state.json"])
+            try:
+                res = investor_engine.record_investor_send(
+                    inv_id=str(payload.get("id") or ""),
+                    sender=str(payload.get("sender") or "warren"),
+                    to_email=str(payload.get("to_email") or ""),
+                    subject=str(payload.get("subject") or ""),
+                    include_pitch_deck=bool(payload.get("include_pitch_deck", False)),
+                    msg_id="gmail_compose",
+                    force_followup=bool(payload.get("force_followup", False)),
+                )
+                if not res.get("ok"):
+                    self.send_json(res, 409 if res.get("duplicate_blocked") else 400)
+                    return
+                try:
+                    investor_engine.record_owner_activity(viewer, action="gmail_compose:" + str(payload.get("id") or ""))
+                except Exception:
+                    pass
+                push_to_gcs(["output/investor_state.json", "data/investors.csv"])
+                self.send_json(res)
+            except Exception as e:
+                self.send_json({"ok": False, "error": str(e)}, 400)
+            return
+
         if path in ("/api/investors/create-draft", "/api/investors/send-email"):
             if not access.can_send_investor_emails(viewer):
                 self.send_json({"ok": False, "error": "Forbidden: Only Leo Spiegel (leo@dokimo.ai) and Warren Zafrin (warren@dokimo.ai) are permitted to draft or send investor emails."}, 403)
@@ -2669,7 +2872,11 @@ body{{margin:0;background:#0f172a;color:#f8fafc;font:15px/1.55 -apple-system,Bli
                     plain_body=str(payload.get("body") or ""),
                     include_pitch_deck=bool(payload.get("include_pitch_deck", False)),
                     attach_pdf=bool(payload.get("attach_pdf", False)),
+                    force_followup=bool(payload.get("force_followup", False)),
                 )
+                if not res.get("ok") and res.get("duplicate_blocked"):
+                    self.send_json(res, 409)
+                    return
                 try:
                     investor_engine.record_owner_activity(viewer, action="draft_create:" + str(payload.get("id") or ""))
                 except Exception:

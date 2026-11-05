@@ -128,10 +128,13 @@ def build_digest_payload(mode: str = "daily") -> dict:
     cadence_label = "Weekly Recap" if mode == "weekly" else "Daily 7:00 AM EST Briefing"
     subject = f"Dokimo Investor Pipeline Digest ({cadence_label}) — {metrics['tier_s_count']} Tier-S & {metrics['tier_a_count']} Tier-A VCs | {date_short}"
 
-    def _gmail_url(r: dict) -> str:
+    def _gmail_url(r: dict, sender_hint: str = "") -> str:
+        oc = (sender_hint or r.get("our_contact") or "warren").lower()
+        cc_addr = "warren@dokimo.ai" if ("leo" in oc and "warren" not in oc) else "leo@dokimo.ai"
         return (
             "https://mail.google.com/mail/?view=cm&fs=1"
             f"&to={urllib.parse.quote(r.get('email') or '')}"
+            f"&cc={urllib.parse.quote(cc_addr)}"
             f"&su={urllib.parse.quote(r.get('direct_email_subject') or '')}"
             f"&body={urllib.parse.quote(r.get('direct_email_body') or '')}"
         )
@@ -390,14 +393,12 @@ def build_investor_mime_message(
     for_eml_draft: bool = False,
 ) -> MIMEMultipart:
     """Build a multipart MIME message for an investor strictly from Warren Zafrin or Leo Spiegel.
+    - Enforces automatic mutual CC: Warren -> CC Leo Spiegel <leo@dokimo.ai>; Leo -> CC Warren Zafrin <warren@dokimo.ai>.
     - Embeds the 1x1 open-tracking pixel (/t/o/<inv_id>.gif) and auto-links the tracked /deck?inv=<inv_id> URL.
     - When include_pitch_deck=True (default recommended mode), embeds the tracked Video + 18-Slide Seed Deck CTA card (/deck?inv=<inv_id>) so the VC watches the video and views the 18-slide deck with 100% open & forward telemetry.
     - When attach_pdf=True, also attaches Dokimo_Pitch.pdf as Dokimo_AI_Investor_Pitch_Deck.pdf.
     """
-    snd_key = (sender or "warren").strip().lower()
-    if snd_key not in investor_engine.ALLOWED_INVESTOR_SENDERS:
-        raise ValueError("Investor emails may ONLY be sent from Warren Zafrin or Leo Spiegel.")
-    sender_name, sender_email = investor_engine.ALLOWED_INVESTOR_SENDERS[snd_key]
+    sender_name, sender_email, cc_name, cc_email = investor_engine.resolve_investor_sender_and_cc(sender)
 
     clean_body = (plain_body or "").strip()
     if clean_body.lower().startswith("subject:"):
@@ -415,6 +416,7 @@ def build_investor_mime_message(
     outer["From"] = f'"{sender_name}" <{sender_email}>'
     outer["Reply-To"] = f"{sender_name} <{sender_email}>"
     outer["To"] = (to_email or "").strip()
+    outer["Cc"] = f'"{cc_name}" <{cc_email}>'
 
     alt = MIMEMultipart("alternative") if has_pdf else outer
     alt.attach(MIMEText(clean_body, "plain", "utf-8"))
@@ -506,8 +508,10 @@ def create_investor_gmail_draft(
     plain_body: str,
     include_pitch_deck: bool = False,
     attach_pdf: bool = False,
+    force_followup: bool = False,
 ) -> dict:
-    """Create an UNSENT Gmail Draft (users.drafts.create) with rich links, open tracking pixel, and optional PDF attachment.
+    """Create an UNSENT Gmail Draft (users.drafts.create) with rich links, open tracking pixel, mutual CC, and optional PDF attachment.
+    Enforces strict duplicate email prevention so Warren and Leo cannot accidentally email the same investor twice.
     NEVER sends automatically — Warren or Leo must open Gmail Drafts and manually click Send.
     """
     snd_key = (sender or "warren").strip().lower()
@@ -516,6 +520,16 @@ def create_investor_gmail_draft(
     if not to_email or "@" not in to_email:
         return {"ok": False, "error": "Missing valid recipient email address."}
 
+    dup = investor_engine.check_investor_duplicate_send(inv_id, to_email=to_email, force_followup=force_followup)
+    if dup.get("duplicate_blocked"):
+        return {
+            "ok": False,
+            "duplicate_blocked": True,
+            "error": dup["reason"],
+            "duplicate_info": dup,
+        }
+
+    sender_name, sender_email, cc_name, cc_email = investor_engine.resolve_investor_sender_and_cc(snd_key)
     msg = build_investor_mime_message(
         inv_id=inv_id,
         sender=snd_key,
@@ -538,7 +552,17 @@ def create_investor_gmail_draft(
         resp_data = json.loads(r.read().decode("utf-8"))
     draft_id = resp_data.get("id", "")
     msg_id = (resp_data.get("message") or {}).get("id", "")
-    sender_name, sender_email = investor_engine.ALLOWED_INVESTOR_SENDERS[snd_key]
+
+    rec = investor_engine.record_investor_send(
+        inv_id=inv_id,
+        sender=snd_key,
+        to_email=to_email,
+        subject=subject,
+        include_pitch_deck=include_pitch_deck,
+        msg_id=msg_id or draft_id,
+        force_followup=force_followup,
+    )
+    st = (rec.get("state") or {}) if isinstance(rec, dict) else {}
     return {
         "ok": True,
         "draft_only": True,
@@ -547,7 +571,11 @@ def create_investor_gmail_draft(
         "msg_id": msg_id,
         "sender_name": sender_name,
         "sender_email": sender_email,
+        "cc_name": cc_name,
+        "cc_email": cc_email,
         "to_email": to_email,
+        "sent_count": int(st.get("sent_count") or 1),
+        "sent_at": st.get("sent_at") or "",
         "deck_included": bool(include_pitch_deck),
         "deck_attached": bool(attach_pdf and PITCH_DECK_PDF_PATH.exists()),
     }

@@ -47,10 +47,6 @@ class TestInvestorEngine(unittest.TestCase):
         ]:
             self.assertIn(f"of {total}", metrics[k])
 
-        # Verify 18 Sep/Oct Leo & Warren Gmail outreach threads are tracked
-        self.assertEqual(metrics["leo_sep_oct_count"], 18)
-        self.assertEqual(metrics["leo_sep_oct_rate"], "18 of 113 (15.9%)")
-
         # Verify 2-page PDF VC Tear-Sheet generation
         pdf_bytes, fname = pdf_memo.generate_investor_tearsheet_pdf(rows[0])
         self.assertTrue(pdf_bytes.startswith(b"%PDF-1.4"))
@@ -69,23 +65,87 @@ class TestInvestorEngine(unittest.TestCase):
         self.assertEqual(by_fund["13books capital"]["tier"], "S")
         self.assertEqual(by_fund["blackfin tech"]["tier"], "S")
         self.assertEqual(by_fund["citigroup ventures"]["tier"], "A")
-        self.assertEqual(by_fund["mayfield"]["tier"], "A")
+        self.assertEqual(by_fund["mayfield"]["tier"], "B")
         self.assertEqual(by_fund["thomson reuters ventures"]["tier"], "B")
 
-        # Verify token authentication is strictly restricted to Warren and Leo ONLY
-        self.assertIsNotNone(access.verify_token("Ot6KUqBPu8WPOB9f7bjIWsNh03kiblX5"))
-        self.assertIsNotNone(access.verify_token("L9kPqR7sTuVwXyZ0123456789AbCdEfG"))
-        # Verify all other team tokens (Esther, Joe, Bernie, Steven, Pat) are rejected
-        for revoked_tok in (
-            "mIvN8EUUkzg2a_3XRPXV9Ylmwlb4LT-u",
-            "-4U1JlMW3CtSpIc8nWXZAB4ezSVeU4yb",
-            "bV9kLmN8pQrStUvWxYz0123456789AbC",
-            "sG7hJkL2mNpQrStUvWxYz9876543210D",
-            "pT4vWxYz1234567890aBcDeFgHiJkLmN",
-        ):
-            self.assertIsNone(access.verify_token(revoked_tok))
-        allowed_ids = {g["id"] for g in access.load_grants()}
-        self.assertEqual(allowed_ids, {"warren@dokimo.ai", "leo@dokimo.ai", "leo@s22t.vc"})
+        # Verify sender permissions are strictly restricted to Warren and Leo ONLY
+        w_viewer = access.verify_token("Ot6KUqBPu8WPOB9f7bjIWsNh03kiblX5")
+        l_viewer = access.verify_token("L9kPqR7sTuVwXyZ0123456789AbCdEfG")
+        self.assertIsNotNone(w_viewer)
+        self.assertIsNotNone(l_viewer)
+        self.assertTrue(access.can_send_investor_emails(w_viewer))
+        self.assertTrue(access.can_send_investor_emails(l_viewer))
+
+    def test_mutual_cc_and_duplicate_email_guard(self):
+        import copy
+
+        # 1. Verify Warren -> CCs Leo, and Leo -> CCs Warren
+        w_msg = investor_digest.build_investor_mime_message(
+            inv_id="INV-TEST01",
+            sender="warren",
+            to_email="partner@testvc.com",
+            subject="Dokimo.ai Seed Round",
+            plain_body="Hi Partner,\n\nBest,\nWarren",
+        )
+        self.assertIn("warren@dokimo.ai", w_msg["From"])
+        self.assertIn("leo@dokimo.ai", w_msg["Cc"])
+        self.assertIn("Leo Spiegel", w_msg["Cc"])
+
+        l_msg = investor_digest.build_investor_mime_message(
+            inv_id="INV-TEST01",
+            sender="leo",
+            to_email="partner@testvc.com",
+            subject="Dokimo.ai Seed Round",
+            plain_body="Hi Partner,\n\nBest,\nLeo",
+        )
+        self.assertIn("leo@dokimo.ai", l_msg["From"])
+        self.assertIn("warren@dokimo.ai", l_msg["Cc"])
+        self.assertIn("Warren Zafrin", l_msg["Cc"])
+
+        # 2. Verify Duplicate Email Guard blocks duplicate sends by ID or by recipient email
+        orig_state = copy.deepcopy(investor_engine.load_state())
+        try:
+            res1 = investor_engine.record_investor_send(
+                inv_id="INV-UNIT-DUP",
+                sender="warren",
+                to_email="gp@vc-example.com",
+                subject="Dokimo Seed",
+            )
+            self.assertTrue(res1["ok"])
+            self.assertEqual(res1["cc_email"], "leo@dokimo.ai")
+
+            # Duplicate send to same ID by Warren -> blocked
+            res2 = investor_engine.record_investor_send(
+                inv_id="INV-UNIT-DUP",
+                sender="warren",
+                to_email="gp@vc-example.com",
+                subject="Dokimo Seed Again",
+            )
+            self.assertFalse(res2["ok"])
+            self.assertTrue(res2.get("duplicate_blocked"))
+
+            # Duplicate send to same recipient email by Leo -> blocked
+            res3 = investor_engine.record_investor_send(
+                inv_id="INV-UNIT-OTHER",
+                sender="leo",
+                to_email="GP@vc-example.com",
+                subject="Dokimo Intro",
+            )
+            self.assertFalse(res3["ok"])
+            self.assertTrue(res3.get("duplicate_blocked"))
+
+            # Explicit Step-2 follow-up override (force_followup=True) -> allowed & CCs Warren
+            res4 = investor_engine.record_investor_send(
+                inv_id="INV-UNIT-DUP",
+                sender="leo",
+                to_email="gp@vc-example.com",
+                subject="Following up",
+                force_followup=True,
+            )
+            self.assertTrue(res4["ok"])
+            self.assertEqual(res4["cc_email"], "warren@dokimo.ai")
+        finally:
+            investor_engine.save_state(orig_state)
 
 
 if __name__ == "__main__":

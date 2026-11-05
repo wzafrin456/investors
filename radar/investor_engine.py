@@ -2022,6 +2022,9 @@ def parse_raw_leo_list(raw_text: str = None) -> list[dict]:
         row["sent_count"] = int(st.get("sent_count") or 0)
         row["sent_by"] = st.get("sent_by") or ("Leo Spiegel" if row["our_contact"] == "Leo" else "Warren Zafrin")
         row["sent_at"] = st.get("sent_at") or ""
+        row["cc_email"] = st.get("cc_email") or ("warren@dokimo.ai" if "leo" in (row["sent_by"] or "").lower() else "leo@dokimo.ai")
+        row["cc_name"] = st.get("cc_name") or ("Warren Zafrin" if row["cc_email"] == "warren@dokimo.ai" else "Leo Spiegel")
+        row["duplicate_blocked"] = bool(row["sent_count"] > 0)
         row["deck_attached_count"] = int(st.get("deck_attached_count") or 0)
         row["pdf_downloads"] = int(st.get("pdf_downloads") or 0)
         row["last_opened_at"] = st.get("last_opened_at", "")
@@ -2150,6 +2153,7 @@ def reset_investor_telemetry() -> dict:
     reset_count = 0
     telemetry_keys = (
         "sent_count", "sent_at", "sent_epoch", "sent_by", "sender_email",
+        "cc_name", "cc_email", "to_email", "last_draft_id",
         "deck_opens", "email_opens", "total_opens", "unique_fps",
         "forward_count", "pdf_downloads", "deck_attached_count",
         "last_opened_at", "events", "leo_sep_oct_outreach",
@@ -2300,6 +2304,96 @@ ALLOWED_INVESTOR_SENDERS = {
 }
 
 
+def resolve_investor_sender_and_cc(sender: str) -> tuple[str, str, str, str]:
+    """Return (sender_name, sender_email, cc_name, cc_email).
+    Enforces strict mutual CC:
+      - When Warren Zafrin sends/drafts, Leo Spiegel <leo@dokimo.ai> is automatically CC'd.
+      - When Leo Spiegel sends/drafts, Warren Zafrin <warren@dokimo.ai> is automatically CC'd.
+    """
+    snd_key = (sender or "warren").strip().lower()
+    if snd_key not in ALLOWED_INVESTOR_SENDERS:
+        raise ValueError("Investor emails may ONLY be sent from Warren Zafrin or Leo Spiegel.")
+    sender_name, sender_email = ALLOWED_INVESTOR_SENDERS[snd_key]
+    if "leo" in snd_key or "leo" in sender_email.lower():
+        return sender_name, sender_email, "Warren Zafrin", "warren@dokimo.ai"
+    return sender_name, sender_email, "Leo Spiegel", "leo@dokimo.ai"
+
+
+def check_investor_duplicate_send(
+    inv_id: str,
+    to_email: str = "",
+    force_followup: bool = False,
+) -> dict:
+    """Verify whether an investor (by inv_id or normalized to_email) has already been sent an email.
+    Prevents duplicate emails from being sent by either Warren or Leo to the same investor/partner.
+    """
+    if force_followup:
+        return {"duplicate_blocked": False, "already_contacted": False}
+    iid = (inv_id or "").strip()
+    norm_to = (to_email or "").strip().lower()
+    state = load_state()
+
+    # 1. Check direct investor record by inv_id
+    cur = state.get(iid) or {}
+    if isinstance(cur, dict) and int(cur.get("sent_count") or 0) > 0:
+        sent_by = cur.get("sent_by") or "Warren Zafrin"
+        sent_at = cur.get("sent_at") or "previously"
+        cc_em = cur.get("cc_email") or ("warren@dokimo.ai" if "leo" in sent_by.lower() else "leo@dokimo.ai")
+        rcpt = norm_to or cur.get("to_email") or cur.get("email") or iid
+        return {
+            "duplicate_blocked": True,
+            "already_contacted": True,
+            "inv_id": iid,
+            "sent_by": sent_by,
+            "sender_email": cur.get("sender_email") or "",
+            "cc_email": cc_em,
+            "sent_at": sent_at,
+            "to_email": rcpt,
+            "sent_count": int(cur.get("sent_count") or 1),
+            "reason": (
+                f"Duplicate email blocked: {sent_by} already emailed {rcpt} on {sent_at} "
+                f"(CC: {cc_em}). Check 'Unlock Step-2 Follow-Up' if sending an intentional follow-up."
+            ),
+        }
+
+    # 2. Check across all investor state records by normalized recipient email address
+    if norm_to and "@" in norm_to:
+        for other_id, other_st in state.items():
+            if other_id.startswith("_") or not isinstance(other_st, dict):
+                continue
+            if int(other_st.get("sent_count") or 0) <= 0:
+                continue
+            other_em = (other_st.get("to_email") or other_st.get("email") or "").strip().lower()
+            matched_ev = None
+            for ev in (other_st.get("events") or []):
+                if ev.get("type") == "sent" and (ev.get("to_email") or "").strip().lower() == norm_to:
+                    matched_ev = ev
+                    break
+            if other_em == norm_to or matched_ev is not None:
+                sent_by = (matched_ev or {}).get("sender") or other_st.get("sent_by") or "Warren Zafrin"
+                sent_at = (matched_ev or {}).get("ts") or other_st.get("sent_at") or "previously"
+                cc_em = (matched_ev or {}).get("cc_email") or other_st.get("cc_email") or (
+                    "warren@dokimo.ai" if "leo" in sent_by.lower() else "leo@dokimo.ai"
+                )
+                return {
+                    "duplicate_blocked": True,
+                    "already_contacted": True,
+                    "inv_id": other_id,
+                    "sent_by": sent_by,
+                    "sender_email": other_st.get("sender_email") or "",
+                    "cc_email": cc_em,
+                    "sent_at": sent_at,
+                    "to_email": norm_to,
+                    "sent_count": int(other_st.get("sent_count") or 1),
+                    "reason": (
+                        f"Duplicate email blocked: {sent_by} already emailed {norm_to} ({other_id}) on {sent_at} "
+                        f"(CC: {cc_em}). Check 'Unlock Step-2 Follow-Up' if sending an intentional follow-up."
+                    ),
+                }
+
+    return {"duplicate_blocked": False, "already_contacted": False}
+
+
 def _iso_week_key(dt: datetime.datetime = None) -> tuple[str, str]:
     dt = dt or datetime.datetime.now(datetime.timezone.utc)
     iso_yr, iso_wk, _ = dt.isocalendar()
@@ -2317,15 +2411,25 @@ def record_investor_send(
     subject: str,
     include_pitch_deck: bool = False,
     msg_id: str = "",
+    force_followup: bool = False,
 ) -> dict:
-    """Record an outbound investor email sent strictly by Warren Zafrin or Leo Spiegel."""
+    """Record an outbound investor email sent strictly by Warren Zafrin or Leo Spiegel,
+    with automatic mutual CC and duplicate send protection.
+    """
     iid = (inv_id or "").strip()
     if not iid:
         return {"ok": False, "error": "Missing investor id"}
-    snd_key = (sender or "warren").strip().lower()
-    if snd_key not in ALLOWED_INVESTOR_SENDERS:
-        raise ValueError("Investor emails may ONLY be sent from Warren Zafrin or Leo Spiegel.")
-    sender_name, sender_email = ALLOWED_INVESTOR_SENDERS[snd_key]
+    sender_name, sender_email, cc_name, cc_email = resolve_investor_sender_and_cc(sender)
+
+    dup = check_investor_duplicate_send(iid, to_email=to_email, force_followup=force_followup)
+    if dup.get("duplicate_blocked"):
+        return {
+            "ok": False,
+            "duplicate_blocked": True,
+            "error": dup["reason"],
+            "duplicate_info": dup,
+        }
+
     now_dt = datetime.datetime.now(datetime.timezone.utc)
     now_str = now_dt.strftime("%Y-%m-%d %H:%M UTC")
     wk_key, wk_label = _iso_week_key(now_dt)
@@ -2337,6 +2441,9 @@ def record_investor_send(
     cur["sent_epoch"] = int(now_dt.timestamp())
     cur["sent_by"] = sender_name
     cur["sender_email"] = sender_email
+    cur["cc_name"] = cc_name
+    cur["cc_email"] = cc_email
+    cur["to_email"] = (to_email or "").strip()
     cur["include_pitch_deck"] = bool(include_pitch_deck)
     if include_pitch_deck:
         cur["deck_attached_count"] = int(cur.get("deck_attached_count") or 0) + 1
@@ -2352,7 +2459,9 @@ def record_investor_send(
         "type": "sent",
         "sender": sender_name,
         "sender_email": sender_email,
-        "to_email": to_email,
+        "cc_name": cc_name,
+        "cc_email": cc_email,
+        "to_email": (to_email or "").strip(),
         "subject": subject,
         "deck_attached": bool(include_pitch_deck),
         "msg_id": msg_id,
@@ -2360,7 +2469,7 @@ def record_investor_send(
     cur["events"] = events[-200:]
     state[iid] = cur
     save_state(state)
-    return {"ok": True, "id": iid, "state": cur}
+    return {"ok": True, "id": iid, "state": cur, "cc_name": cc_name, "cc_email": cc_email}
 
 
 def record_investor_engagement(
