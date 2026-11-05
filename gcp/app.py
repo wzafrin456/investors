@@ -341,15 +341,15 @@ button.f.on,.btn-sm.pri{background:var(--ink);color:#fff;border-color:var(--ink)
 input.search{font:inherit;font-size:13px;padding:5px 10px;border:1px solid var(--rule2);border-radius:3px;background:var(--surface);color:var(--ink);min-width:260px;flex:1;margin:0}
 .tablewrap{overflow-x:auto;border:1px solid var(--rule);border-radius:4px;background:var(--surface)}
 table.btable{border-collapse:collapse;width:100%;table-layout:fixed}
-table.btable thead th{text-align:left;font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink3);font-weight:700;padding:8px 8px;border-bottom:1px solid var(--rule2);background:var(--sunk);position:sticky;top:0}
-table.btable tbody td{padding:9px 8px;border-bottom:1px solid var(--rule);vertical-align:top;font-size:12px;word-wrap:break-word;overflow-wrap:break-word}
+table.btable thead th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink3);font-weight:700;padding:10px 10px;border-bottom:1px solid var(--rule2);background:var(--sunk);position:sticky;top:0;z-index:10}
+table.btable tbody td{padding:11px 10px;border-bottom:1px solid var(--rule);vertical-align:top;font-size:13px;line-height:1.45;word-wrap:break-word;overflow-wrap:break-word;overflow:hidden}
 table.btable tbody tr:hover td{background:#fafbfc}
-.tier{font-family:ui-monospace,monospace;font-size:10.5px;padding:2px 6px;border-radius:3px;white-space:nowrap;font-weight:700;display:inline-block}
+.tier{font-family:ui-monospace,monospace;font-size:11px;padding:2px 6px;border-radius:3px;white-space:nowrap;font-weight:700;display:inline-block}
 .t-S{background:var(--quiet-soft);color:var(--quiet);border:1px solid #b7e4c7}
 .t-A{background:var(--accent-soft);color:var(--accent);border:1px solid #bfdbfe}
 .t-B{background:var(--warning-soft);color:var(--warning);border:1px solid #fde68a}
 .t-C{background:var(--critical-soft);color:var(--critical);border:1px solid #fecaca}
-.chip{font-family:ui-monospace,monospace;font-size:10px;padding:2px 6px;border-radius:3px;background:var(--sunk);color:var(--ink2);display:inline-block;margin:2px 3px 2px 0}
+.chip{font-family:ui-monospace,monospace;font-size:10.5px;padding:2px 6px;border-radius:3px;background:var(--sunk);color:var(--ink2);display:inline-block;margin:2px 3px 2px 0;max-width:100%;overflow-wrap:break-word}
 .chip.ok{background:var(--quiet-soft);color:var(--quiet);font-weight:600}
 .chip.warn{background:var(--warning-soft);color:var(--warning);font-weight:600}
 .chip.crit{background:var(--critical-soft);color:var(--critical);font-weight:600}
@@ -429,6 +429,7 @@ def render_board_html() -> str:
     <button id="inv-tab-readme" class="tab-btn" onclick="switchInvMainTab('readme')">3. 📖 Simple Workflow Guide (100% Draft-Only &middot; Zero Auto-Send)</button>
   </div>
   <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+    <button id="btn-sweep-gmail" class="btn-sm" onclick="sweepGmailTracker()" style="background:#1e40af;border-color:#1e40af;color:#fff;font-weight:700">🔄 Sweep Gmail &amp; Update Tracker</button>
     <a class="btn-sm" href="https://mail.google.com/mail/u/0/#drafts" target="_blank" rel="noopener" style="background:#fff;border-color:#15803d;color:#15803d;font-weight:700">📬 Open Gmail Drafts ↗</a>
   </div>
 </div>
@@ -1893,6 +1894,31 @@ function closeModal(){{
   document.getElementById('gemini-modal').style.display = 'none';
 }}
 
+function sweepGmailTracker(){{
+  var btn = document.getElementById('btn-sweep-gmail');
+  if(!btn) return;
+  btn.disabled = true;
+  btn.textContent = '⏳ Sweeping Gmail across all 113 VCs...';
+  fetch('/api/investors/sync-gmail', {{
+    method:'POST',
+    headers:{{'Content-Type':'application/json'}},
+    body:JSON.stringify({{}})
+  }}).then(function(res){{ return res.json(); }}).then(function(d){{
+    btn.disabled = false;
+    btn.textContent = '🔄 Sweep Gmail & Update Tracker';
+    if(!d || !d.ok){{
+      alert((d && d.error) || 'Gmail sweep failed');
+      return;
+    }}
+    alert('✅ Gmail Sweep Complete!\\n\\n• Sent Funds Reconciled: ' + d.sent_reconciled + ' of ' + d.total_investors + '\\n• Replies Reconciled: ' + d.replies_reconciled + ' of ' + d.sent_reconciled + '\\n• Swept At: ' + d.swept_at);
+    window.location.reload();
+  }}).catch(function(err){{
+    btn.disabled = false;
+    btn.textContent = '🔄 Sweep Gmail & Update Tracker';
+    alert('Error running Gmail sweep: ' + err);
+  }});
+}}
+
 renderRows();
 (function(){{
   var qs = window.location.search || '';
@@ -2826,6 +2852,13 @@ body{{margin:0;background:#0f172a;color:#f8fafc;font:15px/1.55 -apple-system,Bli
         if path == "/api/investors/reset-telemetry":
             sync_from_gcs(["output/investor_state.json"])
             res = investor_engine.reset_investor_telemetry()
+            push_to_gcs(["output/investor_state.json", "data/investors.csv"])
+            self.send_json(res)
+            return
+
+        if path == "/api/investors/sync-gmail":
+            sync_from_gcs(["output/investor_state.json"])
+            res = investor_digest.sync_investor_gmail_activity(persist=True)
             push_to_gcs(["output/investor_state.json", "data/investors.csv"])
             self.send_json(res)
             return
