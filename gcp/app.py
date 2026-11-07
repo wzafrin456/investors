@@ -314,7 +314,7 @@ SHARED_CSS = """
  --opening-soft:#E8E9F8;--quiet:#2D6A4F;--quiet-soft:#E7EFE9;
 }
 *{box-sizing:border-box}
-body{margin:0 auto;background:var(--ground);color:var(--ink);font:13.5px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;padding:0 14px 56px;max-width:100%}
+body{margin:0;background:var(--ground);color:var(--ink);font:13.5px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;padding:0;max-width:100%}
 h1,h2,h3{margin:0;letter-spacing:-.01em}
 .masthead{border-bottom:2px solid var(--ink);padding:16px 0 12px;display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between}
 .masthead h1{font-size:24px;font-weight:700;line-height:1.15}
@@ -382,6 +382,32 @@ table.btable tbody tr:hover td{background:#fafbfc}
 .mcp-mini-tbl td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:999;align-items:center;justify-content:center;padding:18px}
 .modal-box{background:#fff;border:1px solid var(--rule2);border-radius:8px;max-width:860px;width:100%;max-height:90vh;overflow-y:auto;padding:20px;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+
+.dk-shell{display:flex;min-height:100vh;width:100%;align-items:stretch}
+.dk-sidebar{width:230px;background:#0f172a;color:#e2e8f0;flex-shrink:0;display:flex;flex-direction:column;border-right:1px solid #1e293b;transition:width .18s ease}
+.dk-sidebar.collapsed{width:0;overflow:hidden;border-right:none}
+.dk-sb-brand{padding:14px 16px;border-bottom:1px solid #1e293b;display:flex;align-items:center;justify-content:space-between}
+.dk-sb-sec{padding:10px 12px 4px;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8;font-weight:800}
+.dk-sb-btn{display:flex;align-items:center;justify-content:space-between;width:calc(100% - 16px);margin:2px 8px;padding:7px 10px;border-radius:6px;border:none;background:transparent;color:#cbd5e1;font:inherit;font-size:12px;font-weight:600;cursor:pointer;text-align:left;text-decoration:none}
+.dk-sb-btn:hover{background:#1e293b;color:#fff}
+.dk-sb-btn.on{background:#1d4ed8;color:#fff;font-weight:700}
+.dk-main{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--ground)}
+.dk-topbar{background:#0f172a;color:#fff;padding:10px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:1px solid #1e293b;position:sticky;top:0;z-index:50}
+.dk-main-body{padding:14px 18px 56px;max-width:100%}
+.main-tab-bar{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.main-tab-btn{font:inherit;font-size:12.5px;font-weight:700;padding:7px 13px;border-radius:6px;border:1px solid #334155;background:#1e293b;color:#cbd5e1;cursor:pointer;transition:all .12s}
+.main-tab-btn:hover{background:#334155;color:#fff}
+.main-tab-btn.on{background:#2563eb;border-color:#3b82f6;color:#fff;box-shadow:0 1px 4px rgba(37,99,235,.35)}
+.dash-grid{display:grid;grid-template-columns:repeat(3,minmax(300px,1fr));gap:12px;margin:0 0 12px}
+@media(max-width:1100px){.dash-grid{grid-template-columns:1fr}}
+.dash-card{background:var(--surface);border:1px solid var(--rule);border-radius:6px;padding:12px 14px;box-shadow:0 1px 2px rgba(15,23,42,.03)}
+.dash-card h3{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink2);font-weight:800;margin:0 0 8px;display:flex;justify-content:space-between;align-items:center}
+.sig-row{display:grid;grid-template-columns:minmax(130px,1.2fr) minmax(80px,1fr) auto;gap:8px;align-items:center;padding:5px 6px;border-radius:4px;cursor:pointer;font-size:12px;border-bottom:1px dashed #eef1f5}
+.sig-row:last-child{border-bottom:none}
+.sig-row:hover{background:#f1f5f9}
+.sig-bar-bg{height:7px;background:#e2e8f0;border-radius:4px;overflow:hidden}
+.sig-bar-fill{height:100%;border-radius:4px}
+
 pre.memo{white-space:pre-wrap;background:var(--ground);border:1px solid var(--rule);padding:12px;border-radius:6px;font:12.5px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--ink);margin:8px 0}
 """
 
@@ -408,41 +434,58 @@ def render_board_html() -> str:
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Dokimo Investor Watch &amp; Gemini VC Fit Board</title>
 <style>{SHARED_CSS}</style></head><body>
-<header class="masthead">
-  <div>
-    <h1>🏛️ Dokimo Investor Watch — Stage-Gated Right VCs Only (Zero Duplicates)</h1>
-    <div class="sub">
-      Filtered strictly to the <b>{m['total_investors']} deduplicated RIGHT VCs</b> for Dokimo (1 row per fund — all hardware/semi VCs, Europe-only funds like Balderton, changed funds like Hummer Winblad, and hard passes like Khosla removed). Every fund includes <b>Why They Would Want Dokimo</b> and <b>The Value Pitch to Them</b>.
+<div class="dk-shell">
+<aside id="dk-left-sidebar" class="dk-sidebar">
+  <div class="dk-sb-brand">
+    <div>
+      <div style="font-size:14px;font-weight:800;color:#fff;letter-spacing:-.01em">🏛️ Dokimo.ai Investors</div>
+      <div style="font-size:10.5px;color:#94a3b8">$4M Seed &middot; {m['total_investors']} Right VCs</div>
+    </div>
+    <button onclick="document.getElementById('dk-left-sidebar').classList.toggle('collapsed')" style="background:transparent;border:none;color:#94a3b8;cursor:pointer;font-size:14px" title="Collapse Sidebar">✕</button>
+  </div>
+  <div class="dk-sb-sec">Main Views</div>
+  <button class="dk-sb-btn on" id="sb-nav-board" onclick="switchInvMainTab('board');resetInvFilters()"><span>📬 1. Outreach &amp; Intent Board</span><span>{m['total_investors']}</span></button>
+  <button class="dk-sb-btn" id="sb-nav-charts" onclick="switchInvMainTab('charts')"><span>📊 2. Intent Telemetry Charts</span><span>Wk/Day</span></button>
+  <button class="dk-sb-btn" id="sb-nav-readme" onclick="switchInvMainTab('readme')"><span>📖 3. Simple Workflow Guide</span><span>Draft</span></button>
+
+  <div class="dk-sb-sec">By Stage / Segment</div>
+  <button class="dk-sb-btn" onclick="switchInvMainTab('board');setQuickPreset('PRE')"><span>⚡ Pre-Seed / Day-0</span><span>{m['pre_seed_count']}</span></button>
+  <button class="dk-sb-btn" onclick="switchInvMainTab('board');setQuickPreset('BANK_LP')"><span>🏦 Bank-LP Bullseye</span><span>{m['bank_lp_bullseye_count']}</span></button>
+  <button class="dk-sb-btn" onclick="switchInvMainTab('board');setQuickPreset('S')"><span>🟢 Tier S · Seed Lead</span><span>{m['tier_s_count']}</span></button>
+  <button class="dk-sb-btn" onclick="switchInvMainTab('board');setQuickPreset('A')"><span>🔵 Tier A · Warm / CVC</span><span>{m['tier_a_count']}</span></button>
+  <button class="dk-sb-btn" onclick="switchInvMainTab('board');setQuickPreset('B')"><span>⏳ Tier B · Hold ($1M)</span><span>{m['tier_b_count']}</span></button>
+
+  <div class="dk-sb-sec">By Region</div>
+  <button class="dk-sb-btn" onclick="switchInvMainTab('board');FILTERS.region='US';renderRows()"><span>🇺🇸 United States (US)</span><span>{m['us_count']}</span></button>
+  <button class="dk-sb-btn" onclick="switchInvMainTab('board');FILTERS.region='UK';renderRows()"><span>🇬🇧 United Kingdom (UK)</span><span>{m['uk_count']}</span></button>
+  <button class="dk-sb-btn" onclick="switchInvMainTab('board');FILTERS.region='EU';renderRows()"><span>🇪🇺 Europe (EU)</span><span>{m['eu_count']}</span></button>
+  <button class="dk-sb-btn" onclick="switchInvMainTab('board');FILTERS.region='IL / US';renderRows()"><span>🇮🇱/🇺🇸 Israel / US</span><span>{m['il_us_count']}</span></button>
+
+  <div class="dk-sb-sec">Pitch Assets</div>
+  <a class="dk-sb-btn" href="/deck" target="_blank"><span>🎬 18-Slide Seed Deck</span><span>↗</span></a>
+  <a class="dk-sb-btn" href="/deck/pdf" target="_blank"><span>📄 2-Page PDF Tear-Sheet</span><span>↗</span></a>
+  <a class="dk-sb-btn" href="https://sdr-aigeqnv5nq-uc.a.run.app/" target="_blank"><span>🎯 Prospecting Board</span><span>↗</span></a>
+</aside>
+
+<div class="dk-main">
+<div class="dk-topbar">
+  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+    <button onclick="document.getElementById('dk-left-sidebar').classList.toggle('collapsed')" style="background:#1e293b;border:1px solid #334155;color:#fff;padding:6px 10px;border-radius:6px;cursor:pointer;font-weight:700;font-size:12px">☰ Menu</button>
+    <div style="font-size:15px;font-weight:800;color:#fff">🏛️ Dokimo Investor Board</div>
+    <div class="main-tab-bar">
+      <button id="inv-tab-board" class="main-tab-btn on" onclick="switchInvMainTab('board')">📬 1. Outreach Tracker, Partner Opens &amp; Target VCs ({m['total_investors']})</button>
+      <button id="inv-tab-charts" class="main-tab-btn" onclick="switchInvMainTab('charts')">📊 2. Intent Telemetry Charts (Stage/Segment &middot; Region &middot; Opens &amp; Deck Views)</button>
+      <button id="inv-tab-readme" class="main-tab-btn" onclick="switchInvMainTab('readme')">📖 3. Workflow Guide (100% Draft-Only)</button>
     </div>
   </div>
-  <div class="runbox">
-    <b>🟢 Tier S (Pitch Now · Pre-Seed/Seed):</b> {html.escape(m['tier_s_rate'])}<br>
-    <b>🔵 Tier A (Warm Intro / Bank CVC):</b> {html.escape(m['tier_a_rate'])}<br>
-    <b>⏳ Tier B (Hold for $1M ARR / Series A):</b> {html.escape(m['tier_b_rate'])}
-  </div>
-</header>
-
-<div class="top-tabs">
-  <div style="display:flex;gap:6px;flex-wrap:wrap">
-    <button id="inv-tab-board" class="tab-btn on" onclick="switchInvMainTab('board')">1. 🎯 VC Target Board ({m['total_investors']} Right VCs: US &rarr; UK &rarr; EU &rarr; IL/US)</button>
-    <button id="inv-tab-charts" class="tab-btn" onclick="switchInvMainTab('charts')">2. 📊 Weekly Telemetry (Stage/Segment &middot; Country/Region &middot; Reached Out &amp; Opened)</button>
-    <button id="inv-tab-readme" class="tab-btn" onclick="switchInvMainTab('readme')">3. 📖 Simple Workflow Guide (100% Draft-Only &middot; Zero Auto-Send)</button>
-  </div>
   <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
-    <button id="btn-sweep-gmail" class="btn-sm" onclick="sweepGmailTracker()" style="background:#1e40af;border-color:#1e40af;color:#fff;font-weight:700">🔄 Sweep Gmail &amp; Update Tracker</button>
-    <button class="btn-sm" onclick="var td=document.getElementById('inv-telemetry-drawer');td.style.display=td.style.display==='none'?'grid':'none';" style="background:#f8fafc;border-color:#cbd5e1;color:#0f172a;font-weight:700">📊 Outreach Telemetry &darr;</button>
-    <a class="btn-sm" href="https://mail.google.com/mail/u/0/#drafts" target="_blank" rel="noopener" style="background:#fff;border-color:#15803d;color:#15803d;font-weight:700">📬 Open Gmail Drafts ↗</a>
+    <button id="btn-sweep-gmail" class="btn-sm" onclick="sweepGmailTracker()" style="background:#2563eb;border-color:#3b82f6;color:#fff;font-weight:700">🔄 Sweep Gmail</button>
+    <a class="btn-sm" href="https://mail.google.com/mail/u/0/#drafts" target="_blank" rel="noopener" style="background:#065f46;border-color:#10b981;color:#fff;font-weight:700">📬 Gmail Drafts ↗</a>
   </div>
 </div>
 
-<div class="status">
-  <div style="cursor:pointer" onclick="resetInvFilters()" title="Click to show all {m['total_investors']} Right VCs"><div class="k">🎯 Right VCs</div><div class="v">{m['total_investors']} <small>100% email + LI</small></div></div>
-  <div style="cursor:pointer" onclick="setQuickPreset('PRE')" title="Click to filter to Pre-Seed / Day-0 Check-Writers"><div class="k">⚡ Pre-Seed / Day-0</div><div class="v" style="color:#6d28d9">{m['pre_seed_count']} <small>({html.escape(m['pre_seed_rate'].split('(')[1].rstrip(')'))})</small></div></div>
-  <div style="cursor:pointer" onclick="setQuickPreset('BANK_LP')" title="Click to filter to Bank-LP &amp; RegTech Bullseye VCs"><div class="k">🏦 Bank-LP Bullseye</div><div class="v" style="color:#065f46">{m['bank_lp_bullseye_count']} <small>({html.escape(m['bank_lp_bullseye_rate'].split('(')[1].rstrip(')'))})</small></div></div>
-  <div style="cursor:pointer" onclick="setQuickPreset('S')" title="Click to filter to Tier S Institutional Seed Leads"><div class="k">🟢 Tier S · Seed</div><div class="v" style="color:var(--quiet)">{m['tier_s_count']} <small>({html.escape(m['tier_s_rate'].split('(')[1].rstrip(')'))})</small></div></div>
-  <div style="cursor:pointer" onclick="setQuickPreset('A')" title="Click to filter to Tier A Warm Intro &amp; Bank CVCs"><div class="k">🔵 Tier A · Warm / CVC</div><div class="v" style="color:var(--accent)">{m['tier_a_count']} <small>({html.escape(m['tier_a_rate'].split('(')[1].rstrip(')'))})</small></div></div>
-  <div style="cursor:pointer" onclick="var td=document.getElementById('inv-telemetry-drawer');td.style.display=td.style.display==='none'?'grid':'none';" title="Click to expand live outreach &amp; open telemetry"><div class="k">📨 Sent / 💬 Replied</div><div class="v" style="color:#1d4ed8">{m['sent_funds_count']} sent · {m['replied_funds_count']} replied <small>({m['meeting_talking_count']} active threads)</small></div></div>
-</div>
+<div class="dk-main-body">
+<div id="inv-visual-dashboard" class="dash-grid"></div>
 
 <div id="inv-telemetry-drawer" class="status" style="display:none;margin-top:8px;background:#f8fafc;border-color:#cbd5e1">
   <div><div class="k">📨 Funds Contacted / Sent</div><div class="v" style="color:#0f172a">{html.escape(m['sent_funds_rate'])} <small>(W:{m['warren_sent_count']} · L:{m['leo_sent_count']})</small></div></div>
@@ -549,6 +592,7 @@ def render_board_html() -> str:
 </div>
 </div>
 
+</div></div></div>
 <div class="modal-bg" id="gemini-modal" onclick="if(event.target===this)closeModal()">
   <div class="modal-box">
     <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid var(--rule);padding-bottom:10px">
@@ -562,7 +606,7 @@ def render_board_html() -> str:
 <script>
 var INVESTORS = {data_json};
 var INV_TELEMETRY = {tel_json};
-var INV_CHART_MODE = 'weekly_tier';
+var INV_CHART_MODE = 'both';
 var FILTERS = {{tier:'all', region:'all', owner:'all', reach:'all'}};
 var GEMINI_SEARCH_STATE = {{active:false, query:'', matchedIds:null, reasons:{{}}}};
 
@@ -1113,6 +1157,100 @@ function makeEl(tag, attrs, text){{
   }}
   if(text !== undefined && text !== null) el.textContent = String(text);
   return el;
+}}
+
+
+function drawInvVisualDashboard(){{
+  var box = document.getElementById('inv-visual-dashboard');
+  if(!box) return;
+  var totalVcs = INVESTORS.length || 1;
+  var sentCnt = 0, openVcs = 0, openSum = 0, deckVcs = 0, fwdSum = 0, repliedCnt = 0;
+
+  var segDefs = [
+    {{key:'PRE', label:'⚡ Pre-Seed / Day-0', color:'#6d28d9', match:function(r){{ return !!r.is_pre_seed; }}}},
+    {{key:'BANK_LP', label:'🏦 Bank-LP Bullseye', color:'#065f46', match:function(r){{ return !!r.is_bank_lp_bullseye; }}}},
+    {{key:'S', label:'🟢 Tier S · Seed Lead', color:'#15803d', match:function(r){{ return r.tier === 'S'; }}}},
+    {{key:'A', label:'🔵 Tier A · Warm / CVC', color:'#1d4ed8', match:function(r){{ return r.tier === 'A'; }}}},
+    {{key:'B', label:'⏳ Tier B · Hold ($1M)', color:'#b45309', match:function(r){{ return r.tier === 'B'; }}}}
+  ];
+  var regDefs = [
+    {{key:'US', label:'🇺🇸 United States (US)', color:'#1d4ed8'}},
+    {{key:'UK', label:'🇬🇧 United Kingdom (UK)', color:'#0f766e'}},
+    {{key:'EU', label:'🇪🇺 Europe (EU)', color:'#4f46e5'}},
+    {{key:'IL / US', label:'🇮🇱/🇺🇸 Israel / US (IL-US)', color:'#b45309'}}
+  ];
+  var segStats = {{}};
+  segDefs.forEach(function(d){{ segStats[d.key] = {{tot:0, sent:0, open:0, deck:0}}; }});
+  var regStats = {{}};
+  regDefs.forEach(function(d){{ regStats[d.key] = {{tot:0, sent:0, open:0, deck:0}}; }});
+
+  INVESTORS.forEach(function(r){{
+    var isSent = (r.sent_count || 0) > 0;
+    var isOpen = (r.unique_opens || 0) > 0 || (r.total_opens || 0) > 0;
+    var isDeck = (r.deck_opens || 0) > 0 || (r.forward_count || 0) > 0 || (isOpen && r.include_pitch_deck);
+    var st = String(r.latest_status || '').toLowerCase();
+    var isRep = st.indexOf('replied') >= 0 || st.indexOf('meeting') >= 0 || st.indexOf('talking') >= 0;
+    if(isSent) sentCnt++;
+    if(isOpen){{ openVcs++; openSum += (r.total_opens || 1); }}
+    if(isDeck){{ deckVcs++; fwdSum += (r.forward_count || 0); }}
+    if(isRep) repliedCnt++;
+
+    segDefs.forEach(function(d){{
+      if(d.match(r)){{
+        segStats[d.key].tot++;
+        if(isSent) segStats[d.key].sent++;
+        if(isOpen) segStats[d.key].open++;
+        if(isDeck) segStats[d.key].deck++;
+      }}
+    }});
+    var rk = r.region || 'US';
+    if(!regStats[rk]) rk = 'US';
+    regStats[rk].tot++;
+    if(isSent) regStats[rk].sent++;
+    if(isOpen) regStats[rk].open++;
+    if(isDeck) regStats[rk].deck++;
+  }});
+
+  function _barRow(lbl, valTxt, pct, col, onClickJs){{
+    var w = Math.max(4, Math.min(100, Math.round(pct)));
+    return '<div class="sig-row" onclick="' + onClickJs + '">' +
+      '<div style="font-weight:700;color:var(--ink)">' + lbl + '</div>' +
+      '<div class="sig-bar-bg"><div class="sig-bar-fill" style="width:' + w + '%;background:' + col + '"></div></div>' +
+      '<div style="font-family:ui-monospace,monospace;font-size:11px;font-weight:700;color:var(--ink2);text-align:right">' + valTxt + '</div>' +
+    '</div>';
+  }}
+
+  var card1 = '<div class="dash-card">' +
+    '<h3><span>🔥 Investor Intent &amp; Outbound Funnel</span><span style="color:#1d4ed8">' + sentCnt + ' / ' + totalVcs + ' Sent</span></h3>' +
+    _barRow('👁️ Partner Opens (Intent)', openVcs + ' VCs (' + openSum + ' opens)', (openVcs / Math.max(1, sentCnt)) * 100, '#b45309', "switchInvMainTab('board');FILTERS.reach='opened';renderRows()") +
+    _barRow('🎬 Deck / Video Views', deckVcs + ' VCs (' + fwdSum + ' fwds)', (deckVcs / Math.max(1, sentCnt)) * 100, '#be123c', "switchInvMainTab(&quot;charts&quot;);setInvChartMode(&quot;weekly_tier&quot;)") +
+    _barRow('📤 Contacted / Sent', sentCnt + ' of ' + totalVcs + ' VCs', (sentCnt / totalVcs) * 100, '#1d4ed8', "switchInvMainTab('board');FILTERS.reach='sent';renderRows()") +
+    _barRow('💬 Replied / Active Threads', repliedCnt + ' VCs', (repliedCnt / Math.max(1, sentCnt)) * 100, '#15803d', "switchInvMainTab('board');resetInvFilters()") +
+  '</div>';
+
+  var segRowsHtml = segDefs.map(function(d){{
+    var st = segStats[d.key];
+    var pct = (st.open + st.deck) > 0 ? ((st.open / Math.max(1, st.tot)) * 100) : ((st.tot / totalVcs) * 100);
+    var txt = '👁️ ' + st.open + ' Open · 🎬 ' + st.deck + ' Deck · 📤 ' + st.sent + '/' + st.tot;
+    return _barRow(d.label, txt, pct, d.color, "switchInvMainTab('board');setQuickPreset('" + d.key + "')");
+  }}).join('');
+  var card2 = '<div class="dash-card">' +
+    '<h3><span>📊 Intent by Stage &amp; Segment (Opens · Deck/Video)</span><span style="color:#6d28d9;cursor:pointer" onclick="switchInvMainTab(&quot;charts&quot;);setInvChartMode(&quot;weekly_tier&quot;)">Charts &rarr;</span></h3>' +
+    segRowsHtml +
+  '</div>';
+
+  var regRowsHtml = regDefs.map(function(d){{
+    var st = regStats[d.key];
+    var pct = (st.open + st.deck) > 0 ? ((st.open / Math.max(1, st.tot)) * 100) : ((st.tot / totalVcs) * 100);
+    var txt = '👁️ ' + st.open + ' Open · 🎬 ' + st.deck + ' Deck · 📤 ' + st.sent + '/' + st.tot;
+    return _barRow(d.label, txt, pct, d.color, "switchInvMainTab('board');FILTERS.region='" + d.key + "';renderRows()");
+  }}).join('');
+  var card3 = '<div class="dash-card">' +
+    '<h3><span>🌍 Intent by Region (US · UK · EU · IL-US)</span><span style="color:#0f766e;cursor:pointer" onclick="switchInvMainTab(&quot;charts&quot;);setInvChartMode(&quot;weekly_region&quot;)">Charts &rarr;</span></h3>' +
+    regRowsHtml +
+  '</div>';
+
+  box.innerHTML = card1 + card2 + card3;
 }}
 
 function renderRows(){{
@@ -1908,10 +2046,6 @@ function openGeminiModal(r){{
     }}
   }});
 }}
-      memoEl.textContent = d.memo;
-    }}
-  }});
-}}
 
 function closeModal(){{
   document.getElementById('gemini-modal').style.display = 'none';
@@ -1942,6 +2076,7 @@ function sweepGmailTracker(){{
   }});
 }}
 
+drawInvVisualDashboard();
 renderRows();
 (function(){{
   var qs = window.location.search || '';

@@ -104,6 +104,7 @@ def deploy():
             "--project", PROJECT,
             "--platform", "managed",
             "--allow-unauthenticated",
+            "--cpu-boost",
             "--service-account", SA_EMAIL,
             "--memory", "512Mi",
             "--cpu", "1",
