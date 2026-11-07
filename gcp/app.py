@@ -394,7 +394,7 @@ def render_board_html() -> str:
     tel_json = json.dumps(tel_rep, ensure_ascii=False).replace("</", "<\\/")
     leo_grant = next((g for g in access.load_grants() if "leo" in (g.get("id") or "").lower() or "leo" in (g.get("name") or "").lower()), None)
     leo_tok = (leo_grant or {}).get("token", "L9kPqR7sTuVwXyZ0123456789AbCdEfG")
-    leo_url = f"https://dokimo-investors-aigeqnv5nq-uc.a.run.app/?token={leo_tok}"
+    leo_url = f"https://vc-aigeqnv5nq-uc.a.run.app/?token={leo_tok}"
     leo_gmail = (
         "https://mail.google.com/mail/?view=cm&fs=1&su="
         + urllib.parse.quote("1-Click Access: Dokimo Investor Watch & Stage-Gated VC Fit Board")
@@ -1488,11 +1488,11 @@ function openGeminiModal(r){{
   function buildModalSections(scoreTxt, valPropTxt, leoEmailTxt, warrenEmailTxt, memoTxt){{
     body.replaceChildren();
 
-    var baseDeckUrl = 'https://dokimo-investors-aigeqnv5nq-uc.a.run.app/deck?inv=' + encodeURIComponent(r.id);
-    var basePdfUrl = 'https://dokimo-investors-aigeqnv5nq-uc.a.run.app/deck/pdf?inv=' + encodeURIComponent(r.id);
-    var baseVideoUrl = 'https://dokimo-investors-aigeqnv5nq-uc.a.run.app/deck?inv=' + encodeURIComponent(r.id) + '#video';
+    var baseDeckUrl = 'https://vc-aigeqnv5nq-uc.a.run.app/d/' + encodeURIComponent(r.id);
+    var basePdfUrl = 'https://vc-aigeqnv5nq-uc.a.run.app/deck/pdf?inv=' + encodeURIComponent(r.id);
+    var baseVideoUrl = 'https://vc-aigeqnv5nq-uc.a.run.app/d/' + encodeURIComponent(r.id) + '#video';
     var baseCalUrl = 'https://calendar.app.google/JbnbVWry32nwqBiY6';
-    var pixelUrl = 'https://dokimo-investors-aigeqnv5nq-uc.a.run.app/t/o/' + encodeURIComponent(r.id) + '.gif';
+    var pixelUrl = 'https://vc-aigeqnv5nq-uc.a.run.app/t/o/' + encodeURIComponent(r.id) + '.gif';
 
     // SECTION 1 (TOP OF MODAL): 🎬 Executive Pitch Video + 📊 Option to Send Investor Pitch Deck
     var deckToggleBar = makeEl('div', {{style:'padding:14px 16px;background:#f0fdf4;border:2px solid #15803d;border-left:6px solid #15803d;border-radius:6px'}});
@@ -2525,8 +2525,8 @@ class Handler(BaseHTTPRequestHandler):
             self.send_html("video not found", 404)
             return
 
-        if path == "/deck":
-            inv_id = (qs.get("inv") or [""])[0].strip()
+        if path == "/deck" or path.startswith("/d/"):
+            inv_id = path.split("/d/", 1)[1].strip("/") if path.startswith("/d/") else (qs.get("inv") or [""])[0].strip()
             inv_row = {}
             if inv_id:
                 try:
@@ -2875,7 +2875,7 @@ body{{margin:0;background:#0f172a;color:#f8fafc;font:15px/1.55 -apple-system,Bli
             name = str(payload.get("name") or "Leo Spiegel").strip()
             grant = access.add_grant(email, name)
             push_to_gcs(["config/access.json"])
-            url = f"https://dokimo-investors-aigeqnv5nq-uc.a.run.app/?token={grant['token']}"
+            url = f"https://vc-aigeqnv5nq-uc.a.run.app/?token={grant['token']}"
             emailed = False
             try:
                 subj = "1-Click Access: Dokimo Investor Watch & Stage-Gated VC Fit Board"

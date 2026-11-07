@@ -170,7 +170,7 @@ def research_investor_with_gemini(inv_id: str, custom_focus: str = "") -> dict:
             f"INVESTOR: {inv['person']} ({inv['title']}) at {inv['fund']}\n"
             f"PORTFOLIO & THESIS: {inv['portfolio']} | {inv['why_fit']}\n"
             f"PRIOR INTERACTION / SIGNAL: {inv.get('comment', '')}\n"
-            f"INCLUDE PITCH DECK LINK (https://dokimo-investors-aigeqnv5nq-uc.a.run.app/deck?inv={inv['id']}): {'YES' if inv.get('include_pitch_deck') else 'NO'}\n\n"
+            f"INCLUDE PITCH DECK LINK (https://vc-aigeqnv5nq-uc.a.run.app/d/{inv['id']}): {'YES' if inv.get('include_pitch_deck') else 'NO'}\n\n"
             "Return strict JSON with keys: {\"leo_email\": \"Subject: ...\\n\\nHi ...\", \"warren_subject\": \"...\", \"warren_body\": \"Hi ...\"}."
         )
         raw_em = call_gemini(em_prompt, max_tokens=1500)

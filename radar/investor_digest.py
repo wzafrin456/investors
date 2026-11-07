@@ -20,7 +20,7 @@ import urllib.request
 from . import access, investor_engine
 
 PUBLIC_URL = os.environ.get(
-    "INVESTORS_BOARD_URL", "https://dokimo-investors-aigeqnv5nq-uc.a.run.app"
+    "INVESTORS_BOARD_URL", "https://vc-aigeqnv5nq-uc.a.run.app"
 ).rstrip("/")
 
 

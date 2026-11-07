@@ -1,6 +1,6 @@
-# Dokimo.ai — Investor Watch & Stage-Gated VC Fit Board (`dokimo-investors`)
+# Dokimo.ai — Investor Watch & Stage-Gated VC Fit Board (`vc`)
 
-Live Cloud Run URL: **`https://dokimo-investors-aigeqnv5nq-uc.a.run.app`**
+Live Short Cloud Run URL: **`https://vc-aigeqnv5nq-uc.a.run.app`** *(legacy alias: `https://dokimo-investors-aigeqnv5nq-uc.a.run.app`)*
 
 ---
 
@@ -13,7 +13,7 @@ Live Cloud Run URL: **`https://dokimo-investors-aigeqnv5nq-uc.a.run.app`**
   - Click **`Continue with Google Gmail — warren@dokimo.ai`** or **`Continue with Google Gmail — leo@dokimo.ai`** on `/login`.
   - Sets a **365-day (`SESSION_TTL = 86400 * 365`) persistent `HttpOnly; Secure` session cookie** so you never have to re-enter or manage tokens.
 - **Leo's Personal Laptop / Email Direct Access**:
-  - One-click bookmark link: `https://dokimo-investors-aigeqnv5nq-uc.a.run.app/?t=leo2026`
+  - One-click bookmark link: `https://vc-aigeqnv5nq-uc.a.run.app/?t=leo` *(or `?t=leo2026`)*
   - Or enter short code `leo2026` (or `l9kpqr7stuvwxyz0123456789abcdefg`) on `/login`.
 
 ---

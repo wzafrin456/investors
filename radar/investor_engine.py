@@ -1290,10 +1290,11 @@ def _build_outreach_copy(row: dict) -> dict:
     inc_deck = bool(row.get("include_pitch_deck", True))
 
     inv_id = row.get("id") or "INV-001"
-    base_url = (os.environ.get("INVESTOR_DECK_URL") or "https://dokimo-investors-aigeqnv5nq-uc.a.run.app/deck").split("?")[0].rstrip("/")
-    deck_url = f"{base_url}?inv={inv_id}"
+    base_url = (os.environ.get("INVESTOR_DECK_URL") or "https://vc-aigeqnv5nq-uc.a.run.app/deck").split("?")[0].rstrip("/")
+    host_url = base_url.rsplit("/deck", 1)[0] if base_url.endswith("/deck") else base_url
+    deck_url = f"{host_url}/d/{inv_id}"
     pdf_url = f"{base_url}/pdf?inv={inv_id}"
-    video_url = f"{base_url}?inv={inv_id}#video"
+    video_url = f"{host_url}/d/{inv_id}#video"
 
     tl_low = f"{title} {category} {fund}".lower()
     comment_low = f"{comment} {fup_note}".lower()
