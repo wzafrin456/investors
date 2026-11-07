@@ -584,3 +584,245 @@ def create_investor_gmail_draft(
 def send_investor_email_with_telemetry(*args, **kwargs) -> dict:
     """Direct API sending is disabled on the Investor Board — creates an unsent Gmail Draft instead."""
     return create_investor_gmail_draft(*args, **kwargs)
+
+
+def sync_investor_gmail_activity() -> dict:
+    """Sweep Gmail (in:sent, in:inbox, and in:drafts) across all 113 target VC domains & emails,
+    and reconcile output/investor_state.json + data/investors.csv so the Investor Board tracker
+    and Duplicate Email Guard reflect 100% of real outbound emails, CCs, replies, and drafts.
+    """
+    tok = _gmail_access_token()
+    rows = investor_engine.get_all_investors(persist_csv=False)
+    state = investor_engine.load_state()
+
+    email_to_inv = {}
+    domain_to_invs = {}
+    for r in rows:
+        em = (r.get("email") or "").strip().lower()
+        if em and "@" in em:
+            email_to_inv[em] = r
+            dom = em.split("@", 1)[1]
+            if dom not in ("gmail.com", "yahoo.com", "hotmail.com", "outlook.com", "icloud.com"):
+                domain_to_invs.setdefault(dom, []).append(r)
+
+    all_domains = list(domain_to_invs.keys())
+    found_by_inv = {}
+    seen_msg_ids = set()
+
+    for i in range(0, len(all_domains), 15):
+        batch = all_domains[i : i + 15]
+        q_str = " OR ".join([f"to:{d} OR from:{d} OR cc:{d}" for d in batch])
+        url = (
+            "https://gmail.googleapis.com/gmail/v1/users/me/messages?q="
+            + urllib.parse.quote(q_str)
+            + "&maxResults=100"
+        )
+        try:
+            req = urllib.request.Request(url, headers={"Authorization": "Bearer " + tok})
+            with urllib.request.urlopen(req, timeout=20) as resp:
+                listing = json.loads(resp.read().decode("utf-8"))
+        except Exception:
+            continue
+
+        for m in listing.get("messages") or []:
+            mid = m.get("id", "")
+            if not mid or mid in seen_msg_ids:
+                continue
+            seen_msg_ids.add(mid)
+            u_m = (
+                f"https://gmail.googleapis.com/gmail/v1/users/me/messages/{mid}"
+                "?format=metadata&metadataHeaders=To&metadataHeaders=Cc&metadataHeaders=From&metadataHeaders=Subject&metadataHeaders=Date"
+            )
+            try:
+                req_m = urllib.request.Request(u_m, headers={"Authorization": "Bearer " + tok})
+                with urllib.request.urlopen(req_m, timeout=12) as rm:
+                    det = json.loads(rm.read().decode("utf-8"))
+            except Exception:
+                continue
+            lbls = det.get("labelIds") or []
+            if "TRASH" in lbls or "SPAM" in lbls:
+                continue
+            hdrs = {h["name"].lower(): h["value"] for h in det.get("payload", {}).get("headers", [])}
+            to_h = hdrs.get("to", "")
+            cc_h = hdrs.get("cc", "")
+            from_h = hdrs.get("from", "")
+            subj_h = hdrs.get("subject", "")
+            date_h = hdrs.get("date", "")
+            snip = html.unescape(det.get("snippet", ""))
+            internal_ms = int(det.get("internalDate") or 0)
+            epoch_sec = int(internal_ms / 1000) if internal_ms > 0 else int(datetime.datetime.now(datetime.timezone.utc).timestamp())
+
+            blob_emails = [
+                e.lower().rstrip(".")
+                for e in re.findall(r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+", f"{to_h} {cc_h} {from_h}")
+            ]
+            matched_invs = set()
+            for em in blob_emails:
+                if em in email_to_inv:
+                    matched_invs.add(email_to_inv[em]["id"])
+                elif "@" in em:
+                    dom = em.split("@", 1)[1]
+                    if dom in domain_to_invs and len(domain_to_invs[dom]) == 1:
+                        matched_invs.add(domain_to_invs[dom][0]["id"])
+            for iid in matched_invs:
+                found_by_inv.setdefault(iid, []).append({
+                    "id": mid,
+                    "threadId": det.get("threadId", ""),
+                    "labels": lbls,
+                    "from": from_h,
+                    "to": to_h,
+                    "cc": cc_h,
+                    "subject": subj_h,
+                    "date": date_h,
+                    "epoch": epoch_sec,
+                    "snippet": snip[:220],
+                })
+
+    updated_sent = []
+    updated_replies = []
+    updated_drafts = []
+
+    for r in rows:
+        iid = r["id"]
+        msgs = found_by_inv.get(iid) or []
+        if not msgs:
+            continue
+        msgs.sort(key=lambda x: x["epoch"])
+
+        sent_msgs = [
+            x for x in msgs
+            if "DRAFT" not in x["labels"]
+            and (
+                "SENT" in x["labels"]
+                or "warren@dokimo.ai" in x["from"].lower()
+                or "leo@dokimo.ai" in x["from"].lower()
+                or "leo@s22t.vc" in x["from"].lower()
+            )
+        ]
+        draft_msgs = [x for x in msgs if "DRAFT" in x["labels"]]
+        inbound_msgs = [
+            x for x in msgs
+            if x not in sent_msgs and x not in draft_msgs
+            and not any(k in (x["subject"] + " " + x["snippet"]).lower() for k in ("automatic reply", "out of office", "out of the office", "auto-reply", "delivery status notification", "undeliverable"))
+        ]
+
+        cur = dict(state.get(iid) or {})
+        existing_events = list(cur.get("events") or [])
+        non_sent_events = [ev for ev in existing_events if ev.get("type") != "sent"]
+
+        if sent_msgs:
+            rebuilt_sent_events = []
+            deck_cnt = 0
+            for sm in sent_msgs:
+                dt_utc = datetime.datetime.fromtimestamp(sm["epoch"], tz=datetime.timezone.utc)
+                ts_str = dt_utc.strftime("%Y-%m-%d %H:%M UTC")
+                wk_key, wk_label = investor_engine._iso_week_key(dt_utc)
+                from_lc = sm["from"].lower()
+                is_leo = "leo@" in from_lc or "spiegel" in from_lc
+                snd_name = "Leo Spiegel" if is_leo else "Warren Zafrin"
+                snd_email = "leo@dokimo.ai" if is_leo else "warren@dokimo.ai"
+                cc_default = "warren@dokimo.ai" if is_leo else "leo@dokimo.ai"
+                cc_name_default = "Warren Zafrin" if is_leo else "Leo Spiegel"
+                has_deck = any(k in (sm["subject"] + " " + sm["snippet"]).lower() for k in ("deck", "tear-sheet", "walkthrough", "overview", "slides"))
+                if has_deck:
+                    deck_cnt += 1
+                rebuilt_sent_events.append({
+                    "ts": ts_str,
+                    "epoch": sm["epoch"],
+                    "week": wk_key,
+                    "week_label": wk_label,
+                    "type": "sent",
+                    "sender": snd_name,
+                    "sender_email": snd_email,
+                    "cc_name": cc_name_default,
+                    "cc_email": cc_default,
+                    "to_email": r.get("email") or "",
+                    "subject": sm["subject"],
+                    "deck_attached": has_deck,
+                    "msg_id": sm["id"],
+                })
+
+            last_ev = rebuilt_sent_events[-1]
+            cur["sent_count"] = len(rebuilt_sent_events)
+            cur["sent_at"] = last_ev["ts"]
+            cur["sent_epoch"] = last_ev["epoch"]
+            cur["sent_by"] = last_ev["sender"]
+            cur["sender_email"] = last_ev["sender_email"]
+            cur["cc_name"] = last_ev["cc_name"]
+            cur["cc_email"] = last_ev["cc_email"]
+            cur["to_email"] = r.get("email") or ""
+            if deck_cnt > 0:
+                cur["include_pitch_deck"] = True
+                cur["deck_attached_count"] = deck_cnt
+            cur["events"] = (rebuilt_sent_events + non_sent_events)[-200:]
+
+            cur_status_lc = (cur.get("latest_status") or r.get("latest_status") or "").lower()
+            protected_statuses = ("meeting", "passed", "hold", "declined", "committed", "term sheet")
+            if not any(p in cur_status_lc for p in protected_statuses):
+                if inbound_msgs:
+                    cur["latest_status"] = "Replied / In Conversation"
+                elif deck_cnt > 0:
+                    cur["latest_status"] = "Deck / Data Room Sent"
+                else:
+                    cur["latest_status"] = "Intro Sent"
+
+            updated_sent.append({
+                "id": iid,
+                "fund": r.get("fund"),
+                "person": r.get("person"),
+                "email": r.get("email"),
+                "sent_count": len(rebuilt_sent_events),
+                "sent_by": last_ev["sender"],
+                "sent_at": last_ev["ts"],
+                "latest_status": cur.get("latest_status"),
+            })
+
+        if inbound_msgs:
+            last_rep = inbound_msgs[-1]
+            dt_rep = datetime.datetime.fromtimestamp(last_rep["epoch"], tz=datetime.timezone.utc)
+            rep_ts = dt_rep.strftime("%Y-%m-%d %H:%M UTC")
+            cur["replied"] = True
+            cur["reply_count"] = len(inbound_msgs)
+            cur["last_reply_at"] = rep_ts
+            cur["last_reply_snippet"] = last_rep["snippet"][:180]
+            updated_replies.append({
+                "id": iid,
+                "fund": r.get("fund"),
+                "person": r.get("person"),
+                "email": r.get("email"),
+                "reply_count": len(inbound_msgs),
+                "last_reply_at": rep_ts,
+                "snippet": last_rep["snippet"][:140],
+            })
+
+        if draft_msgs and not sent_msgs:
+            cur["draft_saved"] = True
+            cur["draft_id"] = draft_msgs[-1]["id"]
+            updated_drafts.append({"id": iid, "fund": r.get("fund"), "email": r.get("email")})
+
+        state[iid] = cur
+
+    state["_last_gmail_sweep"] = {
+        "swept_at": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
+        "total_investors_checked": len(rows),
+        "investors_with_sent_emails": len(updated_sent),
+        "investors_with_replies": len(updated_replies),
+        "investors_with_unsent_drafts": len(updated_drafts),
+    }
+    investor_engine.save_state(state)
+    updated_rows = investor_engine.get_all_investors(persist_csv=True)
+    metrics = investor_engine.build_summary_metrics(updated_rows)
+
+    return {
+        "ok": True,
+        "swept_at": state["_last_gmail_sweep"]["swept_at"],
+        "total_investors": len(rows),
+        "sent_reconciled_count": len(updated_sent),
+        "sent_reconciled_rate": f"{len(updated_sent)} of {len(rows)} ({round(len(updated_sent) / max(1, len(rows)) * 100, 1)}%)",
+        "replies_reconciled_count": len(updated_replies),
+        "replies_reconciled_rate": f"{len(updated_replies)} of {max(1, len(updated_sent))} ({round(len(updated_replies) / max(1, len(updated_sent)) * 100, 1)}%)",
+        "drafts_only_count": len(updated_drafts),
+        "metrics": metrics,
+        "updated_sent": updated_sent,
+        "updated_replies": updated_replies,
+    }

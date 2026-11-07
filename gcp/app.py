@@ -430,20 +430,21 @@ def render_board_html() -> str:
   </div>
   <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
     <button id="btn-sweep-gmail" class="btn-sm" onclick="sweepGmailTracker()" style="background:#1e40af;border-color:#1e40af;color:#fff;font-weight:700">🔄 Sweep Gmail &amp; Update Tracker</button>
+    <button class="btn-sm" onclick="var td=document.getElementById('inv-telemetry-drawer');td.style.display=td.style.display==='none'?'grid':'none';" style="background:#f8fafc;border-color:#cbd5e1;color:#0f172a;font-weight:700">📊 Outreach Telemetry &darr;</button>
     <a class="btn-sm" href="https://mail.google.com/mail/u/0/#drafts" target="_blank" rel="noopener" style="background:#fff;border-color:#15803d;color:#15803d;font-weight:700">📬 Open Gmail Drafts ↗</a>
   </div>
 </div>
 
 <div class="status">
-  <div><div class="k">Right VCs</div><div class="v">{m['total_investors']} <small>100% verified email + phone</small></div></div>
-  <div><div class="k">⚡ Pre-Seed / Day-0</div><div class="v" style="color:#6d28d9">{m['pre_seed_count']} <small>({html.escape(m['pre_seed_rate'].split('(')[1].rstrip(')'))})</small></div></div>
-  <div><div class="k">🟢 Tier S · Seed</div><div class="v" style="color:var(--quiet)">{m['tier_s_count']} <small>({html.escape(m['tier_s_rate'].split('(')[1].rstrip(')'))})</small></div></div>
-  <div><div class="k">🔵 Tier A · Warm / CVC</div><div class="v" style="color:var(--accent)">{m['tier_a_count']} <small>({html.escape(m['tier_a_rate'].split('(')[1].rstrip(')'))})</small></div></div>
-  <div><div class="k">⏳ Tier B · Hold ($1M ARR)</div><div class="v" style="color:var(--warning)">{m['tier_b_count']} <small>({html.escape(m['tier_b_rate'].split('(')[1].rstrip(')'))})</small></div></div>
-  <div><div class="k">📧 Sep/Oct Outreach</div><div class="v" style="color:#1e40af">{m['leo_sep_oct_count']} <small>tracked</small></div></div>
+  <div style="cursor:pointer" onclick="resetInvFilters()" title="Click to show all {m['total_investors']} Right VCs"><div class="k">🎯 Right VCs</div><div class="v">{m['total_investors']} <small>100% email + LI</small></div></div>
+  <div style="cursor:pointer" onclick="setQuickPreset('PRE')" title="Click to filter to Pre-Seed / Day-0 Check-Writers"><div class="k">⚡ Pre-Seed / Day-0</div><div class="v" style="color:#6d28d9">{m['pre_seed_count']} <small>({html.escape(m['pre_seed_rate'].split('(')[1].rstrip(')'))})</small></div></div>
+  <div style="cursor:pointer" onclick="setQuickPreset('BANK_LP')" title="Click to filter to Bank-LP &amp; RegTech Bullseye VCs"><div class="k">🏦 Bank-LP Bullseye</div><div class="v" style="color:#065f46">{m['bank_lp_bullseye_count']} <small>({html.escape(m['bank_lp_bullseye_rate'].split('(')[1].rstrip(')'))})</small></div></div>
+  <div style="cursor:pointer" onclick="setQuickPreset('S')" title="Click to filter to Tier S Institutional Seed Leads"><div class="k">🟢 Tier S · Seed</div><div class="v" style="color:var(--quiet)">{m['tier_s_count']} <small>({html.escape(m['tier_s_rate'].split('(')[1].rstrip(')'))})</small></div></div>
+  <div style="cursor:pointer" onclick="setQuickPreset('A')" title="Click to filter to Tier A Warm Intro &amp; Bank CVCs"><div class="k">🔵 Tier A · Warm / CVC</div><div class="v" style="color:var(--accent)">{m['tier_a_count']} <small>({html.escape(m['tier_a_rate'].split('(')[1].rstrip(')'))})</small></div></div>
+  <div style="cursor:pointer" onclick="var td=document.getElementById('inv-telemetry-drawer');td.style.display=td.style.display==='none'?'grid':'none';" title="Click to expand live outreach &amp; open telemetry"><div class="k">📨 Sent / 👁️ Opens</div><div class="v" style="color:#1d4ed8">{m['sent_funds_count']} sent · {m['unique_open_funds_count']} open <small>({m['total_opens_sum']} views)</small></div></div>
 </div>
 
-<div class="status" style="margin-top:8px;background:#f8fafc;border-color:#cbd5e1">
+<div id="inv-telemetry-drawer" class="status" style="display:none;margin-top:8px;background:#f8fafc;border-color:#cbd5e1">
   <div><div class="k">📨 Funds Contacted / Sent</div><div class="v" style="color:#0f172a">{html.escape(m['sent_funds_rate'])} <small>(W:{m['warren_sent_count']} · L:{m['leo_sent_count']})</small></div></div>
   <div><div class="k">👁️ Unique Partner Opens</div><div class="v" style="color:#1d4ed8">{html.escape(m['unique_open_rate'])} <small>({m['total_opens_sum']} total opens)</small></div></div>
   <div><div class="k">🎬 Deck + Video Included</div><div class="v" style="color:#15803d">{html.escape(m['deck_attached_sent_rate'])} <small>({m['deck_optin_count']} opted-in)</small></div></div>
@@ -474,50 +475,60 @@ def render_board_html() -> str:
 </div>
 
 <div id="view-inv-board">
+<!-- Single Clean Investor Filter Bar -->
 <div class="controls-wrap">
-  <div class="controls">
-    <span class="lbl">Stage</span>
-    <button class="f on" data-ftier="all" onclick="setFilter('tier','all',this)">All ({m['total_investors']})</button>
-    <button class="f" style="border-color:#6d28d9;color:#6d28d9;font-weight:700" data-ftier="PRE" onclick="setFilter('tier','PRE',this)">⚡ Pre-Seed ({m['pre_seed_count']})</button>
-    <button class="f" data-ftier="S" onclick="setFilter('tier','S',this)">🟢 Tier S ({m['tier_s_count']})</button>
-    <button class="f" data-ftier="A" onclick="setFilter('tier','A',this)">🔵 Tier A ({m['tier_a_count']})</button>
-    <button class="f" data-ftier="B" onclick="setFilter('tier','B',this)">⏳ Tier B ({m['tier_b_count']})</button>
-    <span class="lbl" style="margin-left:10px">Owner</span>
-    <button class="f on" onclick="setFilter('owner','all',this)">All</button>
-    <button class="f" onclick="setFilter('owner','warren',this)">Warren ({m['warren_contact_count']})</button>
-    <button class="f" onclick="setFilter('owner','leo',this)">Leo ({m['leo_contact_count']})</button>
-    <button class="f" onclick="setFilter('owner','team',this)">Team</button>
+  <div class="controls" style="justify-content:space-between;gap:8px;margin:0;flex-wrap:wrap">
+    <div style="display:flex;gap:6px;align-items:center;flex:1;min-width:260px">
+      <input id="q-search" class="search" style="flex:1;min-width:220px" placeholder="Search fund, partner, portfolio, Bank LP, or ask Gemini..." oninput="onSearchInput()" onkeydown="if(event.key==='Enter'){{event.preventDefault();runGeminiSearch();}}">
+      <button id="btn-gemini-search" class="btn-sm" style="background:#6d28d9;color:#fff;border-color:#6d28d9;font-weight:700;padding:6px 11px" onclick="runGeminiSearch()">✨ Ask Gemini AI</button>
+      <button id="btn-gemini-clear" class="btn-sm" style="display:none;color:#b91c1c;border-color:#fca5a5" onclick="clearGeminiSearch()">✕ Clear</button>
+    </div>
+    <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
+      <span class="lbl">Owner</span>
+      <button class="f on" data-fowner="all" onclick="setFilter('owner','all',this)">All</button>
+      <button class="f" data-fowner="warren" onclick="setFilter('owner','warren',this)">👤 Warren ({m['warren_contact_count']})</button>
+      <button class="f" data-fowner="leo" onclick="setFilter('owner','leo',this)">👤 Leo ({m['leo_contact_count']})</button>
+    </div>
+    <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap">
+      <button id="preset-preseed-btn" class="f" style="background:#f3e8ff;border-color:#c084fc;color:#6d28d9;font-weight:800" data-ftier="PRE" onclick="setQuickPreset('PRE')">⚡ Pre-Seed / Day-0 ({m['pre_seed_count']})</button>
+      <button id="preset-banklp-btn" class="f" style="background:#ecfdf5;border-color:#6ee7b7;color:#065f46;font-weight:800" data-ftier="BANK_LP" onclick="setQuickPreset('BANK_LP')">🏦 Bank-LP &amp; RegTech Bullseye ({m['bank_lp_bullseye_count']})</button>
+      <button id="preset-tiers-btn" class="f" data-ftier="S" onclick="setQuickPreset('S')">🟢 Tier S Seed ({m['tier_s_count']})</button>
+      <button id="preset-tiera-btn" class="f" data-ftier="A" onclick="setQuickPreset('A')">🔵 Tier A Warm / CVC ({m['tier_a_count']})</button>
+      <button class="f" onclick="resetInvFilters()">Reset</button>
+      <button class="f" style="background:#f8fafc;font-weight:700" onclick="var mf=document.getElementById('inv-more-filters');mf.style.display=mf.style.display==='none'?'block':'none';">⚙️ Filters &amp; KPIs &darr;</button>
+    </div>
   </div>
-  <div class="controls" style="margin-top:6px">
-    <span class="lbl">KPI Filter</span>
-    <button class="f on" onclick="setFilter('reach','all',this)">All ({m['total_investors']})</button>
-    <button class="f" onclick="setFilter('reach','sent',this)">📨 Sent ({m['sent_funds_count']})</button>
-    <button class="f" onclick="setFilter('reach','opened',this)">👁️ Opened ({m['unique_open_funds_count']})</button>
-    <button class="f" onclick="setFilter('reach','deck',this)">🎬 Deck: YES ({m['deck_optin_count']})</button>
-    <button class="f" onclick="setFilter('reach','forwarded',this)">🔁 Forwarded ({m['forwarded_funds_count']})</button>
-    <button class="f" onclick="setFilter('reach','meeting',this)">📅 Meeting / Talking ({m['meeting_talking_count']})</button>
-    <button class="f" onclick="setFilter('reach','followup',this)">📝 Notes Updated ({m['notes_updated_count']})</button>
-  </div>
-  <div class="controls" style="flex-wrap:wrap;gap:6px;margin-top:6px">
-    <span class="lbl">Search / AI</span>
-    <input id="q-search" class="search" style="min-width:320px" placeholder="Search fund, partner, portfolio, or press Enter to ask Gemini AI..." oninput="onSearchInput()" onkeydown="if(event.key==='Enter'){{event.preventDefault();runGeminiSearch();}}">
-    <button id="btn-gemini-search" class="btn-sm" style="background:#6d28d9;color:#fff;border-color:#6d28d9;font-weight:700;padding:5px 11px" onclick="runGeminiSearch()">✨ Ask Gemini AI</button>
-    <button id="btn-gemini-clear" class="btn-sm" style="display:none;color:#b91c1c;border-color:#fca5a5" onclick="clearGeminiSearch()">✕ Clear</button>
-    <button class="f" onclick="var mf=document.getElementById('inv-more-filters');mf.style.display=mf.style.display==='none'?'block':'none';">⚙️ More Filters &darr;</button>
-    <span id="shown-count" style="font-family:ui-monospace,monospace;font-size:12px;color:var(--ink2);font-weight:600;margin-left:4px"></span>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;flex-wrap:wrap;gap:6px">
+    <span id="shown-count" style="font-family:ui-monospace,monospace;font-size:12px;color:var(--ink2);font-weight:600"></span>
+    <span style="font-size:11px;color:var(--ink3)">💡 Click any partner's <b>[LI ↗]</b>, email, or phone to connect directly, or click <b>✨ Review &amp; Send Email Draft</b> for 1-click Gmail draft + PDF Tear-Sheet</span>
   </div>
   <div id="inv-more-filters" style="display:none;border-top:1px dashed var(--rule2);margin-top:8px;padding-top:8px">
     <div class="controls">
-      <span class="lbl">Region</span>
+      <span class="lbl">Stage / Tier</span>
+      <button class="f on" data-ftier="all" onclick="setFilter('tier','all',this)">All ({m['total_investors']})</button>
+      <button class="f" data-ftier="PRE" onclick="setFilter('tier','PRE',this)">⚡ Pre-Seed ({m['pre_seed_count']})</button>
+      <button class="f" data-ftier="BANK_LP" onclick="setFilter('tier','BANK_LP',this)">🏦 Bank-LP Bullseye ({m['bank_lp_bullseye_count']})</button>
+      <button class="f" data-ftier="S" onclick="setFilter('tier','S',this)">🟢 Tier S ({m['tier_s_count']})</button>
+      <button class="f" data-ftier="A" onclick="setFilter('tier','A',this)">🔵 Tier A ({m['tier_a_count']})</button>
+      <button class="f" data-ftier="B" onclick="setFilter('tier','B',this)">⏳ Tier B Hold ({m['tier_b_count']})</button>
+      <span class="lbl" style="margin-left:10px">Region</span>
       <button class="f on" onclick="setFilter('region','all',this)">All ({m['total_investors']})</button>
       <button class="f" onclick="setFilter('region','US',this)">🇺🇸 US ({m['us_count']})</button>
       <button class="f" onclick="setFilter('region','UK',this)">🇬🇧 UK ({m['uk_count']})</button>
       <button class="f" onclick="setFilter('region','EU',this)">🇪🇺 EU ({m['eu_count']})</button>
       <button class="f" onclick="setFilter('region','IL / US',this)">🇮🇱/🇺🇸 IL-US ({m['il_us_count']})</button>
-      <span class="lbl" style="margin-left:10px">Review</span>
-      <button class="f on" onclick="setFilter('reach','all',this)">All</button>
+    </div>
+    <div class="controls" style="margin-top:6px">
+      <span class="lbl">Outreach KPI</span>
+      <button class="f on" onclick="setFilter('reach','all',this)">All ({m['total_investors']})</button>
+      <button class="f" onclick="setFilter('reach','sent',this)">📨 Sent ({m['sent_funds_count']})</button>
+      <button class="f" onclick="setFilter('reach','opened',this)">👁️ Opened ({m['unique_open_funds_count']})</button>
+      <button class="f" onclick="setFilter('reach','deck',this)">🎬 Deck: YES ({m['deck_optin_count']})</button>
+      <button class="f" onclick="setFilter('reach','forwarded',this)">🔁 Forwarded ({m['forwarded_funds_count']})</button>
+      <button class="f" onclick="setFilter('reach','meeting',this)">📅 Meeting / Talking ({m['meeting_talking_count']})</button>
+      <button class="f" onclick="setFilter('reach','followup',this)">📝 Notes Updated ({m['notes_updated_count']})</button>
       <button class="f" onclick="setFilter('reach','sepoct',this)">Prior Context ({m['leo_sep_oct_count']})</button>
-      <button class="f" onclick="setFilter('reach','active',this)">Reviewed / Active ({m['active_convo_count']})</button>
+      <button class="f" onclick="setFilter('reach','active',this)">Active Convo ({m['active_convo_count']})</button>
     </div>
   </div>
   <div id="gemini-search-banner" style="display:none;margin-top:8px;padding:10px 14px;background:#f5f3ff;border:1px solid #c4b5fd;border-left:4px solid #6d28d9;border-radius:6px;font-size:12.5px;color:#1e1b4b;line-height:1.45"></div>
@@ -528,12 +539,10 @@ def render_board_html() -> str:
     <thead>
       <tr>
         <th style="width:3.5%">#</th>
-        <th style="width:13.5%">Fund &amp; Category</th>
-        <th style="width:14%">Partner, Email &amp; Phone</th>
-        <th style="width:11%">Stage, Fit &amp; Qualification Gate</th>
-        <th style="width:21%">Deep Research: Why They Want Dokimo &amp; Portfolio Fit</th>
-        <th style="width:17%">Positioning Angle &amp; Bank LP Leverage</th>
-        <th style="width:20%">Warren &amp; Leo Review Notes + Deep-Dive IC Memo</th>
+        <th style="width:19.5%">VC Fund, Stage &amp; Check Size</th>
+        <th style="width:18.5%">Partner &amp; Direct Contact</th>
+        <th style="width:34.5%">Why Now Hook, Portfolio &amp; Bank-LP Leverage</th>
+        <th style="width:24%">Owner (Warren / Leo), Status &amp; 1-Click Draft</th>
       </tr>
     </thead>
     <tbody id="inv-tbody"></tbody>
@@ -982,14 +991,48 @@ function renderInlineInvReadme(){{
 
 function setFilter(kind, val, btn){{
   FILTERS[kind] = val;
-  var parent = btn.parentElement;
-  Array.prototype.forEach.call(parent.querySelectorAll('button.f'), function(b){{
-    if(b.getAttribute('onclick') && b.getAttribute('onclick').indexOf("setFilter('"+kind+"'") === 0){{
-      b.classList.remove('on');
-    }}
-  }});
-  btn.classList.add('on');
+  if(btn && btn.parentElement){{
+    Array.prototype.forEach.call(btn.parentElement.querySelectorAll('button.f'), function(b){{
+      if(b.getAttribute('onclick') && b.getAttribute('onclick').indexOf("setFilter('"+kind+"'") === 0){{
+        b.classList.remove('on');
+      }}
+    }});
+    btn.classList.add('on');
+  }}
+  syncPresetButtons();
   renderRows();
+}}
+
+function setQuickPreset(tierVal){{
+  FILTERS.tier = (FILTERS.tier === tierVal ? 'all' : tierVal);
+  syncPresetButtons();
+  renderRows();
+}}
+
+function resetInvFilters(){{
+  FILTERS = {{tier:'all', region:'all', owner:'all', reach:'all'}};
+  var inp = document.getElementById('q-search');
+  if(inp) inp.value = '';
+  GEMINI_SEARCH_STATE = {{active:false, query:'', matchedIds:null, reasons:{{}}}};
+  var ban = document.getElementById('gemini-search-banner');
+  if(ban) ban.style.display = 'none';
+  var clr = document.getElementById('btn-gemini-clear');
+  if(clr) clr.style.display = 'none';
+  syncPresetButtons();
+  renderRows();
+}}
+
+function syncPresetButtons(){{
+  Array.prototype.forEach.call(document.querySelectorAll('button[data-ftier]'), function(b){{
+    var t = b.getAttribute('data-ftier');
+    if(t === FILTERS.tier) b.classList.add('on');
+    else b.classList.remove('on');
+  }});
+  Array.prototype.forEach.call(document.querySelectorAll('button[data-fowner]'), function(b){{
+    var o = b.getAttribute('data-fowner');
+    if(o === FILTERS.owner) b.classList.add('on');
+    else b.classList.remove('on');
+  }});
 }}
 
 function onSearchInput(){{
@@ -1093,6 +1136,8 @@ function renderRows(){{
   var matched = INVESTORS.filter(function(r){{
     if(FILTERS.tier === 'PRE'){{
       if(!r.is_pre_seed) return false;
+    }} else if(FILTERS.tier === 'BANK_LP'){{
+      if(!r.is_bank_lp_bullseye) return false;
     }} else if(FILTERS.tier !== 'all' && r.tier !== FILTERS.tier) return false;
     if(FILTERS.region !== 'all' && r.region !== FILTERS.region) return false;
     var own = (r.our_contact || '').toLowerCase();
@@ -1133,7 +1178,7 @@ function renderRows(){{
       return Boolean(idOrder[r.id]);
     }}
     if(q){{
-      var hay = [r.fund, r.person, r.title, r.category, r.region, r.stage, r.pre_seed_flag, r.qualification_gate, r.portfolio, r.why_fit, r.bank_lp_value, r.our_contact, r.email, r.city, r.country, r.followup_note, r.next_action, r.comment].join(' ').toLowerCase();
+      var hay = [r.fund, r.person, r.title, r.category, r.region, r.stage, r.pre_seed_flag, r.qualification_gate, r.portfolio, r.why_now_hook, r.why_fit, r.bank_lp_value, r.our_contact, r.email, r.city, r.country, r.followup_note, r.next_action, r.comment].join(' ').toLowerCase();
       if(hay.indexOf(q) < 0) return false;
     }}
     return true;
@@ -1153,84 +1198,99 @@ function renderRows(){{
     var tdRank = makeEl('td', {{style:'font-family:ui-monospace,monospace;color:var(--ink3);font-weight:700'}}, '#' + r.rank);
     tr.appendChild(tdRank);
 
-    // Col 2: Fund & Category
+    // Col 2: VC Fund, Stage & Check Size (Consolidated with Tier, Region, Pre-Seed & Check Size)
     var tdFund = document.createElement('td');
-    var fTitle = makeEl('div', {{style:'font-weight:700;font-size:13px;color:var(--ink)'}}, r.fund);
-    tdFund.appendChild(fTitle);
-    if(r.is_pre_seed){{
-      tdFund.appendChild(makeEl('span', {{className:'chip', style:'background:#f3e8ff;color:#6d28d9;border:1px solid #d8b4fe;font-weight:700;margin-top:3px'}}, '⚡ PRE-SEED / DAY-0'));
+    var fHeader = makeEl('div', {{style:'display:flex;align-items:baseline;gap:6px;flex-wrap:wrap'}});
+    fHeader.appendChild(makeEl('span', {{style:'font-weight:800;font-size:13.5px;color:var(--ink)'}}, r.fund));
+    if(r.website){{
+      fHeader.appendChild(makeEl('a', {{href:r.website, target:'_blank', rel:'noopener', style:'font-size:10.5px;font-weight:700;color:var(--accent);text-decoration:none'}}, '[Web ↗]'));
     }}
-    if(GEMINI_SEARCH_STATE.active && GEMINI_SEARCH_STATE.reasons && GEMINI_SEARCH_STATE.reasons[r.id]){{
-      tdFund.appendChild(makeEl('div', {{style:'margin-top:4px;padding:3px 6px;background:#ede9fe;color:#4c1d95;border-left:3px solid #6d28d9;border-radius:3px;font-size:10.5px;font-weight:600'}}, '✨ ' + GEMINI_SEARCH_STATE.reasons[r.id]));
-    }}
-    tdFund.appendChild(makeEl('div', {{style:'font-size:11px;color:var(--accent);font-weight:600;margin-top:2px'}}, r.category));
-    var loc = [r.city, r.state, r.country].filter(Boolean).join(', ');
-    if(loc) tdFund.appendChild(makeEl('div', {{style:'font-size:10.5px;color:var(--ink3);margin-top:2px'}}, '📍 ' + loc));
-    tdFund.appendChild(makeEl('div', {{style:'font-size:9.5px;color:var(--ink3);margin-top:3px'}}, r.source_table));
-    tr.appendChild(tdFund);
+    tdFund.appendChild(fHeader);
 
-    // Col 3: Partner, Email & Phone (Plain text only — zero external links)
-    var tdPerson = document.createElement('td');
-    tdPerson.appendChild(makeEl('div', {{style:'font-weight:700;color:var(--ink)'}}, r.person || 'Partnership Team'));
-    if(r.title) tdPerson.appendChild(makeEl('div', {{style:'font-size:11px;color:var(--ink2)'}}, r.title));
-    if(r.email){{
-      tdPerson.appendChild(makeEl('div', {{style:'font-family:ui-monospace,monospace;font-size:11px;color:var(--ink);margin-top:4px'}}, '✉️ ' + r.email));
-    }}
-    if(r.mobile_phone){{
-      tdPerson.appendChild(makeEl('div', {{style:'font-family:ui-monospace,monospace;font-size:11px;color:var(--quiet);font-weight:700;margin-top:2px'}}, '📱 Mobile: ' + r.mobile_phone));
-    }}
-    if(r.corporate_phone){{
-      tdPerson.appendChild(makeEl('div', {{style:'font-family:ui-monospace,monospace;font-size:11px;color:var(--ink2);margin-top:2px'}}, '☎️ Office: ' + r.corporate_phone));
-    }}
-    tr.appendChild(tdPerson);
-
-    // Col 4: Fit, Stage, Region & Qualification Gate
-    var tdFit = document.createElement('td');
-    var tierRow = makeEl('div', {{style:'display:flex;gap:4px;flex-wrap:wrap;align-items:center'}});
+    var tierRow = makeEl('div', {{style:'display:flex;gap:4px;flex-wrap:wrap;align-items:center;margin-top:4px'}});
     tierRow.appendChild(makeEl('span', {{className:'tier t-' + r.tier}}, 'TIER ' + r.tier + ' · ' + r.dokimo_fit_score));
     tierRow.appendChild(makeEl('span', {{className:'chip', style:'font-weight:700;color:#1e293b'}}, '🌍 ' + (r.region || 'US')));
     if(r.is_pre_seed){{
-      tierRow.appendChild(makeEl('span', {{className:'chip', style:'background:#6d28d9;color:#fff;font-weight:700;border:1px solid #6d28d9'}}, '⚡ PRE-SEED'));
+      tierRow.appendChild(makeEl('span', {{className:'chip', style:'background:#f3e8ff;color:#6d28d9;border:1px solid #d8b4fe;font-weight:800'}}, '⚡ PRE-SEED / DAY-0'));
     }}
-    tdFit.appendChild(tierRow);
-    tdFit.appendChild(makeEl('div', {{style:'font-size:10.5px;color:var(--ink2);margin-top:4px;font-weight:600'}}, r.stage));
-    tdFit.appendChild(makeEl('div', {{style:'font-family:ui-monospace,monospace;font-size:10.5px;color:var(--ink3);margin-top:2px'}}, r.check_size));
-    if(r.qualification_gate){{
-      var qCls = r.tier === 'B' ? 'qual-badge qual-hold' : 'qual-badge qual-ok';
-      tdFit.appendChild(makeEl('div', {{className:qCls}}, r.qualification_gate));
+    if(r.is_bank_lp_bullseye){{
+      tierRow.appendChild(makeEl('span', {{className:'chip', style:'background:#ecfdf5;color:#065f46;border:1px solid #6ee7b7;font-weight:800'}}, '🏦 BANK-LP'));
     }}
-    tr.appendChild(tdFit);
+    tdFund.appendChild(tierRow);
 
-    // Col 5: Deep Research on Why They Will Listen to Dokimo & Scoring Breakdown
+    if(GEMINI_SEARCH_STATE.active && GEMINI_SEARCH_STATE.reasons && GEMINI_SEARCH_STATE.reasons[r.id]){{
+      tdFund.appendChild(makeEl('div', {{style:'margin-top:4px;padding:3px 6px;background:#ede9fe;color:#4c1d95;border-left:3px solid #6d28d9;border-radius:3px;font-size:10.5px;font-weight:600'}}, '✨ ' + GEMINI_SEARCH_STATE.reasons[r.id]));
+    }}
+    tdFund.appendChild(makeEl('div', {{style:'font-size:11px;color:var(--accent);font-weight:700;margin-top:4px'}}, r.category));
+    tdFund.appendChild(makeEl('div', {{style:'font-size:10.5px;color:var(--ink2);margin-top:2px;font-weight:600'}}, (r.stage || '') + (r.check_size ? (' · ' + r.check_size) : '')));
+    var loc = [r.city, r.state, r.country].filter(Boolean).join(', ');
+    if(loc) tdFund.appendChild(makeEl('div', {{style:'font-size:10px;color:var(--ink3);margin-top:2px'}}, '📍 ' + loc));
+    tr.appendChild(tdFund);
+
+    // Col 3: Partner & Direct Contact (Clickable LinkedIn, mailto:, and tel: links)
+    var tdPerson = document.createElement('td');
+    var pHeader = makeEl('div', {{style:'display:flex;align-items:baseline;gap:5px;flex-wrap:wrap'}});
+    pHeader.appendChild(makeEl('span', {{style:'font-weight:800;font-size:12.5px;color:var(--ink)'}}, r.person || 'Partnership Team'));
+    if(r.person_linkedin){{
+      pHeader.appendChild(makeEl('a', {{href:r.person_linkedin, target:'_blank', rel:'noopener', style:'font-size:10.5px;font-weight:700;color:#0284c7;text-decoration:none'}}, '[LI ↗]'));
+    }}
+    tdPerson.appendChild(pHeader);
+    if(r.title) tdPerson.appendChild(makeEl('div', {{style:'font-size:11px;color:var(--ink2);margin-top:1px'}}, r.title));
+    if(r.email){{
+      var emDiv = makeEl('div', {{style:'font-family:ui-monospace,monospace;font-size:11px;margin-top:5px'}});
+      emDiv.appendChild(document.createTextNode('✉️ '));
+      emDiv.appendChild(makeEl('a', {{href:'mailto:' + r.email, style:'color:var(--accent);font-weight:700;text-decoration:none'}}, r.email));
+      tdPerson.appendChild(emDiv);
+    }}
+    if(r.mobile_phone){{
+      var mobDiv = makeEl('div', {{style:'font-family:ui-monospace,monospace;font-size:11px;margin-top:3px'}});
+      mobDiv.appendChild(document.createTextNode('📱 '));
+      mobDiv.appendChild(makeEl('a', {{href:'tel:' + r.mobile_phone.replace(/[^+0-9]/g, ''), style:'color:var(--quiet);font-weight:700;text-decoration:none'}}, r.mobile_phone));
+      tdPerson.appendChild(mobDiv);
+    }}
+    if(r.corporate_phone){{
+      var offDiv = makeEl('div', {{style:'font-family:ui-monospace,monospace;font-size:10.5px;margin-top:2px'}});
+      offDiv.appendChild(document.createTextNode('☎️ '));
+      offDiv.appendChild(makeEl('a', {{href:'tel:' + r.corporate_phone.replace(/[^+0-9]/g, ''), style:'color:var(--ink2);text-decoration:none'}}, r.corporate_phone));
+      tdPerson.appendChild(offDiv);
+    }}
+    tr.appendChild(tdPerson);
+
+    // Col 4: Why Now Hook, Portfolio & Bank-LP Leverage (with expandable Pitch Angle & Fit Breakdown drawer)
     var tdWhy = document.createElement('td');
-    tdWhy.appendChild(makeEl('div', {{style:'color:var(--ink);line-height:1.4'}}, r.why_fit));
+    var hookTxt = r.why_now_hook || r.why_fit || '';
+    tdWhy.appendChild(makeEl('div', {{style:'color:var(--ink);font-size:12px;line-height:1.45;font-weight:500'}}, hookTxt));
+    if(r.bank_lp_value){{
+      var lpDiv = makeEl('div', {{style:'margin-top:5px;padding:4px 7px;background:#ecfdf5;border-left:3px solid #10b981;border-radius:3px;font-size:11px;color:#065f46;font-weight:600'}}, '🏦 Bank-LP / Network: ' + r.bank_lp_value);
+      tdWhy.appendChild(lpDiv);
+    }}
     if(r.portfolio){{
-      var pDiv = makeEl('div', {{style:'margin-top:5px;font-size:11px;color:var(--ink2)'}});
-      pDiv.appendChild(makeEl('b', null, 'Portfolio / Signal: '));
+      var pDiv = makeEl('div', {{style:'margin-top:4px;font-size:11px;color:var(--ink2)'}});
+      pDiv.appendChild(makeEl('b', {{style:'color:var(--ink)'}}, '🎯 Portfolio / Signal: '));
       pDiv.appendChild(document.createTextNode(r.portfolio));
       tdWhy.appendChild(pDiv);
     }}
-    if(r.receptivity_breakdown){{
-      var scoreBox = makeEl('details', {{style:'margin-top:6px;background:#f8fafc;border:1px solid #cbd5e1;border-radius:4px;padding:4px 7px;font-size:10.5px;color:#1e293b'}});
-      scoreBox.appendChild(makeEl('summary', {{style:'cursor:pointer;font-weight:700;color:var(--accent)'}}, '🎯 Scoring Research: Why They Will Listen (' + r.dokimo_fit_score + '/100)'));
-      scoreBox.appendChild(makeEl('pre', {{style:'white-space:pre-wrap;margin:5px 0 2px 0;font:10.5px/1.4 ui-monospace,monospace;color:#1e293b'}}, r.receptivity_breakdown));
-      tdWhy.appendChild(scoreBox);
+    var detailBox = makeEl('details', {{style:'margin-top:6px;background:#f8fafc;border:1px solid #cbd5e1;border-radius:4px;padding:4px 8px;font-size:11px;color:#1e293b'}});
+    detailBox.appendChild(makeEl('summary', {{style:'cursor:pointer;font-weight:700;color:var(--accent)'}}, '▸ Pitch Angle, Gate & Fit Breakdown (' + r.dokimo_fit_score + '/100)'));
+    var detailInner = makeEl('div', {{style:'margin-top:5px;line-height:1.45'}});
+    if(r.pitch_angle){{
+      var paDiv = makeEl('div', {{style:'margin-bottom:4px'}});
+      paDiv.appendChild(makeEl('b', null, 'Positioning Hook: '));
+      paDiv.appendChild(document.createTextNode(r.pitch_angle));
+      detailInner.appendChild(paDiv);
     }}
+    if(r.qualification_gate){{
+      var qCls = r.tier === 'B' ? 'qual-badge qual-hold' : 'qual-badge qual-ok';
+      detailInner.appendChild(makeEl('div', {{className:qCls, style:'margin-bottom:4px'}}, r.qualification_gate));
+    }}
+    if(r.receptivity_breakdown){{
+      detailInner.appendChild(makeEl('pre', {{style:'white-space:pre-wrap;margin:4px 0 2px 0;font:10.5px/1.4 ui-monospace,monospace;color:#1e293b'}}, r.receptivity_breakdown));
+    }}
+    detailBox.appendChild(detailInner);
+    tdWhy.appendChild(detailBox);
     tr.appendChild(tdWhy);
 
-    // Col 6: Bank LP Value & Pitch Angle
-    var tdPitch = document.createElement('td');
-    if(r.bank_lp_value){{
-      var lpDiv = makeEl('div', {{style:'font-size:11px;color:var(--quiet);font-weight:600;margin-bottom:4px'}}, '🏦 ' + r.bank_lp_value);
-      tdPitch.appendChild(lpDiv);
-    }}
-    var paDiv = makeEl('div', {{style:'font-size:11px;color:var(--ink2)'}});
-    paDiv.appendChild(makeEl('b', null, 'Positioning Hook: '));
-    paDiv.appendChild(document.createTextNode(r.pitch_angle));
-    tdPitch.appendChild(paDiv);
-    tr.appendChild(tdPitch);
-
-    // Col 7: Assignment Between Leo & Warren + Pitch Deck Toggle + Review Notes + Same-Click Deep Research & Consistent Email Draft
+    // Col 5: Owner (Warren / Leo), Status & 1-Click Draft
     var tdAct = document.createElement('td');
     var assignRow = makeEl('div', {{style:'display:flex;align-items:center;gap:4px;margin-bottom:5px;flex-wrap:wrap'}});
     assignRow.appendChild(makeEl('span', {{style:'font-size:10.5px;font-weight:700;color:var(--ink2);text-transform:uppercase'}}, '👤 Assign:'));

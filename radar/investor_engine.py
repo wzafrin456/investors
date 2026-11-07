@@ -2100,6 +2100,30 @@ def parse_raw_leo_list(raw_text: str = None) -> list[dict]:
         row["display_phone"] = row["mobile_phone"] or row["corporate_phone"] or ""
         row["phone_kind"] = "Mobile" if row["mobile_phone"] else ("Office" if row["corporate_phone"] else "")
 
+        # Clean 1-sentence Why Now Hook (strip bracketed stage prefixes for fast table scanning)
+        raw_why = re.sub(r"^\[[^\]]+\]\s*", "", (row.get("why_fit") or "").strip())
+        raw_why = re.sub(r"\s*\(Large multistage/Series-A fund[^)]*\)\.?$", "", raw_why).strip()
+        row["why_now_hook"] = raw_why or row.get("pitch_angle") or ""
+
+        # Bank-LP & RegTech Bullseye flag: Tier S or Tier A funds with direct Bank LP / Bank CVC / RegTech portfolio leverage
+        blp_hay = " ".join([
+            row.get("fund") or "",
+            row.get("category") or "",
+            row.get("bank_lp_value") or "",
+            row.get("portfolio") or "",
+        ]).lower()
+        row["is_bank_lp_bullseye"] = bool(
+            row["tier"] in ("S", "A")
+            and any(
+                kw in blp_hay
+                for kw in (
+                    "bank", "regtech", "compliance", "aml", "fincrime", "socure", "alloy",
+                    "sardine", "hummingbird", "unit21", "cable", "clausematch", "fourthline",
+                    "comply", "vanta", "harvey", "arthur", "ccro", "cco", "ciso", "finra", "occ", "fdic",
+                )
+            )
+        )
+
         if not row.get("followup_note") and row["tier"] in ("S", "A"):
             row["followup_note"] = (
                 f"1. Owner: {row.get('our_contact') or 'Warren / Leo'} -> {row.get('person')} ({row.get('email') or 'Direct'})\n"
@@ -3132,6 +3156,7 @@ def build_summary_metrics(rows: list[dict] = None) -> dict:
     total = len(rows)
     denom = max(1, total)
     pre_seed = [r for r in rows if r.get("is_pre_seed")]
+    bank_lp_bullseye = [r for r in rows if r.get("is_bank_lp_bullseye")]
     tier_s = [r for r in rows if r["tier"] == "S"]
     tier_a = [r for r in rows if r["tier"] == "A"]
     tier_b = [r for r in rows if r["tier"] == "B"]
@@ -3206,6 +3231,8 @@ def build_summary_metrics(rows: list[dict] = None) -> dict:
         "total_investors": total,
         "pre_seed_count": len(pre_seed),
         "pre_seed_rate": f"{len(pre_seed)} of {total} ({round(len(pre_seed) / denom * 100, 1)}%)",
+        "bank_lp_bullseye_count": len(bank_lp_bullseye),
+        "bank_lp_bullseye_rate": f"{len(bank_lp_bullseye)} of {total} ({round(len(bank_lp_bullseye) / denom * 100, 1)}%)",
         "tier_s_count": len(tier_s),
         "tier_s_rate": f"{len(tier_s)} of {total} ({round(len(tier_s) / denom * 100, 1)}%)",
         "tier_a_count": len(tier_a),

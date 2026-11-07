@@ -41,11 +41,33 @@ class TestInvestorEngine(unittest.TestCase):
 
         # Verify every rate includes its denominator
         for k in [
+            "pre_seed_rate", "bank_lp_bullseye_rate",
             "tier_s_rate", "tier_a_rate", "tier_b_rate", "tier_c_rate",
             "us_rate", "uk_rate", "eu_rate", "il_us_rate",
             "with_email_rate", "with_linkedin_rate", "with_phone_rate", "leo_sep_oct_rate",
         ]:
             self.assertIn(f"of {total}", metrics[k])
+
+        self.assertGreaterEqual(metrics["bank_lp_bullseye_count"], 40)
+        for r in rows:
+            self.assertTrue(r.get("why_now_hook"), r["fund"])
+            self.assertNotIn("[🟢 PITCH NOW", r["why_now_hook"])
+            self.assertNotIn("[STAGE WARNING", r["why_now_hook"])
+
+        # Verify simplified 5-column Investor Board HTML and JS syntax
+        from gcp import app as inv_app
+        board_html = inv_app.render_board_html()
+        for token in (
+            "Single Clean Investor Filter Bar",
+            'id="preset-preseed-btn"',
+            'id="preset-banklp-btn"',
+            "Bank-LP &amp; RegTech Bullseye",
+            "VC Fund, Stage &amp; Check Size",
+            "Partner &amp; Direct Contact",
+            "Why Now Hook, Portfolio &amp; Bank-LP Leverage",
+            "Owner (Warren / Leo), Status &amp; 1-Click Draft",
+        ):
+            self.assertIn(token, board_html)
 
         # Verify 2-page PDF VC Tear-Sheet generation
         pdf_bytes, fname = pdf_memo.generate_investor_tearsheet_pdf(rows[0])
