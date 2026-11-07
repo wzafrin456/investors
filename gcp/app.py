@@ -425,7 +425,7 @@ def render_board_html() -> str:
 <div class="top-tabs">
   <div style="display:flex;gap:6px;flex-wrap:wrap">
     <button id="inv-tab-board" class="tab-btn on" onclick="switchInvMainTab('board')">1. 🎯 VC Target Board ({m['total_investors']} Right VCs: US &rarr; UK &rarr; EU &rarr; IL/US)</button>
-    <button id="inv-tab-charts" class="tab-btn" onclick="switchInvMainTab('charts')">2. 📊 Regional Coverage &amp; Telemetry (Daily &middot; Weekly &middot; Regions &middot; Clickable Bars)</button>
+    <button id="inv-tab-charts" class="tab-btn" onclick="switchInvMainTab('charts')">2. 📊 Weekly Telemetry (Stage/Segment &middot; Country/Region &middot; Reached Out &amp; Opened)</button>
     <button id="inv-tab-readme" class="tab-btn" onclick="switchInvMainTab('readme')">3. 📖 Simple Workflow Guide (100% Draft-Only &middot; Zero Auto-Send)</button>
   </div>
   <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
@@ -456,15 +456,14 @@ def render_board_html() -> str:
 <div id="view-inv-charts" style="display:none">
   <div class="controls-wrap" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
     <div class="controls" style="margin:0">
-      <span class="lbl">Telemetry View</span>
-      <button id="icview-daily_region" class="f on" onclick="setInvChartMode('daily_region')">📊 Daily by Region (US &middot; UK &middot; EU &middot; IL/US)</button>
-      <button id="icview-daily_tier" class="f" onclick="setInvChartMode('daily_tier')">📊 Daily by Stage / Tier (Pre-Seed &middot; S &middot; A &middot; B)</button>
-      <button id="icview-weekly_region" class="f" onclick="setInvChartMode('weekly_region')">📈 Weekly by Region (US &middot; UK &middot; EU &middot; IL/US)</button>
-      <button id="icview-weekly_tier" class="f" onclick="setInvChartMode('weekly_tier')">📈 Weekly by Stage / Tier</button>
-      <button id="icview-sender" class="f" onclick="setInvChartMode('sender')">👥 Daily &amp; Weekly by Sender (Warren vs. Leo)</button>
-      <button id="icview-both" class="f" onclick="setInvChartMode('both')">Show All Views Together</button>
+      <span class="lbl">Weekly Telemetry</span>
+      <button id="icview-weekly_tier" class="f on" onclick="setInvChartMode('weekly_tier')">📈 1. Weekly by Stage / Segment (Pre-Seed &middot; Tier S &middot; Tier A &middot; Tier B)</button>
+      <button id="icview-weekly_region" class="f" onclick="setInvChartMode('weekly_region')">🌍 2. Weekly by Country / Region (US &middot; UK &middot; EU &middot; IL/US)</button>
+      <button id="icview-sender" class="f" onclick="setInvChartMode('sender')">👥 3. Weekly by Sender (Warren vs. Leo)</button>
+      <button id="icview-daily_tier" class="f" onclick="setInvChartMode('daily_tier')">📊 Daily by Stage / Segment</button>
+      <button id="icview-daily_region" class="f" onclick="setInvChartMode('daily_region')">📊 Daily by Country / Region</button>
     </div>
-    <div style="font-size:11.5px;color:var(--ink3);font-family:ui-monospace,monospace">💡 Click any daily/weekly bar or legend item to pull up the VCs &amp; open their email/deck draft composer</div>
+    <div style="font-size:11.5px;color:var(--ink3);font-family:ui-monospace,monospace">💡 Click any bar to see who we reached out to or who opened &amp; send email in 1 click</div>
   </div>
   <div id="inv-charts-container"></div>
   <div id="inv-chart-drilldown-panel" style="display:block;margin:16px 0 8px;background:var(--surface);border:2px solid var(--accent);border-radius:3px;padding:14px 16px"></div>
@@ -563,7 +562,7 @@ def render_board_html() -> str:
 <script>
 var INVESTORS = {data_json};
 var INV_TELEMETRY = {tel_json};
-var INV_CHART_MODE = 'daily_region';
+var INV_CHART_MODE = 'weekly_tier';
 var FILTERS = {{tier:'all', region:'all', owner:'all', reach:'all'}};
 var GEMINI_SEARCH_STATE = {{active:false, query:'', matchedIds:null, reasons:{{}}}};
 
@@ -590,7 +589,7 @@ function switchInvMainTab(tabName){{
     if(vBoard) vBoard.style.display = 'none';
     if(vReadme) vReadme.style.display = 'none';
     if(vCharts) vCharts.style.display = 'block';
-    if(INV_CHART_MODE === 'fup') INV_CHART_MODE = 'daily_region';
+    if(INV_CHART_MODE === 'fup') INV_CHART_MODE = 'weekly_tier';
     drawInvCharts();
   }} else if(tabName === 'fup'){{
     if(bFup) bFup.classList.add('on');
@@ -886,68 +885,62 @@ function drawInvCharts(){{
   var wTier = wt.by_tier || {{}};
   var wSnd = wt.by_sender || {{}};
 
-  var html = '<div style="font-family:ui-monospace,monospace;font-size:11px;color:var(--ink2);margin:8px 0 4px"><b>Interactive Investor Telemetry Bars:</b> All Daily, Weekly, Regional (US · UK · EU · IL/US), Stage/Tier, and Sender (Warren vs. Leo) bars are clickable. <b>Click any bar or legend item to pull up the exact VCs &amp; Partners below.</b></div>';
+  var html = '<div style="font-family:ui-monospace,monospace;font-size:11px;color:var(--ink2);margin:8px 0 4px"><b>Weekly Outbound &amp; Engagement Telemetry:</b> Click any bar or legend item to see <b>who we reached out to</b> or <b>who opened / clicked</b>, and open their email draft in 1 click.</div>';
 
   if(INV_CHART_MODE === 'fup' || INV_CHART_MODE === 'both'){{
     html += _buildInvFollowupScheduleHtml();
   }}
-  if(INV_CHART_MODE === 'daily_region' || INV_CHART_MODE === 'both'){{
-    html += '<h2 style="font-size:16px;margin:14px 0 4px">📊 Daily Investor Outreach &amp; 18-Slide Deck Telemetry by Region (US &middot; UK &middot; EU &middot; IL/US)</h2>' +
-      '<div class="chart-grid">' +
-        _buildInvChartCard('1. Daily Emails & Decks Sent by Region (US, UK, EU, IL/US)', 'Day-by-day investor emails & pitch decks sent by Warren or Leo across regions.', days, regGroups, dReg.sent, 'daily_region', 'sent') +
-        _buildInvChartCard('2. Daily Total Opens by Region (US, UK, EU, IL/US)', 'Day-by-day email open pixels, deck views & PDF opens across regions.', days, regGroups, dReg.opens, 'daily_region', 'opens') +
-        _buildInvChartCard('3. Daily Distinct Partner Opens by Region (US, UK, EU, IL/US)', 'Unique VC funds that opened at least once each day by region.', days, regGroups, dReg.distinct_opens, 'daily_region', 'distinct_opens') +
-        _buildInvChartCard('4. Daily Deck/Video Views & Partner Forwards by Region', '18-slide Seed Deck views, video watches & multi-device partner forwards by region.', days, regGroups, dReg.deck_forwards, 'daily_region', 'deck_forwards') +
-      '</div>';
-  }}
-  if(INV_CHART_MODE === 'daily_tier' || INV_CHART_MODE === 'both'){{
-    html += '<h2 style="font-size:16px;margin:18px 0 4px">📊 Daily Investor Telemetry by Stage &amp; Tier (⚡ Pre-Seed &middot; 🟢 Tier S &middot; 🔵 Tier A &middot; ⏳ Tier B)</h2>' +
-      '<div class="chart-grid">' +
-        _buildInvChartCard('1. Daily Emails & Decks Sent by Investor Stage/Tier', 'Day-by-day outreach across Pre-Seed, Tier S, Tier A, and Tier B.', days, tierGroups, dTier.sent, 'daily_tier', 'sent') +
-        _buildInvChartCard('2. Daily Total Opens by Investor Stage/Tier', 'Day-by-day total email + deck opens across investor tiers.', days, tierGroups, dTier.opens, 'daily_tier', 'opens') +
-        _buildInvChartCard('3. Daily Distinct Partner Opens by Investor Stage/Tier', 'Unique VCs opening each day across Pre-Seed, Tier S, Tier A, and Tier B.', days, tierGroups, dTier.distinct_opens, 'daily_tier', 'distinct_opens') +
-        _buildInvChartCard('4. Daily Deck/Video Views & Partner Forwards by Stage/Tier', '18-slide Seed Deck views & GP forwards each day by tier.', days, tierGroups, dTier.deck_forwards, 'daily_tier', 'deck_forwards') +
+  if(INV_CHART_MODE === 'weekly_tier' || INV_CHART_MODE === 'both'){{
+    html += '<h2 style="font-size:16px;margin:14px 0 4px">📈 Weekly Telemetry by Investor Stage / Segment (⚡ Pre-Seed &middot; 🟢 Tier S &middot; 🔵 Tier A &middot; ⏳ Tier B)</h2>' +
+      '<div class="chart-grid" style="grid-template-columns:repeat(3,1fr)">' +
+        _buildInvChartCard('1. Weekly Reached Out (Emails & Decks Sent)', 'Who we reached out to each week by Stage/Segment.', weeks, tierGroups, wTier.sent, 'weekly_tier', 'sent') +
+        _buildInvChartCard('2. Weekly Who Opened (Distinct Partner Opens)', 'Unique VCs that opened the email or deck each week by Stage/Segment.', weeks, tierGroups, wTier.distinct_opens, 'weekly_tier', 'distinct_opens') +
+        _buildInvChartCard('3. Weekly 18-Slide Deck / Video Clicks & Forwards', '18-slide Seed Deck views, video clicks & partner forwards by Stage/Segment.', weeks, tierGroups, wTier.deck_forwards, 'weekly_tier', 'deck_forwards') +
       '</div>';
   }}
   if(INV_CHART_MODE === 'weekly_region' || INV_CHART_MODE === 'both'){{
-    html += '<h2 style="font-size:16px;margin:18px 0 4px">📈 Weekly Investor Outreach &amp; Deck Telemetry by Region (US &middot; UK &middot; EU &middot; IL/US)</h2>' +
-      '<div class="chart-grid">' +
-        _buildInvChartCard('1. Weekly Emails & Decks Sent by Region (US, UK, EU, IL/US)', 'Week-by-week investor outreach sent across US, UK, EU, and IL/US.', weeks, regGroups, wReg.sent, 'weekly_region', 'sent') +
-        _buildInvChartCard('2. Weekly Total Opens by Region (US, UK, EU, IL/US)', 'Week-by-week total open events across US, UK, EU, and IL/US.', weeks, regGroups, wReg.opens, 'weekly_region', 'opens') +
-        _buildInvChartCard('3. Weekly Distinct Partner Opens by Region (US, UK, EU, IL/US)', 'Unique VC funds opening each week across US, UK, EU, and IL/US.', weeks, regGroups, wReg.distinct_opens, 'weekly_region', 'distinct_opens') +
-        _buildInvChartCard('4. Weekly Deck/Video Views & Partner Forwards by Region', 'Week-by-week 18-slide Seed Deck views & partner forwards by region.', weeks, regGroups, wReg.deck_forwards, 'weekly_region', 'deck_forwards') +
-      '</div>';
-  }}
-  if(INV_CHART_MODE === 'weekly_tier' || INV_CHART_MODE === 'both'){{
-    html += '<h2 style="font-size:16px;margin:18px 0 4px">📈 Weekly Investor Telemetry by Stage &amp; Tier (⚡ Pre-Seed &middot; 🟢 Tier S &middot; 🔵 Tier A &middot; ⏳ Tier B)</h2>' +
-      '<div class="chart-grid">' +
-        _buildInvChartCard('1. Weekly Emails & Decks Sent by Investor Stage/Tier', 'Week-by-week outreach across Pre-Seed, Tier S, Tier A, and Tier B.', weeks, tierGroups, wTier.sent, 'weekly_tier', 'sent') +
-        _buildInvChartCard('2. Weekly Total Opens by Investor Stage/Tier', 'Week-by-week total opens across Pre-Seed, Tier S, Tier A, and Tier B.', weeks, tierGroups, wTier.opens, 'weekly_tier', 'opens') +
-        _buildInvChartCard('3. Weekly Distinct Partner Opens by Investor Stage/Tier', 'Unique VCs opening each week across Pre-Seed, Tier S, Tier A, and Tier B.', weeks, tierGroups, wTier.distinct_opens, 'weekly_tier', 'distinct_opens') +
-        _buildInvChartCard('4. Weekly Deck/Video Views & Partner Forwards by Stage/Tier', 'Week-by-week 18-slide Seed Deck views & partner forwards by tier.', weeks, tierGroups, wTier.deck_forwards, 'weekly_tier', 'deck_forwards') +
+    html += '<h2 style="font-size:16px;margin:14px 0 4px">🌍 Weekly Telemetry by Country / Region (US &middot; UK &middot; EU &middot; IL/US)</h2>' +
+      '<div class="chart-grid" style="grid-template-columns:repeat(3,1fr)">' +
+        _buildInvChartCard('1. Weekly Reached Out by Region (US, UK, EU, IL/US)', 'Who we reached out to each week across US, UK, EU, and IL/US.', weeks, regGroups, wReg.sent, 'weekly_region', 'sent') +
+        _buildInvChartCard('2. Weekly Who Opened by Region (US, UK, EU, IL/US)', 'Unique VC funds opening each week across US, UK, EU, and IL/US.', weeks, regGroups, wReg.distinct_opens, 'weekly_region', 'distinct_opens') +
+        _buildInvChartCard('3. Weekly 18-Slide Deck / Video Clicks by Region', 'Week-by-week 18-slide Seed Deck views & partner forwards by region.', weeks, regGroups, wReg.deck_forwards, 'weekly_region', 'deck_forwards') +
       '</div>';
   }}
   if(INV_CHART_MODE === 'sender' || INV_CHART_MODE === 'both'){{
-    html += '<h2 style="font-size:16px;margin:18px 0 4px">👥 Daily &amp; Weekly Sender Telemetry: Warren Zafrin (`warren@dokimo.ai`) vs. Leo Spiegel (`leo@dokimo.ai`)</h2>' +
-      '<div class="chart-grid">' +
-        _buildInvChartCard('1. Daily Sent by Sender (Warren vs. Leo)', 'Day-by-day investor emails dispatched by Warren Zafrin vs. Leo Spiegel.', days, senderGroups, dSnd.sent, 'daily_sender', 'sent') +
-        _buildInvChartCard('2. Daily Distinct Opens by Sender (Warren vs. Leo)', 'Day-by-day unique partner opens on Warren vs. Leo threads.', days, senderGroups, dSnd.distinct_opens, 'daily_sender', 'distinct_opens') +
-        _buildInvChartCard('3. Weekly Sent by Sender (Warren vs. Leo)', 'Week-by-week investor emails dispatched by Warren Zafrin vs. Leo Spiegel.', weeks, senderGroups, wSnd.sent, 'weekly_sender', 'sent') +
-        _buildInvChartCard('4. Weekly Distinct Opens by Sender (Warren vs. Leo)', 'Week-by-week unique partner opens on Warren vs. Leo threads.', weeks, senderGroups, wSnd.distinct_opens, 'weekly_sender', 'distinct_opens') +
+    html += '<h2 style="font-size:16px;margin:14px 0 4px">👥 Weekly Telemetry by Sender: Warren Zafrin vs. Leo Spiegel</h2>' +
+      '<div class="chart-grid" style="grid-template-columns:repeat(2,1fr)">' +
+        _buildInvChartCard('1. Weekly Reached Out by Sender (Warren vs. Leo)', 'Week-by-week investor emails dispatched by Warren Zafrin vs. Leo Spiegel.', weeks, senderGroups, wSnd.sent, 'weekly_sender', 'sent') +
+        _buildInvChartCard('2. Weekly Who Opened by Sender (Warren vs. Leo)', 'Week-by-week unique partner opens on Warren vs. Leo threads.', weeks, senderGroups, wSnd.distinct_opens, 'weekly_sender', 'distinct_opens') +
+      '</div>';
+  }}
+  if(INV_CHART_MODE === 'daily_tier' || INV_CHART_MODE === 'both'){{
+    html += '<h2 style="font-size:16px;margin:14px 0 4px">📊 Daily Telemetry by Investor Stage / Segment (⚡ Pre-Seed &middot; 🟢 Tier S &middot; 🔵 Tier A &middot; ⏳ Tier B)</h2>' +
+      '<div class="chart-grid" style="grid-template-columns:repeat(3,1fr)">' +
+        _buildInvChartCard('1. Daily Reached Out by Stage/Segment', 'Day-by-day outreach across Pre-Seed, Tier S, Tier A, and Tier B.', days, tierGroups, dTier.sent, 'daily_tier', 'sent') +
+        _buildInvChartCard('2. Daily Who Opened by Stage/Segment', 'Unique VCs opening each day across Pre-Seed, Tier S, Tier A, and Tier B.', days, tierGroups, dTier.distinct_opens, 'daily_tier', 'distinct_opens') +
+        _buildInvChartCard('3. Daily Deck/Video Clicks & Forwards by Stage/Segment', '18-slide Seed Deck views & GP forwards each day by tier.', days, tierGroups, dTier.deck_forwards, 'daily_tier', 'deck_forwards') +
+      '</div>';
+  }}
+  if(INV_CHART_MODE === 'daily_region' || INV_CHART_MODE === 'both'){{
+    html += '<h2 style="font-size:16px;margin:14px 0 4px">📊 Daily Telemetry by Country / Region (US &middot; UK &middot; EU &middot; IL/US)</h2>' +
+      '<div class="chart-grid" style="grid-template-columns:repeat(3,1fr)">' +
+        _buildInvChartCard('1. Daily Reached Out by Region (US, UK, EU, IL/US)', 'Day-by-day investor emails & pitch decks sent across regions.', days, regGroups, dReg.sent, 'daily_region', 'sent') +
+        _buildInvChartCard('2. Daily Who Opened by Region (US, UK, EU, IL/US)', 'Unique VC funds that opened at least once each day by region.', days, regGroups, dReg.distinct_opens, 'daily_region', 'distinct_opens') +
+        _buildInvChartCard('3. Daily Deck/Video Clicks & Forwards by Region', '18-slide Seed Deck views, video watches & partner forwards by region.', days, regGroups, dReg.deck_forwards, 'daily_region', 'deck_forwards') +
       '</div>';
   }}
 
   box.innerHTML = html;
-  if(INV_CHART_MODE === 'daily_region'){{
-    drillInvChartBar('daily_region', 'us', 'US', 'opens', -1, 'All 7 Days', true);
-  }} else if(INV_CHART_MODE === 'daily_tier'){{
-    drillInvChartBar('daily_tier', 'tier_s', '🟢 Tier S Seed', 'opens', -1, 'All 7 Days', true);
+  if(INV_CHART_MODE === 'weekly_tier'){{
+    drillInvChartBar('weekly_tier', 'tier_s', '🟢 Tier S Seed', 'sent', -1, 'All 4 Weeks', true);
   }} else if(INV_CHART_MODE === 'weekly_region'){{
-    drillInvChartBar('weekly_region', 'us', 'US', 'opens', -1, 'All 4 Weeks', true);
-  }} else if(INV_CHART_MODE === 'weekly_tier'){{
-    drillInvChartBar('weekly_tier', 'tier_s', '🟢 Tier S Seed', 'opens', -1, 'All 4 Weeks', true);
+    drillInvChartBar('weekly_region', 'us', 'US', 'sent', -1, 'All 4 Weeks', true);
   }} else if(INV_CHART_MODE === 'sender'){{
-    drillInvChartBar('weekly_sender', 'leo', 'Leo Spiegel', 'opens', -1, 'All 4 Weeks', true);
+    drillInvChartBar('weekly_sender', 'warren', 'Warren Zafrin', 'sent', -1, 'All 4 Weeks', true);
+  }} else if(INV_CHART_MODE === 'daily_tier'){{
+    drillInvChartBar('daily_tier', 'tier_s', '🟢 Tier S Seed', 'sent', -1, 'All 7 Days', true);
+  }} else if(INV_CHART_MODE === 'daily_region'){{
+    drillInvChartBar('daily_region', 'us', 'US', 'sent', -1, 'All 7 Days', true);
   }}
 }}
 
@@ -1482,7 +1475,7 @@ function openGeminiModal(r){{
   var title = document.getElementById('mod-title');
   var body = document.getElementById('mod-body');
   modal.style.display = 'flex';
-  title.textContent = '✨ Review & Approve Email Draft, Pitch Video & 18-Slide Pitch Deck — ' + r.fund + ' (' + (r.person || 'Partnership') + ')';
+  title.textContent = '✉️ Review & Send Email Draft — ' + r.fund + ' (' + (r.person || 'Partnership') + ')';
   body.replaceChildren();
 
   function buildModalSections(scoreTxt, valPropTxt, leoEmailTxt, warrenEmailTxt, memoTxt){{
@@ -1494,77 +1487,111 @@ function openGeminiModal(r){{
     var baseCalUrl = 'https://calendar.app.google/JbnbVWry32nwqBiY6';
     var pixelUrl = 'https://vc-aigeqnv5nq-uc.a.run.app/t/o/' + encodeURIComponent(r.id) + '.gif';
 
-    // SECTION 1 (TOP OF MODAL): 🎬 Executive Pitch Video + 📊 Option to Send Investor Pitch Deck
-    var deckToggleBar = makeEl('div', {{style:'padding:14px 16px;background:#f0fdf4;border:2px solid #15803d;border-left:6px solid #15803d;border-radius:6px'}});
-    var rcTitleRow = makeEl('div', {{style:'display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px'}});
-    rcTitleRow.appendChild(makeEl('div', {{style:'font-weight:800;font-size:14px;color:#0f172a'}}, '1. 🎬 Executive Pitch Video & 📊 Option to Send 18-Slide Investor Pitch Deck (100% Human Approved — You Hit Send)'));
+    // Active sender state: default to 'leo' if assigned to Leo or sent by Leo, else 'warren'
+    var activeSender = ((r.our_contact || r.sent_by || '').toLowerCase().indexOf('leo') >= 0) ? 'leo' : 'warren';
+
+    // 1. TOP BAR: 1-CLICK SENDER SELECTION (WARREN VS. LEO)
+    var senderWrap = makeEl('div', {{style:'padding:12px 14px;background:#f8fafc;border:2px solid #3b82f6;border-radius:8px;margin-bottom:10px'}});
+    var senderTopRow = makeEl('div', {{style:'display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px'}});
+    senderTopRow.appendChild(makeEl('div', {{style:'font-weight:800;font-size:13px;color:#0f172a;text-transform:uppercase;letter-spacing:0.04em'}}, '1-Click Sender: Choose Who Is Sending This Email'));
     var deckSaveSpan = makeEl('span', {{style:'font-size:11.5px;color:#15803d;font-weight:700'}});
-    rcTitleRow.appendChild(deckSaveSpan);
-    deckToggleBar.appendChild(rcTitleRow);
+    senderTopRow.appendChild(deckSaveSpan);
+    senderWrap.appendChild(senderTopRow);
 
-    var deckBtnGroup = makeEl('div', {{style:'display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px'}});
-    var btnDeckYes = makeEl('button', {{className:'btn-sm', style: r.include_pitch_deck ? 'background:#15803d;color:#fff;border-color:#15803d;padding:6px 12px;font-weight:700' : 'padding:6px 12px;font-weight:700'}}, '✅ Include 18-Slide Pitch Deck + Pitch Video Link in Email');
-    var btnDeckNo = makeEl('button', {{className:'btn-sm', style: !r.include_pitch_deck ? 'background:#0f172a;color:#fff;border-color:#0f172a;padding:6px 12px;font-weight:700' : 'padding:6px 12px;font-weight:700'}}, '🚫 First-Touch Note Only (No Deck / Video Link)');
-    var attachPdfLabel = makeEl('label', {{style:'display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:#0f172a;cursor:pointer;padding:5px 10px;background:#fff;border:1px solid #15803d;border-radius:4px'}});
+    var senderBtnGroup = makeEl('div', {{style:'display:flex;gap:10px;align-items:center;flex-wrap:wrap'}});
+    var btnPickWarren = makeEl('button', {{type:'button', className:'btn-sm', style:'padding:8px 16px;font-size:13px;font-weight:800;border-radius:6px;cursor:pointer'}});
+    var btnPickLeo = makeEl('button', {{type:'button', className:'btn-sm', style:'padding:8px 16px;font-size:13px;font-weight:800;border-radius:6px;cursor:pointer'}});
+    senderBtnGroup.appendChild(btnPickWarren);
+    senderBtnGroup.appendChild(btnPickLeo);
+    senderWrap.appendChild(senderBtnGroup);
+    body.appendChild(senderWrap);
+
+    // 2. ATTACHMENT & DECK OPTIONS BAR
+    var optBar = makeEl('div', {{style:'display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding:9px 12px;background:#f0fdf4;border:1px solid #86efac;border-radius:6px;margin-bottom:10px'}});
+    var optLeft = makeEl('div', {{style:'display:flex;gap:12px;align-items:center;flex-wrap:wrap'}});
+    var incDeckLabel = makeEl('label', {{style:'display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#166534;cursor:pointer'}});
+    var incDeckChk = makeEl('input', {{type:'checkbox', style:'width:auto;margin:0'}});
+    incDeckChk.checked = (r.include_pitch_deck !== false);
+    incDeckLabel.appendChild(incDeckChk);
+    incDeckLabel.appendChild(document.createTextNode('☑️ Include 18-Slide Pitch Deck & Video Link'));
+
+    var attachPdfLabel = makeEl('label', {{style:'display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#166534;cursor:pointer'}});
     var attachPdfChk = makeEl('input', {{type:'checkbox', style:'width:auto;margin:0'}});
-    attachPdfChk.checked = !!r.include_pitch_deck;
+    attachPdfChk.checked = (r.include_pitch_deck !== false);
     attachPdfLabel.appendChild(attachPdfChk);
-    attachPdfLabel.appendChild(document.createTextNode('📎 Also Attach Raw PDF File (Dokimo_AI_Investor_Pitch_Deck.pdf) to Gmail Draft'));
-    var toggleModalVideoBtn = makeEl('button', {{type:'button', className:'btn-sm', style:'background:#0f766e;color:#fff;border-color:#0f766e;padding:6px 12px;font-weight:700'}}, '🎬 Watch Pitch Video Here');
-    deckBtnGroup.appendChild(btnDeckYes);
-    deckBtnGroup.appendChild(btnDeckNo);
-    deckBtnGroup.appendChild(attachPdfLabel);
-    deckBtnGroup.appendChild(toggleModalVideoBtn);
-    deckToggleBar.appendChild(deckBtnGroup);
+    attachPdfLabel.appendChild(document.createTextNode('📎 Attach Raw PDF (Dokimo_AI_Pitch_Deck.pdf)'));
 
-    var modalVideoWrap = makeEl('div', {{style:'display:none;margin:8px 0 10px;padding:10px 12px;background:#0f172a;color:#fff;border-radius:6px'}});
-    modalVideoWrap.innerHTML =
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:12px;font-weight:700;color:#5eead4">' +
-        '<span>🎬 Dokimo.ai Executive Pitch Video &amp; Live Bob Walkthrough (Tracked Link for ' + escHtml(r.fund) + ': ' + escHtml(baseVideoUrl) + ')</span>' +
-      '</div>' +
-      '<video controls preload="metadata" style="width:100%;max-height:340px;background:#000;border-radius:4px"><source src="/deck/video.mp4" type="video/mp4"></video>';
-    toggleModalVideoBtn.onclick = function(){{
-      var openNow = (modalVideoWrap.style.display === 'none');
-      modalVideoWrap.style.display = openNow ? 'block' : 'none';
-      toggleModalVideoBtn.textContent = openNow ? '✕ Hide Pitch Video' : '🎬 Watch Pitch Video Here';
+    optLeft.appendChild(incDeckLabel);
+    optLeft.appendChild(attachPdfLabel);
+    optBar.appendChild(optLeft);
+
+    var optLinks = makeEl('div', {{style:'font-size:11.5px;color:#334155;display:flex;gap:10px;flex-wrap:wrap;align-items:center'}});
+    optLinks.innerHTML = '<b>Tracked Links:</b> ' +
+      '<a href="' + baseVideoUrl + '" target="_blank" rel="noopener" style="color:#0f766e;text-decoration:underline;font-weight:700">🎬 Pitch Video ↗</a> &middot; ' +
+      '<a href="' + baseDeckUrl + '" target="_blank" rel="noopener" style="color:#991b1b;text-decoration:underline;font-weight:700">📊 18-Slide Deck ↗</a> &middot; ' +
+      '<a href="' + basePdfUrl + '" target="_blank" rel="noopener" style="color:#15803d;text-decoration:underline;font-weight:700">📄 PDF ↗</a> &middot; ' +
+      '<a href="' + baseCalUrl + '" target="_blank" rel="noopener" style="color:#1d4ed8;text-decoration:underline;font-weight:700">📅 Calendar ↗</a>';
+    optBar.appendChild(optLinks);
+    body.appendChild(optBar);
+
+    // 3. DUPLICATE EMAIL GUARD BANNER
+    var dupGuardBar = makeEl('div', {{style:'margin-bottom:10px;padding:10px 14px;border-radius:6px'}});
+    var fupUnlockChk = makeEl('input', {{type:'checkbox', style:'width:auto;margin:0'}});
+    var fupUnlockLabel = makeEl('label', {{style:'display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#92400e;cursor:pointer;margin-top:6px;background:#fff;padding:4px 10px;border:1px solid #f59e0b;border-radius:4px'}});
+    fupUnlockLabel.appendChild(fupUnlockChk);
+    fupUnlockLabel.appendChild(document.createTextNode('🔓 Unlock for Step-2 Follow-Up Email (Enforces Mutual Auto-CC)'));
+    body.appendChild(dupGuardBar);
+
+    // 4. ACTIVE EMAIL DRAFT HEADER & EDITOR
+    var hdrMeta = makeEl('div', {{style:'padding:8px 12px;border-radius:6px 6px 0 0;font:12px/1.45 ui-monospace,monospace;border:1px solid #cbd5e1;border-bottom:none'}});
+    body.appendChild(hdrMeta);
+
+    var subjRow = makeEl('div', {{style:'display:flex;align-items:center;background:#fff;border:1px solid #cbd5e1;border-bottom:none;padding:6px 12px;gap:8px'}});
+    subjRow.appendChild(makeEl('span', {{style:'font-weight:700;font-size:12px;color:var(--ink2);font-family:ui-monospace,monospace'}}, 'Subject:'));
+    var subjIn = makeEl('input', {{type:'text', style:'flex:1;border:none;outline:none;font-weight:700;font-size:13px;color:#0f172a;background:transparent'}});
+    subjRow.appendChild(subjIn);
+    body.appendChild(subjRow);
+
+    var emailTa = makeEl('textarea', {{style:'width:100%;min-height:220px;font:12.5px/1.55 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;padding:12px;border:1px solid #cbd5e1;border-radius:0 0 6px 6px;background:#fff;box-sizing:border-box'}});
+    body.appendChild(emailTa);
+
+    // 5. PRIMARY ACTION BAR
+    var actBar = makeEl('div', {{style:'display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-top:10px;padding:10px 12px;background:#f8fafc;border:1px solid #cbd5e1;border-radius:6px'}});
+    var actLeft = makeEl('div', {{style:'display:flex;gap:8px;flex-wrap:wrap;align-items:center'}});
+    var sendGmailBtn = makeEl('button', {{className:'btn-sm pri', style:'background:#1d4ed8;color:#fff;border-color:#1d4ed8;padding:8px 18px;font-size:13px;font-weight:800;border-radius:6px'}}, '✉️ Open & Send in Gmail');
+    var saveDraftBtn = makeEl('button', {{className:'btn-sm ok', style:'background:#15803d;color:#fff;border-color:#15803d;padding:8px 16px;font-size:12.5px;font-weight:800;border-radius:6px'}}, '📝 Save to Gmail Drafts');
+    var copyBtn = makeEl('button', {{className:'btn-sm', style:'padding:7px 12px;font-size:12px;font-weight:700'}}, '📋 Copy Email');
+    var emlBtn = makeEl('button', {{className:'btn-sm', style:'padding:7px 12px;font-size:12px;font-weight:700'}}, '📥 .EML Draft');
+
+    if(window.CAN_SEND_INVESTOR_EMAILS !== false){{
+      actLeft.appendChild(sendGmailBtn);
+      actLeft.appendChild(saveDraftBtn);
+      actLeft.appendChild(copyBtn);
+      actLeft.appendChild(emlBtn);
+    }} else {{
+      emailTa.readOnly = true;
+      subjIn.readOnly = true;
+      actLeft.appendChild(makeEl('span', {{style:'background:#fef2f2;color:#991b1b;border:1px solid #fecaca;padding:6px 12px;border-radius:4px;font-size:12px;font-weight:700'}}, '🔒 Read-Only: Only Leo Spiegel & Warren Zafrin Can Draft/Send Investor Emails'));
+    }}
+    actBar.appendChild(actLeft);
+
+    var previewToggleBtn = makeEl('button', {{type:'button', className:'btn-sm', style:'font-weight:700'}}, '👁️ Show Rich Preview');
+    actBar.appendChild(previewToggleBtn);
+    body.appendChild(actBar);
+
+    var previewBox = makeEl('div', {{style:'display:none;margin-top:10px;padding:12px 14px;background:#ffffff;border:1px dashed #cbd5e1;border-radius:6px;font-size:13px'}});
+    body.appendChild(previewBox);
+
+    previewToggleBtn.onclick = function(){{
+      var open = (previewBox.style.display === 'none');
+      previewBox.style.display = open ? 'block' : 'none';
+      previewToggleBtn.textContent = open ? '✕ Hide Rich Preview' : '👁️ Show Rich Preview';
+      if(open) updateRichPreview();
     }};
-    deckToggleBar.appendChild(modalVideoWrap);
-
-    var chipRow = makeEl('div', {{style:'display:flex;gap:6px;flex-wrap:wrap;align-items:center'}});
-    chipRow.appendChild(makeEl('span', {{style:'font-size:11px;font-weight:700;color:#166534'}}, '1-Click Add / Remove in Both Drafts:'));
-    var richBlocks = [
-      {{label:'📊 + 18-Slide Deck & Video Link', text:'Here is the link to our 18-slide Seed Deck and 90-second product walkthrough:\\n' + baseDeckUrl}},
-      {{label:'🎥 + Direct Pitch Video Link', text:'Here is the direct link to our executive pitch video and live Bob walkthrough:\\n' + baseVideoUrl}},
-      {{label:'📄 + Direct PDF Deck Link', text:'You can also open or download the 18-slide Seed Deck PDF directly here:\\n' + basePdfUrl}},
-      {{label:'📅 + 25-Min Calendar Link', text:'You can also grab a 25-minute slot directly on our calendar here:\\n' + baseCalUrl}},
-      {{label:'🏦 + Bank Pilot Proofs', text:'On the commercial side, we have 3 active bank proofs of value with Standard Bank, Synchrony Bank, and Old National Bank, plus channel partnerships in legal review with Guidehouse and KPMG.'}},
-      {{label:'⚖️ + $1.7B Enforcement Signal', text:'Between August and October 2026 alone, regulators issued $1.7B in penalties (UBS $125M, American Express $350M, Bank of America $1.2B) over cross-system control gaps that legacy GRC dashboards missed.'}}
-    ];
-    deckToggleBar.appendChild(chipRow);
-
-    var verifyLinksRow = makeEl('div', {{style:'margin-top:8px;padding-top:6px;border-top:1px dashed #86efac;font-size:11.5px;color:#334155;display:flex;gap:12px;flex-wrap:wrap;align-items:center'}});
-    verifyLinksRow.innerHTML = '<b>🔗 Tracked Links for ' + escHtml(r.fund) + ' (Click to Preview):</b> ' +
-      '<a href="' + baseVideoUrl + '" target="_blank" rel="noopener" style="color:#0f766e;text-decoration:underline;font-weight:700">🎬 Executive Pitch Video ↗</a> &middot; ' +
-      '<a href="' + baseDeckUrl + '" target="_blank" rel="noopener" style="color:#991b1b;text-decoration:underline;font-weight:700">📊 18-Slide Pitch Deck Portal ↗</a> &middot; ' +
-      '<a href="' + basePdfUrl + '" target="_blank" rel="noopener" style="color:#15803d;text-decoration:underline;font-weight:700">📄 Downloadable PDF Deck ↗</a> &middot; ' +
-      '<a href="' + baseCalUrl + '" target="_blank" rel="noopener" style="color:#1d4ed8;text-decoration:underline;font-weight:700">📅 25-Min Calendar Booking ↗</a>';
-    deckToggleBar.appendChild(verifyLinksRow);
-    body.appendChild(deckToggleBar);
-
-    // Ask Gemini About This Investor & Auto-Tailor Leo + Warren's Email Drafts
-    var askBar = makeEl('div', {{style:'margin-top:10px;padding:10px 12px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px'}});
-    askBar.appendChild(makeEl('div', {{style:'font-weight:700;font-size:12.5px;color:#1e3a8a;margin-bottom:6px'}}, '🤖 Ask Gemini About ' + r.fund + ' & Auto-Tailor Both Drafts Below'));
-    var askRow = makeEl('div', {{style:'display:flex;gap:6px;flex-wrap:wrap'}});
-    var askIn = makeEl('input', {{type:'text', placeholder:'Ask Gemini anything about ' + r.fund + ' or specify an angle (e.g. "Focus on their portfolio and our bank LP traction")...', style:'flex:1;min-width:260px;padding:6px 10px;border:1px solid #93c5fd;border-radius:4px;font-size:12px;background:#fff'}});
-    var askBtn = makeEl('button', {{className:'btn-sm pri'}}, '✨ Ask Gemini & Tailor Drafts');
-    askRow.appendChild(askIn);
-    askRow.appendChild(askBtn);
-    askBar.appendChild(askRow);
-    body.appendChild(askBar);
 
     function parseSubjAndBody(rawTxt){{
       var raw = rawTxt || '';
-      var subj = r.direct_email_subject || ('Dokimo.ai x ' + r.fund);
+      var subj = r.direct_email_subject || ('Dokimo.ai x ' + r.fund + ' (Seed Round)');
       var bdy = raw;
       if(raw.indexOf('Subject:') === 0){{
         var nl = raw.indexOf('\\n');
@@ -1597,6 +1624,10 @@ function openGeminiModal(r){{
       return htmlOut;
     }}
 
+    function updateRichPreview(){{
+      previewBox.innerHTML = '<div style="font-size:11px;font-weight:700;color:#475569;margin-bottom:6px">👁️ Live Rich Email Preview (Auto-CC + Clickable Video &amp; Pitch Deck Links + Tracking Pixel):</div>' + buildRichHtmlFromPlain(emailTa.value);
+    }}
+
     function copyRichEmailToClipboard(plainBody, btnEl, openGmailUrl){{
       var richHtml = buildRichHtmlFromPlain(plainBody);
       if(navigator.clipboard && window.ClipboardItem){{
@@ -1605,7 +1636,7 @@ function openGeminiModal(r){{
           'text/plain': new Blob([plainBody], {{type:'text/plain'}})
         }});
         navigator.clipboard.write([item]).then(function(){{
-          if(btnEl) btnEl.textContent = openGmailUrl ? '✓ Rich Email Copied & Gmail Opened (Paste or Hit Send)' : '✓ Copied Rich Email (Links + Tracking Pixel)!';
+          if(btnEl) btnEl.textContent = openGmailUrl ? '✓ Rich Email Copied & Gmail Opened!' : '✓ Copied Rich Content!';
           if(openGmailUrl) window.open(openGmailUrl, '_blank', 'noopener');
         }}).catch(function(){{
           navigator.clipboard.writeText(plainBody);
@@ -1619,44 +1650,12 @@ function openGeminiModal(r){{
       }}
     }}
 
-    // DUPLICATE EMAIL PREVENTION GUARD & MUTUAL CC BANNER (WARREN <-> LEO)
-    var dupGuardBar = makeEl('div', {{style:'margin-top:12px;padding:12px 14px;border-radius:6px'}});
-    var fupUnlockChk = makeEl('input', {{type:'checkbox', style:'width:auto;margin:0'}});
-    var fupUnlockLabel = makeEl('label', {{style:'display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#92400e;cursor:pointer;margin-top:6px;background:#fff;padding:4px 10px;border:1px solid #f59e0b;border-radius:4px'}});
-    fupUnlockLabel.appendChild(fupUnlockChk);
-    fupUnlockLabel.appendChild(document.createTextNode('🔓 Unlock for Intentional Step-2 Follow-Up Email (Still Enforces Mutual CC)'));
-    body.appendChild(dupGuardBar);
-
-    var sec2Hdr = makeEl('div', {{style:'display:flex;justify-content:space-between;align-items:center;margin-top:12px;flex-wrap:wrap;gap:6px'}});
-    sec2Hdr.appendChild(makeEl('div', {{style:'font-weight:700;font-size:13px;color:var(--quiet)'}}, '2. Human-Approved Email Draft for Leo Spiegel <leo@dokimo.ai> · Auto-CC: Warren Zafrin <warren@dokimo.ai>'));
-    var leoBtnGrp = makeEl('div', {{style:'display:flex;gap:6px;flex-wrap:wrap'}});
-    var saveLeoDraftBtn = makeEl('button', {{className:'btn-sm ok', style:'background:#15803d;color:#fff;border-color:#15803d'}}, '📝 Save to Gmail Drafts (Leo -> CC Warren)');
-    var openLeoEmailBtn = makeEl('button', {{className:'btn-sm pri'}}, '✉️ Copy Rich + Open Gmail (Leo -> CC Warren)');
-    var copyLeoRichBtn = makeEl('button', {{className:'btn-sm'}}, '✨ Copy Rich Content');
-    var dlLeoEmlBtn = makeEl('button', {{className:'btn-sm'}}, '📥 .EML Draft (CC Warren)');
-    var leoHdrMeta = makeEl('div', {{style:'margin-top:6px;padding:6px 10px;background:#ecfdf5;border:1px solid #6ee7b7;border-radius:4px;font:11.5px/1.4 ui-monospace,monospace;color:#065f46'}});
-    leoHdrMeta.innerHTML = '<b>From:</b> Leo Spiegel &lt;leo@dokimo.ai&gt; &nbsp;|&nbsp; <b>To:</b> ' + escHtml(r.email || '') + ' &nbsp;|&nbsp; <b>CC (Automatic):</b> <span style="background:#065f46;color:#fff;padding:1px 6px;border-radius:3px;font-weight:700">Warren Zafrin &lt;warren@dokimo.ai&gt;</span>';
-    var leoTa = makeEl('textarea', {{style:'width:100%;min-height:185px;font:12px/1.5 ui-monospace,monospace;padding:10px;border:1px solid var(--rule2);border-radius:6px;margin-top:6px'}}, leoEmailTxt);
-    var leoPreview = makeEl('div', {{style:'margin-top:6px;padding:10px 12px;background:#ffffff;border:1px dashed #cbd5e1;border-radius:6px;font-size:12.5px'}});
-
-    var sec3Hdr = makeEl('div', {{style:'display:flex;justify-content:space-between;align-items:center;margin-top:14px;flex-wrap:wrap;gap:6px'}});
-    sec3Hdr.appendChild(makeEl('div', {{style:'font-weight:700;font-size:13px;color:var(--ink)'}}, '3. Human-Approved Email Draft for Warren Zafrin <warren@dokimo.ai> · Auto-CC: Leo Spiegel <leo@dokimo.ai>'));
-    var warrenBtnGrp = makeEl('div', {{style:'display:flex;gap:6px;flex-wrap:wrap'}});
-    var saveWarrenDraftBtn = makeEl('button', {{className:'btn-sm ok', style:'background:#15803d;color:#fff;border-color:#15803d'}}, '📝 Save to Gmail Drafts (Warren -> CC Leo)');
-    var openWarrenEmailBtn = makeEl('button', {{className:'btn-sm pri'}}, '✉️ Copy Rich + Open Gmail (Warren -> CC Leo)');
-    var copyWarrenRichBtn = makeEl('button', {{className:'btn-sm'}}, '✨ Copy Rich Content');
-    var dlWarrenEmlBtn = makeEl('button', {{className:'btn-sm'}}, '📥 .EML Draft (CC Leo)');
-    var warrenHdrMeta = makeEl('div', {{style:'margin-top:6px;padding:6px 10px;background:#eff6ff;border:1px solid #93c5fd;border-radius:4px;font:11.5px/1.4 ui-monospace,monospace;color:#1e3a8a'}});
-    warrenHdrMeta.innerHTML = '<b>From:</b> Warren Zafrin &lt;warren@dokimo.ai&gt; &nbsp;|&nbsp; <b>To:</b> ' + escHtml(r.email || '') + ' &nbsp;|&nbsp; <b>CC (Automatic):</b> <span style="background:#1e3a8a;color:#fff;padding:1px 6px;border-radius:3px;font-weight:700">Leo Spiegel &lt;leo@dokimo.ai&gt;</span>';
-    var warrenTa = makeEl('textarea', {{style:'width:100%;min-height:185px;font:12px/1.5 ui-monospace,monospace;padding:10px;border:1px solid var(--rule2);border-radius:6px;margin-top:6px'}}, warrenEmailTxt);
-    var warrenPreview = makeEl('div', {{style:'margin-top:6px;padding:10px 12px;background:#ffffff;border:1px dashed #cbd5e1;border-radius:6px;font-size:12.5px'}});
-
     function syncDuplicateGuardUi(){{
       var isSent = (r.sent_count || 0) > 0;
       var blocked = isSent && !fupUnlockChk.checked;
       dupGuardBar.replaceChildren();
       if(isSent){{
-        dupGuardBar.style.cssText = 'margin-top:12px;padding:12px 14px;background:#fffbeb;border:2px solid #f59e0b;border-left:6px solid #d97706;border-radius:6px';
+        dupGuardBar.style.cssText = 'margin-bottom:10px;padding:12px 14px;background:#fffbeb;border:2px solid #f59e0b;border-left:6px solid #d97706;border-radius:6px';
         var warnTitle = makeEl('div', {{style:'font-weight:800;font-size:13px;color:#92400e'}}, '🛡️ DUPLICATE EMAIL GUARD ACTIVE — Already Contacted (' + (r.sent_count || 1) + ' prior send' + ((r.sent_count||1)>1?'s':'') + ')');
         var warnSub = makeEl('div', {{style:'font-size:12px;color:#78350f;margin-top:3px'}},
           'Sent by ' + (r.sent_by || 'Warren Zafrin') + (r.sent_at ? (' on ' + r.sent_at) : '') +
@@ -1667,11 +1666,11 @@ function openGeminiModal(r){{
         dupGuardBar.appendChild(warnSub);
         dupGuardBar.appendChild(fupUnlockLabel);
       }} else {{
-        dupGuardBar.style.cssText = 'margin-top:12px;padding:10px 14px;background:#f0fdf4;border:1px solid #86efac;border-left:5px solid #15803d;border-radius:6px;font-size:12px;color:#14532d';
-        dupGuardBar.innerHTML = '<b>🛡️ Duplicate Email Guard &amp; Mutual Auto-CC Active:</b> Ready for First-Touch Outreach (<b>0 prior sends</b> to <code>' + escHtml(r.email || '') + '</code>). ' +
-          'When <b>Warren</b> sends, <b>Leo (<code>leo@dokimo.ai</code>)</b> is automatically CC\\'d. When <b>Leo</b> sends, <b>Warren (<code>warren@dokimo.ai</code>)</b> is automatically CC\\'d.';
+        dupGuardBar.style.cssText = 'margin-bottom:10px;padding:9px 14px;background:#f0fdf4;border:1px solid #86efac;border-left:5px solid #15803d;border-radius:6px;font-size:12px;color:#14532d';
+        dupGuardBar.innerHTML = '<b>🛡️ Duplicate Email Guard Active:</b> Ready for First-Touch Outreach (<b>0 prior sends</b> to <code>' + escHtml(r.email || '') + '</code>). ' +
+          'When <b>' + (activeSender === 'warren' ? 'Warren' : 'Leo') + '</b> sends, <b>' + (activeSender === 'warren' ? 'Leo (leo@dokimo.ai)' : 'Warren (warren@dokimo.ai)') + '</b> is automatically CC\\'d.';
       }}
-      [saveLeoDraftBtn, openLeoEmailBtn, dlLeoEmlBtn, saveWarrenDraftBtn, openWarrenEmailBtn, dlWarrenEmlBtn].forEach(function(b){{
+      [sendGmailBtn, saveDraftBtn, emlBtn].forEach(function(b){{
         b.disabled = blocked;
         b.style.opacity = blocked ? '0.45' : '1';
         b.style.cursor = blocked ? 'not-allowed' : 'pointer';
@@ -1693,197 +1692,172 @@ function openGeminiModal(r){{
       renderRows();
     }}
 
-    function updatePreviews(){{
-      var sbL = parseSubjAndBody(leoTa.value);
-      leoPreview.innerHTML = '<div style="font-size:11px;font-weight:700;color:#475569;margin-bottom:4px">👁️ Live Rich Email Preview (Auto-CC: warren@dokimo.ai + Clickable Video &amp; Pitch Deck Links + Open Pixel):</div>' + buildRichHtmlFromPlain(sbL.bdy);
-      var sbW = parseSubjAndBody(warrenTa.value);
-      warrenPreview.innerHTML = '<div style="font-size:11px;font-weight:700;color:#475569;margin-bottom:4px">👁️ Live Rich Email Preview (Auto-CC: leo@dokimo.ai + Clickable Video &amp; Pitch Deck Links + Open Pixel):</div>' + buildRichHtmlFromPlain(sbW.bdy);
-    }}
+    function applySenderAndDeckDraft(){{
+      var inc = incDeckChk.checked;
+      r.include_pitch_deck = inc;
+      attachPdfChk.checked = inc;
 
-    saveLeoDraftBtn.onclick = function(){{
-      if((r.sent_count || 0) > 0 && !fupUnlockChk.checked){{
-        alert('🛡️ Duplicate Email Blocked: ' + (r.sent_by || 'Warren/Leo') + ' already contacted ' + (r.email || r.fund) + '.');
-        return;
-      }}
-      var sb = parseSubjAndBody(leoTa.value);
-      saveLeoDraftBtn.disabled = true;
-      saveLeoDraftBtn.textContent = '⏳ Saving Unsent Draft to Gmail (CC: warren@dokimo.ai)...';
-      fetch('/api/investors/create-draft', {{
-        method:'POST',
-        headers:{{'Content-Type':'application/json'}},
-        body:JSON.stringify({{id:r.id, sender:'leo', to_email:r.email, subject:sb.subj, body:sb.bdy, include_pitch_deck:!!r.include_pitch_deck, attach_pdf:!!attachPdfChk.checked, force_followup:!!fupUnlockChk.checked}})
-      }}).then(function(res){{ return res.json(); }}).then(function(d){{
-        if(!d.ok){{
-          syncDuplicateGuardUi();
-          alert(d.error || 'Could not create draft');
-          saveLeoDraftBtn.textContent = '📝 Save to Gmail Drafts (Leo -> CC Warren)';
-          return;
-        }}
-        markInvestorSentInUi('Leo Spiegel', 'leo@dokimo.ai', d.cc_email || 'warren@dokimo.ai', d.sent_at);
-        saveLeoDraftBtn.textContent = '✓ Saved in Gmail Drafts (CC: warren@dokimo.ai)';
-        window.open('https://mail.google.com/mail/u/0/#drafts', '_blank', 'noopener');
-      }});
-    }};
-    dlLeoEmlBtn.onclick = function(){{
-      if((r.sent_count || 0) > 0 && !fupUnlockChk.checked){{
-        alert('🛡️ Duplicate Email Blocked: ' + (r.sent_by || 'Warren/Leo') + ' already contacted ' + (r.email || r.fund) + '.');
-        return;
-      }}
-      var ff = fupUnlockChk.checked ? '1' : '0';
-      window.open('/api/investors/eml?id=' + encodeURIComponent(r.id) + '&sender=leo&deck=' + (r.include_pitch_deck ? '1' : '0') + '&attach=' + (attachPdfChk.checked ? '1' : '0') + '&force_followup=' + ff, '_blank');
-      markInvestorSentInUi('Leo Spiegel', 'leo@dokimo.ai', 'warren@dokimo.ai', 'Just now');
-    }};
-    openLeoEmailBtn.onclick = function(){{
-      if((r.sent_count || 0) > 0 && !fupUnlockChk.checked){{
-        alert('🛡️ Duplicate Email Blocked: ' + (r.sent_by || 'Warren/Leo') + ' already contacted ' + (r.email || r.fund) + '.');
-        return;
-      }}
-      var sb = parseSubjAndBody(leoTa.value);
-      fetch('/api/investors/record-outreach', {{
-        method:'POST',
-        headers:{{'Content-Type':'application/json'}},
-        body:JSON.stringify({{id:r.id, sender:'leo', to_email:r.email, subject:sb.subj, include_pitch_deck:!!r.include_pitch_deck, force_followup:!!fupUnlockChk.checked}})
-      }}).then(function(res){{ return res.json(); }}).then(function(d){{
-        if(!d.ok){{
-          syncDuplicateGuardUi();
-          alert(d.error || 'Duplicate email blocked');
-          return;
-        }}
-        markInvestorSentInUi('Leo Spiegel', 'leo@dokimo.ai', d.cc_email || 'warren@dokimo.ai', (d.state && d.state.sent_at) || 'Just now');
-        var u = 'https://mail.google.com/mail/?view=cm&fs=1&to=' + encodeURIComponent(r.email || '') + '&cc=' + encodeURIComponent('warren@dokimo.ai') + '&su=' + encodeURIComponent(sb.subj) + '&body=' + encodeURIComponent(sb.bdy);
-        copyRichEmailToClipboard(sb.bdy, openLeoEmailBtn, u);
-      }});
-    }};
-    copyLeoRichBtn.onclick = function(){{
-      var sb = parseSubjAndBody(leoTa.value);
-      copyRichEmailToClipboard(sb.bdy, copyLeoRichBtn, null);
-    }};
-    leoTa.oninput = updatePreviews;
-    if(window.CAN_SEND_INVESTOR_EMAILS !== false){{
-      leoBtnGrp.appendChild(saveLeoDraftBtn);
-      leoBtnGrp.appendChild(openLeoEmailBtn);
-      leoBtnGrp.appendChild(copyLeoRichBtn);
-      leoBtnGrp.appendChild(dlLeoEmlBtn);
-    }} else {{
-      leoTa.readOnly = true;
-      leoBtnGrp.appendChild(makeEl('span', {{style:'background:#fef2f2;color:#991b1b;border:1px solid #fecaca;padding:4px 10px;border-radius:4px;font-size:11.5px;font-weight:700'}}, '🔒 Read-Only: Only Leo Spiegel & Warren Zafrin Can Draft/Send Investor Emails'));
-    }}
-    sec2Hdr.appendChild(leoBtnGrp);
-    body.appendChild(sec2Hdr);
-    body.appendChild(leoHdrMeta);
-    body.appendChild(leoTa);
-    body.appendChild(leoPreview);
+      if(activeSender === 'warren'){{
+        btnPickWarren.style.cssText = 'background:#1e3a8a;color:#fff;border:2px solid #1e3a8a;padding:8px 16px;font-size:13px;font-weight:800;border-radius:6px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,0.12)';
+        btnPickWarren.textContent = '✓ 👤 Sending as Warren Zafrin <warren@dokimo.ai> (Auto-CC: Leo)';
+        btnPickLeo.style.cssText = 'background:#f1f5f9;color:#334155;border:1px solid #cbd5e1;padding:8px 16px;font-size:13px;font-weight:700;border-radius:6px;cursor:pointer';
+        btnPickLeo.textContent = '👤 Switch to Leo Spiegel <leo@dokimo.ai> (Auto-CC: Warren)';
 
-    saveWarrenDraftBtn.onclick = function(){{
-      if((r.sent_count || 0) > 0 && !fupUnlockChk.checked){{
-        alert('🛡️ Duplicate Email Blocked: ' + (r.sent_by || 'Warren/Leo') + ' already contacted ' + (r.email || r.fund) + '.');
-        return;
-      }}
-      var sb = parseSubjAndBody(warrenTa.value);
-      saveWarrenDraftBtn.disabled = true;
-      saveWarrenDraftBtn.textContent = '⏳ Saving Unsent Draft to Gmail (CC: leo@dokimo.ai)...';
-      fetch('/api/investors/create-draft', {{
-        method:'POST',
-        headers:{{'Content-Type':'application/json'}},
-        body:JSON.stringify({{id:r.id, sender:'warren', to_email:r.email, subject:sb.subj, body:sb.bdy, include_pitch_deck:!!r.include_pitch_deck, attach_pdf:!!attachPdfChk.checked, force_followup:!!fupUnlockChk.checked}})
-      }}).then(function(res){{ return res.json(); }}).then(function(d){{
-        if(!d.ok){{
-          syncDuplicateGuardUi();
-          alert(d.error || 'Could not create draft');
-          saveWarrenDraftBtn.textContent = '📝 Save to Gmail Drafts (Warren -> CC Leo)';
-          return;
-        }}
-        markInvestorSentInUi('Warren Zafrin', 'warren@dokimo.ai', d.cc_email || 'leo@dokimo.ai', d.sent_at);
-        saveWarrenDraftBtn.textContent = '✓ Saved in Gmail Drafts (CC: leo@dokimo.ai)';
-        window.open('https://mail.google.com/mail/u/0/#drafts', '_blank', 'noopener');
-      }});
-    }};
-    dlWarrenEmlBtn.onclick = function(){{
-      if((r.sent_count || 0) > 0 && !fupUnlockChk.checked){{
-        alert('🛡️ Duplicate Email Blocked: ' + (r.sent_by || 'Warren/Leo') + ' already contacted ' + (r.email || r.fund) + '.');
-        return;
-      }}
-      var ff = fupUnlockChk.checked ? '1' : '0';
-      window.open('/api/investors/eml?id=' + encodeURIComponent(r.id) + '&sender=warren&deck=' + (r.include_pitch_deck ? '1' : '0') + '&attach=' + (attachPdfChk.checked ? '1' : '0') + '&force_followup=' + ff, '_blank');
-      markInvestorSentInUi('Warren Zafrin', 'warren@dokimo.ai', 'leo@dokimo.ai', 'Just now');
-    }};
-    openWarrenEmailBtn.onclick = function(){{
-      if((r.sent_count || 0) > 0 && !fupUnlockChk.checked){{
-        alert('🛡️ Duplicate Email Blocked: ' + (r.sent_by || 'Warren/Leo') + ' already contacted ' + (r.email || r.fund) + '.');
-        return;
-      }}
-      var sb = parseSubjAndBody(warrenTa.value);
-      fetch('/api/investors/record-outreach', {{
-        method:'POST',
-        headers:{{'Content-Type':'application/json'}},
-        body:JSON.stringify({{id:r.id, sender:'warren', to_email:r.email, subject:sb.subj, include_pitch_deck:!!r.include_pitch_deck, force_followup:!!fupUnlockChk.checked}})
-      }}).then(function(res){{ return res.json(); }}).then(function(d){{
-        if(!d.ok){{
-          syncDuplicateGuardUi();
-          alert(d.error || 'Duplicate email blocked');
-          return;
-        }}
-        markInvestorSentInUi('Warren Zafrin', 'warren@dokimo.ai', d.cc_email || 'leo@dokimo.ai', (d.state && d.state.sent_at) || 'Just now');
-        var u = 'https://mail.google.com/mail/?view=cm&fs=1&to=' + encodeURIComponent(r.email || '') + '&cc=' + encodeURIComponent('leo@dokimo.ai') + '&su=' + encodeURIComponent(sb.subj) + '&body=' + encodeURIComponent(sb.bdy);
-        copyRichEmailToClipboard(sb.bdy, openWarrenEmailBtn, u);
-      }});
-    }};
-    copyWarrenRichBtn.onclick = function(){{
-      var sb = parseSubjAndBody(warrenTa.value);
-      copyRichEmailToClipboard(sb.bdy, copyWarrenRichBtn, null);
-    }};
-    warrenTa.oninput = updatePreviews;
-    if(window.CAN_SEND_INVESTOR_EMAILS !== false){{
-      warrenBtnGrp.appendChild(saveWarrenDraftBtn);
-      warrenBtnGrp.appendChild(openWarrenEmailBtn);
-      warrenBtnGrp.appendChild(copyWarrenRichBtn);
-      warrenBtnGrp.appendChild(dlWarrenEmlBtn);
-    }} else {{
-      warrenTa.readOnly = true;
-      warrenBtnGrp.appendChild(makeEl('span', {{style:'background:#fef2f2;color:#991b1b;border:1px solid #fecaca;padding:4px 10px;border-radius:4px;font-size:11.5px;font-weight:700'}}, '🔒 Read-Only: Only Leo Spiegel & Warren Zafrin Can Draft/Send Investor Emails'));
-    }}
-    sec3Hdr.appendChild(warrenBtnGrp);
-    body.appendChild(sec3Hdr);
-    body.appendChild(warrenHdrMeta);
-    body.appendChild(warrenTa);
-    body.appendChild(warrenPreview);
-    syncDuplicateGuardUi();
+        hdrMeta.style.background = '#eff6ff';
+        hdrMeta.style.borderColor = '#93c5fd';
+        hdrMeta.style.color = '#1e3a8a';
+        hdrMeta.innerHTML = '<b>From:</b> Warren Zafrin &lt;warren@dokimo.ai&gt; &nbsp;|&nbsp; <b>To:</b> ' + escHtml(r.email || '') + ' &nbsp;|&nbsp; <b>CC (Automatic):</b> <span style="background:#1e3a8a;color:#fff;padding:2px 8px;border-radius:3px;font-weight:800">Leo Spiegel &lt;leo@dokimo.ai&gt;</span>';
 
-    function toggleSnippetInTextarea(ta, snippetText){{
-      var val = ta.value || '';
-      if(val.indexOf(snippetText) >= 0){{
-        ta.value = val.replace('\\n\\n' + snippetText, '').replace(snippetText + '\\n\\n', '').replace(snippetText, '');
+        var sbW = parseSubjAndBody(inc ? (r.warren_email_with_deck || warrenEmailTxt) : (r.warren_email_no_deck || warrenEmailTxt));
+        subjIn.value = sbW.subj || ('Dokimo.ai x ' + r.fund + ' (Seed Round)');
+        emailTa.value = sbW.bdy;
+        sendGmailBtn.textContent = '✉️ Open & Send in Gmail (Warren -> CC Leo)';
+        saveDraftBtn.textContent = '📝 Save to Gmail Drafts (Warren -> CC Leo)';
       }} else {{
-        var signIdx = val.lastIndexOf('\\n\\nBest');
-        if(signIdx > 0){{
-          ta.value = val.slice(0, signIdx) + '\\n\\n' + snippetText + val.slice(signIdx);
-        }} else {{
-          ta.value = val + '\\n\\n' + snippetText;
-        }}
+        btnPickLeo.style.cssText = 'background:#065f46;color:#fff;border:2px solid #065f46;padding:8px 16px;font-size:13px;font-weight:800;border-radius:6px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,0.12)';
+        btnPickLeo.textContent = '✓ 👤 Sending as Leo Spiegel <leo@dokimo.ai> (Auto-CC: Warren)';
+        btnPickWarren.style.cssText = 'background:#f1f5f9;color:#334155;border:1px solid #cbd5e1;padding:8px 16px;font-size:13px;font-weight:700;border-radius:6px;cursor:pointer';
+        btnPickWarren.textContent = '👤 Switch to Warren Zafrin <warren@dokimo.ai> (Auto-CC: Leo)';
+
+        hdrMeta.style.background = '#ecfdf5';
+        hdrMeta.style.borderColor = '#6ee7b7';
+        hdrMeta.style.color = '#065f46';
+        hdrMeta.innerHTML = '<b>From:</b> Leo Spiegel &lt;leo@dokimo.ai&gt; &nbsp;|&nbsp; <b>To:</b> ' + escHtml(r.email || '') + ' &nbsp;|&nbsp; <b>CC (Automatic):</b> <span style="background:#065f46;color:#fff;padding:2px 8px;border-radius:3px;font-weight:800">Warren Zafrin &lt;warren@dokimo.ai&gt;</span>';
+
+        var sbL = parseSubjAndBody(inc ? (r.leo_email_with_deck || leoEmailTxt) : (r.leo_email_no_deck || leoEmailTxt));
+        subjIn.value = sbL.subj || ('Dokimo.ai x ' + r.fund + ' (Seed Round)');
+        emailTa.value = sbL.bdy;
+        sendGmailBtn.textContent = '✉️ Open & Send in Gmail (Leo -> CC Warren)';
+        saveDraftBtn.textContent = '📝 Save to Gmail Drafts (Leo -> CC Warren)';
       }}
+      syncDuplicateGuardUi();
+      if(previewBox.style.display !== 'none') updateRichPreview();
     }}
 
-    richBlocks.forEach(function(rb){{
-      var chip = makeEl('button', {{className:'btn-sm', style:'background:#fff;border-color:#86efac;color:#166534;font-weight:700;padding:4px 8px'}}, rb.label);
-      chip.onclick = function(){{
-        toggleSnippetInTextarea(leoTa, rb.text);
-        toggleSnippetInTextarea(warrenTa, rb.text);
-        var active = leoTa.value.indexOf(rb.text) >= 0;
-        chip.style.cssText = active
-          ? 'background:#15803d;border-color:#15803d;color:#fff;font-weight:700;padding:4px 8px'
-          : 'background:#fff;border-color:#86efac;color:#166534;font-weight:700;padding:4px 8px';
-        updatePreviews();
-      }};
-      chipRow.appendChild(chip);
-    }});
+    btnPickWarren.onclick = function(){{
+      activeSender = 'warren';
+      applySenderAndDeckDraft();
+    }};
+    btnPickLeo.onclick = function(){{
+      activeSender = 'leo';
+      applySenderAndDeckDraft();
+    }};
+    incDeckChk.onchange = function(){{
+      applySenderAndDeckDraft();
+      saveInvestorUpdate(r.id, r.latest_status, r.next_action, r.follow_up_date, r.our_contact, incDeckChk.checked, deckSaveSpan);
+      renderRows();
+    }};
+    emailTa.oninput = function(){{
+      if(previewBox.style.display !== 'none') updateRichPreview();
+    }};
 
-    updatePreviews();
+    sendGmailBtn.onclick = function(){{
+      if((r.sent_count || 0) > 0 && !fupUnlockChk.checked){{
+        alert('🛡️ Duplicate Email Blocked: ' + (r.sent_by || 'Warren/Leo') + ' already contacted ' + (r.email || r.fund) + '.');
+        return;
+      }}
+      var subj = subjIn.value.trim() || ('Dokimo.ai x ' + r.fund);
+      var bdy = emailTa.value;
+      var sName = (activeSender === 'leo') ? 'Leo Spiegel' : 'Warren Zafrin';
+      var sEmail = (activeSender === 'leo') ? 'leo@dokimo.ai' : 'warren@dokimo.ai';
+      var ccEmail = (activeSender === 'leo') ? 'warren@dokimo.ai' : 'leo@dokimo.ai';
+
+      sendGmailBtn.disabled = true;
+      sendGmailBtn.textContent = '⏳ Recording & Opening Gmail...';
+
+      fetch('/api/investors/record-outreach', {{
+        method:'POST',
+        headers:{{'Content-Type':'application/json'}},
+        body:JSON.stringify({{id:r.id, sender:activeSender, to_email:r.email, subject:subj, include_pitch_deck:!!incDeckChk.checked, force_followup:!!fupUnlockChk.checked}})
+      }}).then(function(res){{ return res.json(); }}).then(function(d){{
+        sendGmailBtn.disabled = false;
+        if(!d.ok){{
+          syncDuplicateGuardUi();
+          alert(d.error || 'Duplicate email blocked');
+          return;
+        }}
+        markInvestorSentInUi(sName, sEmail, d.cc_email || ccEmail, (d.state && d.state.sent_at) || 'Just now');
+        var u = 'https://mail.google.com/mail/?view=cm&fs=1&to=' + encodeURIComponent(r.email || '') + '&cc=' + encodeURIComponent(ccEmail) + '&su=' + encodeURIComponent(subj) + '&body=' + encodeURIComponent(bdy);
+        copyRichEmailToClipboard(bdy, sendGmailBtn, u);
+      }}).catch(function(err){{
+        sendGmailBtn.disabled = false;
+        alert('Network error: ' + err);
+      }});
+    }};
+
+    saveDraftBtn.onclick = function(){{
+      if((r.sent_count || 0) > 0 && !fupUnlockChk.checked){{
+        alert('🛡️ Duplicate Email Blocked: ' + (r.sent_by || 'Warren/Leo') + ' already contacted ' + (r.email || r.fund) + '.');
+        return;
+      }}
+      var subj = subjIn.value.trim() || ('Dokimo.ai x ' + r.fund);
+      var bdy = emailTa.value;
+      var sName = (activeSender === 'leo') ? 'Leo Spiegel' : 'Warren Zafrin';
+      var sEmail = (activeSender === 'leo') ? 'leo@dokimo.ai' : 'warren@dokimo.ai';
+      var ccEmail = (activeSender === 'leo') ? 'warren@dokimo.ai' : 'leo@dokimo.ai';
+
+      saveDraftBtn.disabled = true;
+      saveDraftBtn.textContent = '⏳ Saving Draft in Gmail (CC: ' + ccEmail + ')...';
+
+      fetch('/api/investors/create-draft', {{
+        method:'POST',
+        headers:{{'Content-Type':'application/json'}},
+        body:JSON.stringify({{id:r.id, sender:activeSender, to_email:r.email, subject:subj, body:bdy, include_pitch_deck:!!incDeckChk.checked, attach_pdf:!!attachPdfChk.checked, force_followup:!!fupUnlockChk.checked}})
+      }}).then(function(res){{ return res.json(); }}).then(function(d){{
+        saveDraftBtn.disabled = false;
+        if(!d.ok){{
+          syncDuplicateGuardUi();
+          alert(d.error || 'Could not create draft');
+          saveDraftBtn.textContent = '📝 Save to Gmail Drafts';
+          return;
+        }}
+        markInvestorSentInUi(sName, sEmail, d.cc_email || ccEmail, d.sent_at);
+        saveDraftBtn.textContent = '✓ Saved in Gmail Drafts (CC: ' + ccEmail + ')';
+        window.open('https://mail.google.com/mail/u/0/#drafts', '_blank', 'noopener');
+      }}).catch(function(err){{
+        saveDraftBtn.disabled = false;
+        alert('Network error: ' + err);
+      }});
+    }};
+
+    copyBtn.onclick = function(){{
+      copyRichEmailToClipboard(emailTa.value, copyBtn, null);
+    }};
+
+    emlBtn.onclick = function(){{
+      if((r.sent_count || 0) > 0 && !fupUnlockChk.checked){{
+        alert('🛡️ Duplicate Email Blocked: ' + (r.sent_by || 'Warren/Leo') + ' already contacted ' + (r.email || r.fund) + '.');
+        return;
+      }}
+      var ff = fupUnlockChk.checked ? '1' : '0';
+      window.open('/api/investors/eml?id=' + encodeURIComponent(r.id) + '&sender=' + activeSender + '&deck=' + (incDeckChk.checked ? '1' : '0') + '&attach=' + (attachPdfChk.checked ? '1' : '0') + '&force_followup=' + ff, '_blank');
+      var sName = (activeSender === 'leo') ? 'Leo Spiegel' : 'Warren Zafrin';
+      var sEmail = (activeSender === 'leo') ? 'leo@dokimo.ai' : 'warren@dokimo.ai';
+      var ccEmail = (activeSender === 'leo') ? 'warren@dokimo.ai' : 'leo@dokimo.ai';
+      markInvestorSentInUi(sName, sEmail, ccEmail, 'Just now');
+    }};
+
+    // 6. COLLAPSIBLE DEEP RESEARCH & GEMINI IC POSITIONING MEMO
+    var detailsWrap = makeEl('details', {{style:'margin-top:14px;border:1px solid #cbd5e1;border-radius:6px;background:#f8fafc;padding:10px 14px'}});
+    var summaryEl = makeEl('summary', {{style:'font-weight:700;font-size:12.5px;color:var(--accent);cursor:pointer'}}, '📊 Deep Research, Receptivity Score & Gemini IC Positioning Memo &darr;');
+    detailsWrap.appendChild(summaryEl);
+
+    // Ask Gemini inside details
+    var askBar = makeEl('div', {{style:'margin:10px 0 12px;padding:10px 12px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px'}});
+    askBar.appendChild(makeEl('div', {{style:'font-weight:700;font-size:12px;color:#1e3a8a;margin-bottom:6px'}}, '✨ Re-Tailor Drafts with Gemini AI:'));
+    var askRow = makeEl('div', {{style:'display:flex;gap:6px;flex-wrap:wrap'}});
+    var askIn = makeEl('input', {{type:'text', placeholder:'Ask Gemini anything about ' + r.fund + ' (e.g. "Focus on their portfolio and bank LP traction")...', style:'flex:1;min-width:260px;padding:6px 10px;border:1px solid #93c5fd;border-radius:4px;font-size:12px;background:#fff'}});
+    var askBtn = makeEl('button', {{className:'btn-sm pri'}}, '✨ Re-Tailor Draft');
+    askRow.appendChild(askIn);
+    askRow.appendChild(askBtn);
+    askBar.appendChild(askRow);
+    detailsWrap.appendChild(askBar);
 
     askBtn.onclick = function(){{
       var qVal = (askIn.value || '').trim();
       if(!qVal) return;
       askBtn.disabled = true;
-      askBtn.textContent = '⏳ Gemini Tailoring Drafts & Memo...';
+      askBtn.textContent = '⏳ Tailoring with Gemini...';
       fetch('/api/investors/research', {{
         method:'POST',
         headers:{{'Content-Type':'application/json'}},
@@ -1899,37 +1873,22 @@ function openGeminiModal(r){{
       }});
     }};
 
-    function setDeckMode(incDeck){{
-      r.include_pitch_deck = !!incDeck;
-      attachPdfChk.checked = !!incDeck;
-      btnDeckYes.style.cssText = r.include_pitch_deck ? 'background:#15803d;color:#fff;border-color:#15803d;padding:6px 12px;font-weight:700' : 'padding:6px 12px;font-weight:700';
-      btnDeckNo.style.cssText = !r.include_pitch_deck ? 'background:#0f172a;color:#fff;border-color:#0f172a;padding:6px 12px;font-weight:700' : 'padding:6px 12px;font-weight:700';
-      leoTa.value = r.include_pitch_deck ? (r.leo_email_with_deck || leoEmailTxt) : (r.leo_email_no_deck || leoEmailTxt);
-      warrenTa.value = 'Subject: ' + (r.direct_email_subject || '') + '\\n\\n' + (r.include_pitch_deck ? (r.warren_email_with_deck || r.direct_email_body) : (r.warren_email_no_deck || r.direct_email_body));
-      r.warm_intro_blurb = leoTa.value;
-      r.direct_email_body = r.include_pitch_deck ? (r.warren_email_with_deck || r.direct_email_body) : (r.warren_email_no_deck || r.direct_email_body);
-      updatePreviews();
-      saveInvestorUpdate(r.id, r.latest_status, r.next_action, r.follow_up_date, r.our_contact, r.include_pitch_deck, deckSaveSpan);
-      renderRows();
-    }}
-    btnDeckYes.onclick = function(){{ setDeckMode(true); }};
-    btnDeckNo.onclick = function(){{ setDeckMode(false); }};
+    detailsWrap.appendChild(makeEl('div', {{style:'font-weight:700;font-size:12.5px;color:#6d28d9;margin-top:8px'}}, 'Why ' + r.fund + ' Will Listen to Dokimo (' + r.dokimo_fit_score + '/100 · Tier ' + r.tier + ')'));
+    detailsWrap.appendChild(makeEl('pre', {{className:'memo', style:'background:#f5f3ff;border-color:#c4b5fd;margin-top:4px'}}, scoreTxt));
 
-    // SECTIONS 4, 5 & 6: Deep Research & IC Positioning Memo (Below Drafts)
-    var sec0 = makeEl('div', {{style:'font-weight:700;font-size:13px;color:#6d28d9;margin-top:16px'}}, '4. Receptivity Scoring Research — Why ' + r.fund + ' Will Listen to Dokimo (' + r.dokimo_fit_score + '/100 · Tier ' + r.tier + ')');
-    body.appendChild(sec0);
-    body.appendChild(makeEl('pre', {{className:'memo', style:'background:#f5f3ff;border-color:#c4b5fd'}}, scoreTxt));
+    detailsWrap.appendChild(makeEl('div', {{style:'font-weight:700;font-size:12.5px;color:var(--accent);margin-top:10px'}}, 'Canonical Dokimo Value Proposition'));
+    detailsWrap.appendChild(makeEl('pre', {{className:'memo', style:'background:#f0f9ff;border-color:#bae6fd;margin-top:4px'}}, valPropTxt));
 
-    var sec1 = makeEl('div', {{style:'font-weight:700;font-size:13px;color:var(--accent);margin-top:12px'}}, '5. Canonical Dokimo Value Proposition (Single Source of Truth for Leo & Warren)');
-    body.appendChild(sec1);
-    body.appendChild(makeEl('pre', {{className:'memo', style:'background:#f0f9ff;border-color:#bae6fd'}}, valPropTxt));
+    detailsWrap.appendChild(makeEl('div', {{style:'font-weight:700;font-size:12.5px;color:var(--accent);margin-top:10px'}}, 'Gemini 5-Part Investment Committee (IC) Deep-Dive Memo'));
+    detailsWrap.appendChild(makeEl('pre', {{id:'mod-ic-memo-pre', className:'memo', style:'margin-top:4px'}}, memoTxt));
 
-    var sec4 = makeEl('div', {{style:'font-weight:700;font-size:13px;color:var(--accent);margin-top:14px'}}, '6. Gemini 5-Part Investment Committee (IC) Deep-Dive Positioning Memo');
-    body.appendChild(sec4);
-    body.appendChild(makeEl('pre', {{id:'mod-ic-memo-pre', className:'memo'}}, memoTxt));
+    body.appendChild(detailsWrap);
+
+    // Initial render of sender & draft
+    applySenderAndDeckDraft();
   }}
 
-  // Render immediately with deterministic research & drafts, then enrich Sec 6 in place when Gemini returns
+  // Render immediately with deterministic research & drafts, then enrich IC Memo in place when Gemini returns
   buildModalSections(
     r.receptivity_breakdown || r.why_fit,
     r.canonical_value_prop || '',
@@ -1945,6 +1904,10 @@ function openGeminiModal(r){{
   }}).then(function(res){{ return res.json(); }}).then(function(d){{
     var memoEl = document.getElementById('mod-ic-memo-pre');
     if(memoEl && d && d.memo){{
+      memoEl.textContent = d.memo;
+    }}
+  }});
+}}
       memoEl.textContent = d.memo;
     }}
   }});
