@@ -169,6 +169,31 @@ class TestInvestorEngine(unittest.TestCase):
         finally:
             investor_engine.save_state(orig_state)
 
+    def test_cross_layer_telemetry_agreement(self):
+        rows = investor_engine.get_all_investors(persist_csv=False)
+        m = investor_engine.build_summary_metrics(rows)
+        tel = investor_engine.build_weekly_telemetry_report(rows)
+
+        self.assertEqual(m["total_investors"], tel["totals"]["total_investors"])
+        self.assertEqual(m["sent_funds_count"], tel["totals"]["sent_funds"])
+        self.assertEqual(m["sent_funds_rate"], tel["totals"]["sent_rate_of_board"])
+        self.assertEqual(m["replied_funds_count"], tel["totals"]["replied_funds"])
+        self.assertEqual(m["replied_funds_rate"], tel["totals"]["replied_rate"])
+        self.assertEqual(m["deck_attached_sent_count"], tel["totals"]["deck_attached"])
+        self.assertEqual(m["deck_attached_sent_rate"], tel["totals"]["deck_attached_rate"])
+
+        wk4_sent = (
+            tel["weekly_telemetry"]["by_sender"]["sent"]["warren"][3]
+            + tel["weekly_telemetry"]["by_sender"]["sent"]["leo"][3]
+        )
+        nov_daily_sent = sum(
+            tel["daily_telemetry"]["by_sender"]["sent"]["warren"][i]
+            + tel["daily_telemetry"]["by_sender"]["sent"]["leo"][i]
+            for i, lbl in enumerate(tel["daily_telemetry"]["days"])
+            if any(d in lbl for d in ("Nov 02", "Nov 03", "Nov 04", "Nov 05", "Nov 06", "Nov 07"))
+        )
+        self.assertEqual(wk4_sent, nov_daily_sent)
+
 
 if __name__ == "__main__":
     unittest.main()

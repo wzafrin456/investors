@@ -2033,6 +2033,10 @@ def parse_raw_leo_list(raw_text: str = None) -> list[dict]:
         row["followup_updated_at"] = st.get("followup_updated_at", "")
         row["leo_sep_oct_outreach"] = bool(st.get("leo_sep_oct_outreach", False))
         row["include_pitch_deck"] = bool(st.get("include_pitch_deck", True))
+        row["replied"] = bool(st.get("replied", False))
+        row["reply_count"] = int(st.get("reply_count") or 0)
+        row["last_reply_at"] = st.get("last_reply_at", "")
+        row["last_reply_snippet"] = st.get("last_reply_snippet", "")
 
         # EXCLUDE "Wrong" VCs (Tier C Hardware/Semiconductor funds, Europe-HQ-Only traps like Balderton, Changed funds like Hummer Winblad, & explicit hard "No/Declined" funds)
         fn_lc = row["fund"].lower()
@@ -2720,6 +2724,7 @@ def build_weekly_telemetry_report(rows: list[dict] = None) -> dict:
                 "warren_sent": 0,
                 "leo_sent": 0,
                 "deck_attached": 0,
+                "deck_attached_ids": set(),
                 "total_opens": 0,
                 "email_opens": 0,
                 "deck_opens": 0,
@@ -2742,6 +2747,8 @@ def build_weekly_telemetry_report(rows: list[dict] = None) -> dict:
         st_lc = (r.get("latest_status") or "").lower()
 
         if evs:
+            last_sent_b = None
+            has_ev_deck = False
             for ev in evs:
                 wk = ev.get("week") or cur_wk_key
                 wlbl = ev.get("week_label") or wk
@@ -2750,12 +2757,15 @@ def build_weekly_telemetry_report(rows: list[dict] = None) -> dict:
                 if etype == "sent":
                     b["sent_ids"].add(iid)
                     b["sent_events"] += 1
+                    last_sent_b = b
                     if "leo" in (ev.get("sender") or "").lower():
                         b["leo_sent"] += 1
                     else:
                         b["warren_sent"] += 1
                     if ev.get("deck_attached"):
                         b["deck_attached"] += 1
+                        b["deck_attached_ids"].add(iid)
+                        has_ev_deck = True
                 else:
                     b["total_opens"] += 1
                     b["unique_open_ids"].add(iid)
@@ -2769,6 +2779,9 @@ def build_weekly_telemetry_report(rows: list[dict] = None) -> dict:
                     if ev.get("is_forward") or etype == "forward":
                         b["forward_ids"].add(iid)
                         b["forward_events"] += 1
+            if not has_ev_deck and int(r.get("deck_attached_count") or 0) > 0 and last_sent_b is not None:
+                last_sent_b["deck_attached"] += int(r.get("deck_attached_count") or 1)
+                last_sent_b["deck_attached_ids"].add(iid)
         elif r.get("sent_count", 0) > 0 or r.get("total_opens", 0) > 0:
             # Attribute historical Sep/Oct outreach & active deck reviews to their cohort week
             hist_wk = "2026-W42" if r.get("leo_sep_oct_outreach") else "2026-W44"
@@ -2784,8 +2797,9 @@ def build_weekly_telemetry_report(rows: list[dict] = None) -> dict:
                 b["leo_sent"] += 1
             else:
                 b["warren_sent"] += 1
-            if r.get("include_pitch_deck") or "deck" in st_lc:
+            if int(r.get("deck_attached_count") or 0) > 0:
                 b["deck_attached"] += 1
+                b["deck_attached_ids"].add(iid)
             t_op = int(r.get("total_opens") or 0)
             if t_op > 0:
                 b["total_opens"] += t_op
@@ -2826,10 +2840,11 @@ def build_weekly_telemetry_report(rows: list[dict] = None) -> dict:
     tot_sent_ids = set()
     tot_unique_open_ids = set()
     tot_forward_ids = set()
+    tot_deck_attached_ids = set()
     tot_sent_events = 0
     tot_opens = 0
     tot_deck_opens = 0
-    tot_deck_attached = 0
+    tot_deck_attached_events = 0
     tot_forward_events = 0
 
     for wk in sorted(buckets.keys(), reverse=True):
@@ -2839,13 +2854,15 @@ def build_weekly_telemetry_report(rows: list[dict] = None) -> dict:
         u_cnt = len(b["unique_open_ids"])
         u_denom = max(1, u_cnt)
         f_cnt = len(b["forward_ids"])
+        da_cnt = len(b["deck_attached_ids"])
         tot_sent_ids |= b["sent_ids"]
         tot_unique_open_ids |= b["unique_open_ids"]
         tot_forward_ids |= b["forward_ids"]
+        tot_deck_attached_ids |= b["deck_attached_ids"]
         tot_sent_events += b["sent_events"]
         tot_opens += b["total_opens"]
         tot_deck_opens += b["deck_opens"]
-        tot_deck_attached += b["deck_attached"]
+        tot_deck_attached_events += b["deck_attached"]
         tot_forward_events += b["forward_events"]
 
         weekly_rows.append({
@@ -2855,8 +2872,9 @@ def build_weekly_telemetry_report(rows: list[dict] = None) -> dict:
             "sent_events": b["sent_events"],
             "warren_sent": b["warren_sent"],
             "leo_sent": b["leo_sent"],
-            "deck_attached": b["deck_attached"],
-            "deck_attached_rate": f"{b['deck_attached']} of {s_cnt} ({round(b['deck_attached'] / s_denom * 100, 1)}%)" if s_cnt else "0 of 0 (0.0%)",
+            "deck_attached": da_cnt,
+            "deck_attached_events": b["deck_attached"],
+            "deck_attached_rate": f"{da_cnt} of {s_cnt} ({round(da_cnt / s_denom * 100, 1)}%)" if s_cnt else "0 of 0 (0.0%)",
             "total_opens": b["total_opens"],
             "email_opens": b["email_opens"],
             "deck_opens": b["deck_opens"],
@@ -2873,6 +2891,7 @@ def build_weekly_telemetry_report(rows: list[dict] = None) -> dict:
     all_u = len(tot_unique_open_ids)
     all_u_denom = max(1, all_u)
     all_f = len(tot_forward_ids)
+    tot_deck_attached = len(tot_deck_attached_ids)
 
     # Build Prospecting-Board style Daily (7-day) & Weekly (4-week) Bar-Chart Telemetry Matrices
     # across Region (US, UK, EU, IL/US), Stage/Tier (Pre-Seed, Tier S, Tier A, Tier B), and Sender (Warren, Leo)
@@ -3007,9 +3026,9 @@ def build_weekly_telemetry_report(rows: list[dict] = None) -> dict:
         if evs:
             for ev in evs:
                 ts_str = (ev.get("ts") or "")[:10]
-                d_idx = day_keys.index(ts_str) if ts_str in day_keys else (6 if ev.get("week") == cur_wk_key else -1)
+                d_idx = day_keys.index(ts_str) if ts_str in day_keys else -1
                 wk_str = ev.get("week") or cur_wk_key
-                w_idx = chart_week_keys.index(wk_str) if wk_str in chart_week_keys else 3
+                w_idx = chart_week_keys.index(wk_str) if wk_str in chart_week_keys else -1
                 sk = _row_sender_key(r, ev)
                 etype = ev.get("type") or "open"
 
@@ -3081,14 +3100,21 @@ def build_weekly_telemetry_report(rows: list[dict] = None) -> dict:
                         _add_bar_point(mat_t, cos_t, "deck_forwards", tk, idx, r, df_val)
                     _add_bar_point(mat_s, cos_s, "deck_forwards", sk, idx, r, df_val)
 
+    replied_cnt_tel = len([
+        r for r in rows
+        if r.get("replied") or int(r.get("reply_count") or 0) > 0 or "replied" in (r.get("latest_status") or "").lower()
+    ])
     return {
         "ok": True,
         "generated_at": datetime.datetime.now(datetime.timezone.utc).strftime("%d %b %Y %H:%M UTC"),
         "total_investors": len(rows),
         "totals": {
+            "total_investors": len(rows),
             "sent_funds": all_s,
             "sent_rate_of_board": f"{all_s} of {len(rows)} ({round(all_s / max(1, len(rows)) * 100, 1)}%)",
             "sent_events": tot_sent_events,
+            "replied_funds": replied_cnt_tel,
+            "replied_rate": f"{replied_cnt_tel} of {all_s} ({round(replied_cnt_tel / all_s_denom * 100, 1)}%)",
             "total_opens": tot_opens,
             "unique_opens": all_u,
             "unique_open_rate": f"{all_u} of {all_s} ({round(all_u / all_s_denom * 100, 1)}%)",
@@ -3101,19 +3127,6 @@ def build_weekly_telemetry_report(rows: list[dict] = None) -> dict:
         },
         "weeks": weekly_rows,
         "engaged_investors": engaged_investors,
-        "daily_telemetry": {
-            "days": day_labels,
-            "by_region": {**d_reg, "companies": d_reg_cos},
-            "by_tier": {**d_tier, "companies": d_tier_cos},
-            "by_sender": {**d_snd, "companies": d_snd_cos},
-        },
-        "weekly_telemetry": {
-            "weeks": chart_week_labels,
-            "by_region": {**w_reg, "companies": w_reg_cos},
-            "by_tier": {**w_tier, "companies": w_tier_cos},
-            "by_sender": {**w_snd, "companies": w_snd_cos},
-        },
-        "daily_followup_queue": build_daily_investor_followup_todo(rows, per_owner=5),
         "daily_telemetry": {
             "days": day_labels,
             "by_region": {**d_reg, "companies": d_reg_cos},
@@ -3208,14 +3221,15 @@ def build_summary_metrics(rows: list[dict] = None) -> dict:
     warren_sent_rows = [r for r in sent_rows if "warren" in (r.get("sent_by") or "").lower()]
     leo_sent_rows = [r for r in sent_rows if "leo" in (r.get("sent_by") or "").lower()]
     deck_optin_rows = [r for r in rows if r.get("include_pitch_deck")]
-    deck_attached_sent_rows = [r for r in sent_rows if int(r.get("deck_attached_count") or 0) > 0 or r.get("include_pitch_deck")]
+    deck_attached_sent_rows = [r for r in sent_rows if int(r.get("deck_attached_count") or 0) > 0]
+    replied_rows = [r for r in sent_rows if r.get("replied") or int(r.get("reply_count") or 0) > 0 or "replied" in (r.get("latest_status") or "").lower()]
     unique_open_rows = [r for r in rows if int(r.get("unique_opens") or 0) > 0 or int(r.get("total_opens") or 0) > 0]
     unique_open_denom = max(1, len(unique_open_rows))
     total_opens_sum = sum(int(r.get("total_opens") or 0) for r in rows)
     forwarded_rows = [r for r in rows if int(r.get("forward_count") or 0) > 0]
     meeting_talking_rows = [
         r for r in rows
-        if any(k in (r.get("latest_status") or "").lower() for k in ("meeting", "scheduling", "pause", "talked", "diligence", "committed", "term sheet"))
+        if any(k in (r.get("latest_status") or "").lower() for k in ("meeting", "scheduling", "pause", "talked", "diligence", "committed", "term sheet", "replied", "in conversation"))
     ]
     notes_updated_rows = [
         r for r in rows
@@ -3278,6 +3292,8 @@ def build_summary_metrics(rows: list[dict] = None) -> dict:
         "deck_optin_rate": f"{len(deck_optin_rows)} of {total} ({round(len(deck_optin_rows) / denom * 100, 1)}%)",
         "deck_attached_sent_count": len(deck_attached_sent_rows),
         "deck_attached_sent_rate": f"{len(deck_attached_sent_rows)} of {len(sent_rows)} ({round(len(deck_attached_sent_rows) / sent_denom * 100, 1)}%)",
+        "replied_funds_count": len(replied_rows),
+        "replied_funds_rate": f"{len(replied_rows)} of {len(sent_rows)} ({round(len(replied_rows) / sent_denom * 100, 1)}%)",
         "unique_open_funds_count": len(unique_open_rows),
         "unique_open_rate": f"{len(unique_open_rows)} of {len(sent_rows)} ({round(len(unique_open_rows) / sent_denom * 100, 1)}%)",
         "total_opens_sum": total_opens_sum,

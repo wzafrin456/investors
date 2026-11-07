@@ -441,15 +441,15 @@ def render_board_html() -> str:
   <div style="cursor:pointer" onclick="setQuickPreset('BANK_LP')" title="Click to filter to Bank-LP &amp; RegTech Bullseye VCs"><div class="k">🏦 Bank-LP Bullseye</div><div class="v" style="color:#065f46">{m['bank_lp_bullseye_count']} <small>({html.escape(m['bank_lp_bullseye_rate'].split('(')[1].rstrip(')'))})</small></div></div>
   <div style="cursor:pointer" onclick="setQuickPreset('S')" title="Click to filter to Tier S Institutional Seed Leads"><div class="k">🟢 Tier S · Seed</div><div class="v" style="color:var(--quiet)">{m['tier_s_count']} <small>({html.escape(m['tier_s_rate'].split('(')[1].rstrip(')'))})</small></div></div>
   <div style="cursor:pointer" onclick="setQuickPreset('A')" title="Click to filter to Tier A Warm Intro &amp; Bank CVCs"><div class="k">🔵 Tier A · Warm / CVC</div><div class="v" style="color:var(--accent)">{m['tier_a_count']} <small>({html.escape(m['tier_a_rate'].split('(')[1].rstrip(')'))})</small></div></div>
-  <div style="cursor:pointer" onclick="var td=document.getElementById('inv-telemetry-drawer');td.style.display=td.style.display==='none'?'grid':'none';" title="Click to expand live outreach &amp; open telemetry"><div class="k">📨 Sent / 👁️ Opens</div><div class="v" style="color:#1d4ed8">{m['sent_funds_count']} sent · {m['unique_open_funds_count']} open <small>({m['total_opens_sum']} views)</small></div></div>
+  <div style="cursor:pointer" onclick="var td=document.getElementById('inv-telemetry-drawer');td.style.display=td.style.display==='none'?'grid':'none';" title="Click to expand live outreach &amp; open telemetry"><div class="k">📨 Sent / 💬 Replied</div><div class="v" style="color:#1d4ed8">{m['sent_funds_count']} sent · {m['replied_funds_count']} replied <small>({m['meeting_talking_count']} active threads)</small></div></div>
 </div>
 
 <div id="inv-telemetry-drawer" class="status" style="display:none;margin-top:8px;background:#f8fafc;border-color:#cbd5e1">
   <div><div class="k">📨 Funds Contacted / Sent</div><div class="v" style="color:#0f172a">{html.escape(m['sent_funds_rate'])} <small>(W:{m['warren_sent_count']} · L:{m['leo_sent_count']})</small></div></div>
+  <div><div class="k">💬 Partner Replies (Gmail)</div><div class="v" style="color:#15803d">{html.escape(m['replied_funds_rate'])}</div></div>
+  <div><div class="k">🎬 Deck Attached (Sent)</div><div class="v" style="color:#0f766e">{html.escape(m['deck_attached_sent_rate'])} <small>({m['deck_optin_count']} opted-in)</small></div></div>
   <div><div class="k">👁️ Unique Partner Opens</div><div class="v" style="color:#1d4ed8">{html.escape(m['unique_open_rate'])} <small>({m['total_opens_sum']} total opens)</small></div></div>
-  <div><div class="k">🎬 Deck + Video Included</div><div class="v" style="color:#15803d">{html.escape(m['deck_attached_sent_rate'])} <small>({m['deck_optin_count']} opted-in)</small></div></div>
-  <div><div class="k">🔁 Partner Forwards</div><div class="v" style="color:#b91c1c">{html.escape(m['forward_rate'])}</div></div>
-  <div><div class="k">📅 Meetings / Talking</div><div class="v" style="color:#6d28d9">{html.escape(m['meeting_talking_rate'])}</div></div>
+  <div><div class="k">📅 Replied / Meeting / Talking</div><div class="v" style="color:#6d28d9">{html.escape(m['meeting_talking_rate'])}</div></div>
   <div><div class="k">📝 Fields &amp; Notes Updated</div><div class="v" style="color:#0f766e">{html.escape(m['notes_updated_rate'])} <small>(W:{m['warren_updated_count']} · L:{m['leo_updated_count']})</small></div></div>
 </div>
 
@@ -1163,7 +1163,7 @@ function renderRows(){{
     }}
     if(FILTERS.reach === 'meeting'){{
       var stm = (r.latest_status || '').toLowerCase();
-      if(stm.indexOf('meeting') < 0 && stm.indexOf('scheduling') < 0 && stm.indexOf('pause') < 0 && stm.indexOf('talked') < 0 && stm.indexOf('diligence') < 0 && stm.indexOf('committed') < 0) return false;
+      if(stm.indexOf('meeting') < 0 && stm.indexOf('scheduling') < 0 && stm.indexOf('pause') < 0 && stm.indexOf('talked') < 0 && stm.indexOf('diligence') < 0 && stm.indexOf('committed') < 0 && stm.indexOf('term sheet') < 0 && stm.indexOf('replied') < 0 && stm.indexOf('in conversation') < 0) return false;
     }}
     if(FILTERS.reach === 'followup'){{
       var st1 = (r.latest_status || '').toLowerCase();
